@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WoodGrow Coin</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e351f, #0d1a0e);
+            color: #f0f3f0;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background: rgba(43, 76, 45, 0.4);
+            border: 2px solid #5c8a60;
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            box-sizing: border-box;
+        }
+        h1 {
+            color: #8cd996;
+            margin-top: 0;
+            font-size: 26px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        .logo {
+            font-size: 64px;
+            margin: 15px 0;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+        }
+        .balance-card {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 15px;
+            margin: 20px 0;
+            border: 1px solid rgba(140, 217, 150, 0.2);
+        }
+        .balance-label {
+            font-size: 14px;
+            color: #a3c2a8;
+            text-transform: uppercase;
+        }
+        .balance-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #fff;
+            margin: 5px 0;
+        }
+        .btn {
+            display: block;
+            width: 100%;
+            background: linear-gradient(135deg, #4caf50, #2e7d32);
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-bottom: 12px;
+            transition: transform 0.1s, filter 0.2s;
+            box-shadow: 0 4px 15px rgba(46, 125, 50, 0.4);
+        }
+        .btn:active {
+            transform: scale(0.98);
+        }
+        .btn-secondary {
+            background: linear-gradient(135deg, #8d6e63, #4e342e);
+            box-shadow: 0 4px 15px rgba(78, 52, 46, 0.4);
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #709475;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>WoodGrow Coin</h1>
+    <div class="logo">🌳</div>
+    
+    <div class="balance-card">
+        <div class="balance-label">Ваш Баланс</div>
+        <div class="balance-value"><span id="balance">0.0000</span> USDT</div>
+    </div>
+
+    <button class="btn" onclick="watchAd()">👁 Смотреть видео (+0.005 USDT)</button>
+    <button class="btn btn-secondary" onclick="withdraw()">📥 Вывести средства</button>
+
+    <div class="footer">
+        Зарабатывайте USDT за просмотр рекламы
+    </div>
+</div>
+
+<script>
+    // Базовая логика для теста (пока без сохранения на сервере)
+    let currentBalance = 0.0000;
+
+    function watchAd() {
+        // Симуляция просмотра рекламы для теста
+        alert("Здесь будет открываться видео-реклама Adsgram!");
+        currentBalance += 0.0050;
+        document.getElementById('balance').innerText = currentBalance.toFixed(4);
+    }
+
+    function withdraw() {
+        if(currentBalance < 5.0) {
+            alert("Минимальная сумма для вывода: 5 USDT. Развивайте свое дерево дальше!");
+        } else {
+            let wallet = prompt("Введите ваш адрес TON-кошелька для получения USDT:");
+            if(wallet) {
+                alert("Заявка принята! Выплата на кошелек " + wallet + " будет обработана в течение 24 часов.");
+                currentBalance = 0;
+                document.getElementById('balance').innerText = currentBalance.toFixed(4);
+            }
+        }
+    }
+</script>
+
+</body>
+</html>
