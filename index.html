@@ -218,27 +218,23 @@
     let bal = 0.0000;
     let views = 0;
 
-    function watchAd() {
-        alert("Тут відкриється реклама!");
-        bal += 0.0050;
-        views += 1;
-        document.getElementById('balance').innerText = bal.toFixed(4);
-        document.getElementById('stats-views').innerText = views;
-    }
-
-    function switchScreen(sId, el) {
+    function watchAd() {    function switchScreen(sId, el) {
         document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
         document.getElementById('screen-' + sId).classList.add('active');
         el.classList.add('active');
     }
 
-    document.getElementById('ref-link').value = "https://t.me_" + uid;
+    // Примусово створюємо рефералку, навіть якщо користувач зайшов не через бота
+    let finalUid = (uid && uid !== "user_undefined") ? uid : "testuser" + Math.floor(Math.random() * 1000);
+    document.getElementById('ref-link').value = "https://t.me_" + finalUid;
 
     function copyRefLink() {
         const inp = document.getElementById("ref-link");
         inp.select();
-        navigator.clipboard.writeText(inp.value);
+        inp.setSelectionRange(0, 99999);
+        document.execCommand("copy"); // Запасний метод копіювання для старих Android
+        navigator.clipboard.writeText(inp.value).catch(err => {});
         alert("Посилання скопійовано!");
     }
 </script>
