@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WoodGrow Coin</title>
+    <!-- Підключаємо офіційні та стабільні скрипти Telegram і TON -->
     <script src="https://telegram.org"></script>
     <script src="https://unpkg.com"></script>
     <style>
@@ -80,17 +81,15 @@
             box-sizing: border-box;
             text-align: center;
         }
-        .ref-input {
-            width: 100%;
-            padding: 12px;
+        .ref-display-text {
             background: rgba(0,0,0,0.4);
             border: 1px solid #5c8a60;
-            color: #fff;
+            padding: 12px;
             border-radius: 8px;
-            text-align: center;
-            box-sizing: border-box;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             font-size: 12px;
+            word-break: break-all;
+            color: #fff;
         }
 
         .btn {
@@ -163,7 +162,7 @@
             <div class="balance-label">Переглянуто роликів</div>
             <div class="balance-value" id="stats-views">0</div>
         </div>
-        <!-- Простір для кнопки гаманця -->
+        <!-- Місце для офіційної кнопки TON Connect -->
         <div id="ton-btn-space"></div>
         <button class="btn btn-secondary" onclick="alert('Мінімальний вивід: 5 USDT')">📥 Вивести кошти</button>
     </div>
@@ -171,9 +170,12 @@
     <!-- ЕКРАН 3: ДРУЗІ -->
     <div id="screen-friends" class="content-section">
         <h2>Запроси друзів</h2>
+        <p style="text-align:center; color:#a3c2a8; font-size:14px; margin:0 10px 15px 10px;">
+            Отримуй +10% від заробітку кожного запрошеного друга!
+        </p>
         <div class="ref-box">
-            <input type="text" class="ref-input" id="ref-link" value="" readonly>
-            <button class="btn" onclick="copyRefLink()">📋 Копіювати посилання</button>
+            <div id="ref-link-text">Натисніть кнопку нижче, щоб згенерувати посилання</div>
+            <button class="btn" onclick="generateAndCopyRef()">🔗 Скопіювати посилання</button>
         </div>
     </div>
 
@@ -199,7 +201,7 @@
     tg.ready();
     tg.expand();
 
-    // Створюємо базові значення на випадок, якщо Telegram ще не передав дані
+    // Генеруємо базові дані користувача
     let uid = "id" + Math.floor(100000 + Math.random() * 900000);
     let uname = "Користувач WoodGrow";
 
@@ -212,17 +214,17 @@
     document.getElementById('user-name').innerText = uname;
     document.getElementById('user-avatar').innerText = uname.charAt(0) === '@' ? uname.charAt(1).toUpperCase() : uname.charAt(0).toUpperCase();
 
-    // Стабільне підключення TON Connect Button
+    // Ініціалізація кнопки гаманця TON Connect UI
     try {
         const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
             manifestUrl: 'https://github.io',
             buttonRootId: 'ton-btn-space'
         });
     } catch(err) {
-        console.error("Помилка ініціалізації гаманця:", err);
+        console.error("Помилка підключення гаманця:", err);
     }
 
-    // Логіка клікера/балансу
+    // Внутрішня логіка балансу
     let bal = 0.0000;
     let views = 0;
 
@@ -234,7 +236,7 @@
         document.getElementById('stats-views').innerText = views;
     }
 
-    // Перемикання табів
+    // Перемикання екранів
     function switchScreen(sId, el) {
         document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
@@ -242,19 +244,24 @@
         el.classList.add('active');
     }
 
-    // Насильно записуємо рефералку
-    document.getElementById('ref-link').value = "https://t.me_" + uid;
-
-    // Функція копіювання
-    function copyRefLink() {
-        const inp = document.getElementById("ref-link");
-        inp.select();
-        inp.setSelectionRange(0, 99999);
-        try {
-            document.execCommand("copy");
-            navigator.clipboard.writeText(inp.value);
-        } catch(e) {}
-        alert("Посилання скопійовано! Відправте його друзям.");
+    // Безпечна генерація та копіювання рефералки для Android
+    function generateAndCopyRef() {
+        const botUsername = "WoodGrowCoinBot"; 
+        const fullLink = "https://t.me" + botUsername + "/Grow?startapp=ref_" + uid;
+        
+        // Показуємо посилання в рамці
+        document.getElementById('ref-link-text').className = "ref-display-text";
+        document.getElementById('ref-link-text').innerText = fullLink;
+        
+        // Копіюємо в пам'ять телефону
+        const el = document.createElement('textarea');
+        el.value = fullLink;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+        
+        alert("Посилання успішно створено та скопійовано! Можна відправляти друзям.");
     }
 </script>
 </body>
