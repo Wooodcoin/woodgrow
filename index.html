@@ -1,137 +1,275 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WoodGrow Coin</title>
+    <!-- Підключаємо офіційні скрипти Telegram та TON Connect -->
+    <script src="https://telegram.org"></script>
+    <script src="https://unpkg.com"></script>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e351f, #0d1a0e);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #162a17, #070d07);
             color: #f0f3f0;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
             box-sizing: border-box;
+            user-select: none;
         }
-        .container {
-            width: 100%;
-            max-width: 400px;
-            background: rgba(43, 76, 45, 0.4);
-            border: 2px solid #5c8a60;
-            border-radius: 20px;
-            padding: 25px;
+        .header {
+            padding: 15px;
             text-align: center;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(10px);
-            box-sizing: border-box;
+            border-bottom: 1px solid rgba(140, 217, 150, 0.1);
         }
-        h1 {
+        .header h1 {
+            margin: 0;
+            font-size: 20px;
             color: #8cd996;
-            margin-top: 0;
-            font-size: 26px;
             text-transform: uppercase;
             letter-spacing: 1px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
-        .logo {
-            font-size: 64px;
-            margin: 15px 0;
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+        .content-section {
+            flex: 1;
+            padding: 20px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+        .content-section.active {
+            display: flex;
+        }
+        /* Екран Головна */
+        .logo-container {
+            font-size: 80px;
+            margin: 20px 0;
+            animation: pulse 2s infinite ease-in-out;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
         .balance-card {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 15px;
-            padding: 15px;
-            margin: 20px 0;
-            border: 1px solid rgba(140, 217, 150, 0.2);
+            background: rgba(43, 76, 45, 0.3);
+            border: 1px solid #5c8a60;
+            border-radius: 16px;
+            padding: 15px 30px;
+            text-align: center;
+            margin-bottom: 25px;
+            width: 80%;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
         }
-        .balance-label {
-            font-size: 14px;
-            color: #a3c2a8;
-            text-transform: uppercase;
-        }
-        .balance-value {
+        .balance-label { font-size: 12px; color: #a3c2a8; text-transform: uppercase; }
+        .balance-value { font-size: 28px; font-weight: bold; margin-top: 5px; }
+        
+        /* Екран Профіль */
+        .avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: #5c8a60;
             font-size: 32px;
-            font-weight: bold;
-            color: #fff;
-            margin: 5px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+            border: 2px solid #8cd996;
         }
-        .btn {
-            display: block;
+        .username { font-size: 18px; font-weight: bold; margin-bottom: 20px; }
+        #ton-connect-btn { margin-top: 15px; }
+
+        /* Екран Друзі */
+        .ref-box {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 15px;
             width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+            margin-top: 15px;
+        }
+        .ref-input {
+            width: 100%;
+            padding: 10px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid #5c8a60;
+            color: #fff;
+            border-radius: 8px;
+            text-align: center;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        /* Загальні кнопки */
+        .btn {
+            width: 100%;
+            max-width: 280px;
             background: linear-gradient(135deg, #4caf50, #2e7d32);
             color: white;
             border: none;
-            padding: 15px;
+            padding: 14px;
             font-size: 16px;
             font-weight: bold;
             border-radius: 12px;
             cursor: pointer;
-            margin-bottom: 12px;
-            transition: transform 0.1s, filter 0.2s;
-            box-shadow: 0 4px 15px rgba(46, 125, 50, 0.4);
-        }
-        .btn:active {
-            transform: scale(0.98);
+            box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
         }
         .btn-secondary {
             background: linear-gradient(135deg, #8d6e63, #4e342e);
-            box-shadow: 0 4px 15px rgba(78, 52, 46, 0.4);
+            box-shadow: 0 4px 12px rgba(78, 52, 46, 0.3);
+            margin-top: 10px;
         }
-        .footer {
-            margin-top: 20px;
-            font-size: 12px;
+
+        /* Нижня навігація */
+        .nav-bar {
+            height: 65px;
+            background: rgba(13, 26, 14, 0.95);
+            border-top: 1px solid rgba(140, 217, 150, 0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             color: #709475;
+            font-size: 11px;
+            cursor: pointer;
+            text-decoration: none;
+            flex: 1;
+            padding: 10px 0;
         }
+        .nav-item.active {
+            color: #8cd996;
+        }
+        .nav-icon { font-size: 20px; margin-bottom: 4px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>WoodGrow Coin</h1>
-    <div class="logo">🌳</div>
-    
-    <div class="balance-card">
-        <div class="balance-label">Ваш Баланс</div>
-        <div class="balance-value"><span id="balance">0.0000</span> USDT</div>
+    <div class="header">
+        <h1 id="header-title">WoodGrow Coin</h1>
     </div>
 
-    <button class="btn" onclick="watchAd()">👁 Смотреть видео (+0.005 USDT)</button>
-    <button class="btn btn-secondary" onclick="withdraw()">📥 Вывести средства</button>
-
-    <div class="footer">
-        Зарабатывайте USDT за просмотр рекламы
+    <!-- ЕКРАН 1: ГОЛОВНА -->
+    <div id="screen-home" class="content-section active">
+        <div class="logo-container">🌳</div>
+        <div class="balance-card">
+            <div class="balance-label">Баланс рахунку</div>
+            <div class="balance-value"><span id="balance">0.0000</span> USDT</div>
+        </div>
+        <button class="btn" onclick="watchAd()">👁 Дивитись відео (+0.005 USDT)</button>
     </div>
-</div>
+
+    <!-- ЕКРАН 2: КАБІНЕТ -->
+    <div id="screen-profile" class="content-section">
+        <div class="avatar" id="user-avatar">👤</div>
+        <div class="username" id="user-name">Користувач</div>
+        <div class="balance-card" style="width:100%;">
+            <div class="balance-label">Переглянуто роликів</div>
+            <div class="balance-value" id="stats-views" style="font-size: 22px;">0</div>
+        </div>
+        <!-- Кнопка TON Connect вбудується сюди автоматично -->
+        <div id="ton-connect-element"></div>
+        <button class="btn btn-secondary" onclick="withdraw()">📥 Вивести кошти</button>
+    </div>
+
+    <!-- ЕКРАН 3: ДРУЗІ (РЕФЕРАЛКА) -->
+    <div id="screen-friends" class="content-section">
+        <h2>Запроси друзів</h2>
+        <p style="text-align:center; color:#a3c2a8; font-size:14px; margin:0 10px 15px 10px;">Отримуй +10% від заробітку кожного запрошеного друга!</p>
+        <div class="ref-box">
+            <input type="text" class="ref-input" id="ref-link" value="Завантаження..." readonly>
+            <button class="btn" onclick="copyRefLink()">📋 Копіювати посилання</button>
+        </div>
+    </div>
+
+    <!-- НИЖНЄ МЕНЮ -->
+    <div class="nav-bar">
+        <div class="nav-item active" onclick="switchScreen('home', this)">
+            <div class="nav-icon">🌳</div>
+            <div>Головна</div>
+        </div>
+        <div class="nav-item" onclick="switchScreen('profile', this)">
+            <div class="nav-icon">👤</div>
+            <div>Кабінет</div>
+        </div>
+        <div class="nav-item" onclick="switchScreen('friends', this)">
+            <div class="nav-icon">👥</div>
+            <div>Друзі</div>
+        </div>
+    </div>
 
 <script>
-    // Базовая логика для теста (пока без сохранения на сервере)
+    // Ініціалізація Telegram Web App
+    const tg = window.Telegram.WebApp;
+    tg.expand(); // Розгортаємо на весь екран
+
+    // Відображаємо реальні дані з Телеграм
+    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+        const user = tg.initDataUnsafe.user;
+        document.getElementById('user-name').innerText = user.username ? '@' + user.username : user.first_name;
+        if(user.first_name) {
+            document.getElementById('user-avatar').innerText = user.first_name.charAt(0);
+        }
+    }
+
+    // Ініціалізація TON Connect (Підключення гаманця)
+    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+        manifestUrl: 'https://githubusercontent.com', // Тимчасовий маніфест для тесту
+        buttonRootId: 'ton-connect-element'
+    });
+
+    // Логіка додатку
     let currentBalance = 0.0000;
+    let totalViews = 0;
 
     function watchAd() {
-        // Симуляция просмотра рекламы для теста
-        alert("Здесь будет открываться видео-реклама Adsgram!");
+        alert("Тут запускатиметься реальне відео!");
         currentBalance += 0.0050;
+        totalViews += 1;
         document.getElementById('balance').innerText = currentBalance.toFixed(4);
+        document.getElementById('stats-views').innerText = totalViews;
     }
 
     function withdraw() {
         if(currentBalance < 5.0) {
-            alert("Минимальная сумма для вывода: 5 USDT. Развивайте свое дерево дальше!");
+            alert("Мінімальна сума для виводу: 5 USDT.");
         } else {
-            let wallet = prompt("Введите ваш адрес TON-кошелька для получения USDT:");
-            if(wallet) {
-                alert("Заявка принята! Выплата на кошелек " + wallet + " будет обработана в течение 24 часов.");
-                currentBalance = 0;
-                document.getElementById('balance').innerText = currentBalance.toFixed(4);
-            }
+            alert("Заявка на вивід сформована через підключений TON гаманець!");
         }
     }
-</script>
 
+    // Перемикання екранів
+    function switchScreen(screenId, element) {
+        document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        
+        document.getElementById('screen-' + screenId).classList.add('active');
+        element.classList.add('active');
+    }
+
+    // Генеруємо реферальне посилання на основі ID користувача
+    const userId = tg.initDataUnsafe?.user?.id || "tgUser";
+    const botUsername = "WoodGrowCoinBot"; // Змініть на точний юзернейм вашого бота якщо інший
+    document.getElementById('ref-link').value = `https://t.me{botUsername}/Grow?startapp=ref_${userId}`;
+
+    function copyRefLink() {
+        const copyText = document.getElementById("ref-link");
+        copyText.select();
+        copyText.setSelectionRange(0, 99999);
+        navigator.clipboard.writeText(copyText.value);
+        alert("Посилання скопійовано! Відправте його друзям.");
+    }
+</script>
 </body>
-</html>
+    </html>
+        
