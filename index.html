@@ -17,6 +17,7 @@
             display: flex;
             flex-direction: column;
             box-sizing: border-box;
+            user-select: none;
         }
         .header {
             padding: 15px;
@@ -89,6 +90,7 @@
             text-align: center;
             box-sizing: border-box;
             margin-bottom: 10px;
+            font-size: 12px;
         }
 
         .btn {
@@ -132,8 +134,8 @@
             display: flex;
             justify-content: center;
             width: 100%;
-            margin-bottom: 10px;
-            min-height: 40px;
+            margin-bottom: 15px;
+            min-height: 45px;
         }
     </style>
 </head>
@@ -143,7 +145,7 @@
         <h1>WoodGrow Coin</h1>
     </div>
 
-    <!-- ЕКРАН 1 -->
+    <!-- ЕКРАН 1: ГОЛОВНА -->
     <div id="screen-home" class="content-section active">
         <div class="logo-container">🌳</div>
         <div class="balance-card">
@@ -153,7 +155,7 @@
         <button class="btn" onclick="watchAd()">👁 Дивитись відео (+0.005 USDT)</button>
     </div>
 
-    <!-- ЕКРАН 2 -->
+    <!-- ЕКРАН 2: КАБІНЕТ -->
     <div id="screen-profile" class="content-section">
         <div class="avatar" id="user-avatar">👤</div>
         <div class="username" id="user-name">Користувач</div>
@@ -161,20 +163,21 @@
             <div class="balance-label">Переглянуто роликів</div>
             <div class="balance-value" id="stats-views">0</div>
         </div>
+        <!-- Простір для кнопки гаманця -->
         <div id="ton-btn-space"></div>
-        <button class="btn btn-secondary" onclick="alert('Мін. вивід: 5 USDT')">📥 Вивести кошти</button>
+        <button class="btn btn-secondary" onclick="alert('Мінімальний вивід: 5 USDT')">📥 Вивести кошти</button>
     </div>
 
-    <!-- ЕКРАН 3 -->
+    <!-- ЕКРАН 3: ДРУЗІ -->
     <div id="screen-friends" class="content-section">
         <h2>Запроси друзів</h2>
         <div class="ref-box">
-            <input type="text" class="ref-input" id="ref-link" value="Завантаження..." readonly>
+            <input type="text" class="ref-input" id="ref-link" value="" readonly>
             <button class="btn" onclick="copyRefLink()">📋 Копіювати посилання</button>
         </div>
     </div>
 
-    <!-- МЕНЮ -->
+    <!-- НАВІГАЦІЯ -->
     <div class="nav-bar">
         <div class="nav-item active" onclick="switchScreen('home', this)">
             <div class="nav-icon">🌳</div>
@@ -191,51 +194,67 @@
     </div>
 
 <script>
+    // Ініціалізація Telegram Web App
     const tg = window.Telegram.WebApp;
     tg.ready();
     tg.expand();
 
-    let uid = "user_" + Math.floor(Math.random() * 9000);
-    let uname = "Користувач";
+    // Створюємо базові значення на випадок, якщо Telegram ще не передав дані
+    let uid = "id" + Math.floor(100000 + Math.random() * 900000);
+    let uname = "Користувач WoodGrow";
 
     if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-        uid = tg.initDataUnsafe.user.id;
-        uname = tg.initDataUnsafe.user.username ? '@' + tg.initDataUnsafe.user.username : tg.initDataUnsafe.user.first_name;
+        if(tg.initDataUnsafe.user.id) uid = tg.initDataUnsafe.user.id;
+        if(tg.initDataUnsafe.user.username) uname = '@' + tg.initDataUnsafe.user.username;
+        else if(tg.initDataUnsafe.user.first_name) uname = tg.initDataUnsafe.user.first_name;
     }
     
     document.getElementById('user-name').innerText = uname;
     document.getElementById('user-avatar').innerText = uname.charAt(0) === '@' ? uname.charAt(1).toUpperCase() : uname.charAt(0).toUpperCase();
 
+    // Стабільне підключення TON Connect Button
     try {
         const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
             manifestUrl: 'https://github.io',
             buttonRootId: 'ton-btn-space'
         });
     } catch(err) {
-        console.log(err);
+        console.error("Помилка ініціалізації гаманця:", err);
     }
 
+    // Логіка клікера/балансу
     let bal = 0.0000;
     let views = 0;
 
-    function watchAd() {    function switchScreen(sId, el) {
+    function watchAd() {
+        alert("Тут запускатиметься реальне відео Adsgram!");
+        bal += 0.0050;
+        views += 1;
+        document.getElementById('balance').innerText = bal.toFixed(4);
+        document.getElementById('stats-views').innerText = views;
+    }
+
+    // Перемикання табів
+    function switchScreen(sId, el) {
         document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
         document.getElementById('screen-' + sId).classList.add('active');
         el.classList.add('active');
     }
 
-    // Примусово створюємо рефералку, навіть якщо користувач зайшов не через бота
-    let finalUid = (uid && uid !== "user_undefined") ? uid : "testuser" + Math.floor(Math.random() * 1000);
-    document.getElementById('ref-link').value = "https://t.me_" + finalUid;
+    // Насильно записуємо рефералку
+    document.getElementById('ref-link').value = "https://t.me_" + uid;
 
+    // Функція копіювання
     function copyRefLink() {
         const inp = document.getElementById("ref-link");
         inp.select();
         inp.setSelectionRange(0, 99999);
-        document.execCommand("copy"); // Запасний метод копіювання для старих Android
-        navigator.clipboard.writeText(inp.value).catch(err => {});
-        alert("Посилання скопійовано!");
+        try {
+            document.execCommand("copy");
+            navigator.clipboard.writeText(inp.value);
+        } catch(e) {}
+        alert("Посилання скопійовано! Відправте його друзям.");
     }
 </script>
 </body>
