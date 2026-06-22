@@ -2,227 +2,282 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WoodGrow Coin</title>
-    <!-- Офіційний скрипт Telegram -->
-    <script src="https://telegram.org"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Earn Bot Mini App</title>
+    <!-- Підключення Telegram WebApp SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Підключення TON Connect SDK для гаманців -->
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+    <!-- Підключення Adsgram SDK -->
+    <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+    
     <style>
+        :root {
+            --tg-theme-bg-color: #18181b;
+            --tg-theme-text-color: #ffffff;
+            --tg-theme-button-color: #2563eb;
+            --tg-theme-button-text-color: #ffffff;
+            --tg-theme-hint-color: #a1a1aa;
+        }
+
         body {
-            font-family: system-ui, -apple-system, sans-serif;
-            background: linear-gradient(135deg, #162a17, #070d07);
-            color: #f0f3f0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--tg-theme-bg-color);
+            color: var(--tg-theme-text-color);
             margin: 0;
             padding: 0;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+            padding-bottom: 80px;
             box-sizing: border-box;
-            user-select: none;
             -webkit-user-select: none;
+            user-select: none;
         }
-        .header {
-            padding: 15px;
-            text-align: center;
-            border-bottom: 1px solid rgba(140, 217, 150, 0.1);
-        }
-        .header h1 {
-            margin: 0;
-            font-size: 20px;
-            color: #8cd996;
-            text-transform: uppercase;
-        }
-        .content-section {
-            flex: 1;
+
+        .container {
             padding: 20px;
+        }
+
+        .tab-content {
             display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            box-sizing: border-box;
         }
-        .content-section.active {
-            display: flex;
+        .tab-content.active {
+            display: block;
         }
-        .logo-container {
-            font-size: 80px;
-            margin: 20px 0;
-        }
-        .balance-card {
-            background: rgba(43, 76, 45, 0.3);
-            border: 1px solid #5c8a60;
+
+        .card {
+            background-color: #27272a;
             border-radius: 16px;
-            padding: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
             text-align: center;
-            margin-bottom: 25px;
-            width: 85%;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
-        .balance-label { font-size: 12px; color: #a3c2a8; text-transform: uppercase; }
-        .balance-value { font-size: 28px; font-weight: bold; margin-top: 5px; }
-        
-        .avatar {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            background: #5c8a60;
-            font-size: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 10px;
-            border: 2px solid #8cd996;
+
+        .balance-title {
+            font-size: 14px;
+            color: var(--tg-theme-hint-color);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
-        .username { font-size: 18px; font-weight: bold; margin-bottom: 20px; }
+
+        .balance-value {
+            font-size: 36px;
+            font-weight: bold;
+            margin: 10px 0;
+            color: #10b981;
+        }
 
         .btn {
+            display: block;
             width: 100%;
-            max-width: 280px;
-            background: linear-gradient(135deg, #4caf50, #2e7d32);
-            color: white;
+            background-color: var(--tg-theme-button-color);
+            color: var(--tg-theme-button-text-color);
             border: none;
-            padding: 14px;
-            font-size: 16px;
-            font-weight: bold;
             border-radius: 12px;
+            padding: 15px;
+            font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
-            margin-bottom: 12px;
-            box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+            transition: background-color 0.2s;
+            margin-top: 10px;
         }
-        .btn-ton {
-            background: linear-gradient(135deg, #0088cc, #005580);
+        .btn:active {
+            opacity: 0.8;
         }
         .btn-secondary {
-            background: linear-gradient(135deg, #8d6e63, #4e342e);
+            background-color: #3f3f46;
+        }
+        .btn-success {
+            background-color: #10b981;
+        }
+
+        .ref-box {
+            background-color: #18181b;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #3b82f6;
+            word-break: break-all;
+            margin: 15px 0;
+            border: 1px dashed #3f3f46;
         }
 
         .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
             height: 65px;
-            background: rgba(13, 26, 14, 0.95);
-            border-top: 1px solid rgba(140, 217, 150, 0.1);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
+            background-color: #202023;
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+            border-top: 1px solid #27272a;
+            z-index: 1000;
         }
+
         .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #709475;
-            font-size: 11px;
+            display: table-cell;
+            text-align: center;
+            vertical-align: middle;
+            color: var(--tg-theme-hint-color);
+            font-size: 12px;
             cursor: pointer;
-            flex: 1;
+            text-decoration: none;
         }
-        .nav-item.active { color: #8cd996; }
-        .nav-icon { font-size: 20px; margin-bottom: 4px; }
+
+        .nav-item.active {
+            color: var(--tg-theme-button-color);
+        }
+
+        .nav-icon {
+            font-size: 20px;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        #ton-connect-btn {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>WoodGrow Coin</h1>
-    </div>
-
-    <!-- ЕКРАН 1: ВІДЕОРЕКЛАМА -->
-    <div id="screen-home" class="content-section active">
-        <div class="logo-container">🌳</div>
-        <div class="balance-card">
-            <div class="balance-label">Баланс рахунку</div>
-            <div class="balance-value"><span id="balance">0.0000</span> USDT</div>
-        </div>
-        <button class="btn" onclick="watchAd()">👁 Дивитись відео (+0.005 USDT)</button>
-    </div>
-
-    <!-- ЕКРАН 2: ОСОБИСТИЙ КАБІНЕТ -->
-    <div id="screen-profile" class="content-section">
-        <div class="avatar" id="user-avatar">👤</div>
-        <div class="username" id="user-name">Користувач WoodGrow</div>
+    <div class="container">
         
-        <div class="balance-card" style="width:100%;">
-            <div class="balance-label">Переглянуто роликів</div>
-            <div class="balance-value" id="stats-views">0</div>
+        <!-- Вкладка 1: Головна -->
+        <div id="tab-main" class="tab-content active">
+            <div class="card">
+                <div class="balance-title">Ваш заробіток</div>
+                <div class="balance-value"><span id="user-balance">0.00</span> USDT</div>
+                <p style="color: var(--tg-theme-hint-color); font-size: 14px;">Переглядайте відеорекламу та отримуйте гроші!</p>
+            </div>
+            
+            <button class="btn btn-success" id="watch-ad-btn" onclick="watchVideoAd()">📺 Дивитися рекламу</button>
         </div>
-        
-        <!-- КНОПКИ З НАДІЙНИМИ СИСТЕМНИМИ ПОП-АПАМИ -->
-        <button class="btn btn-ton" onclick="showWalletPopup()">💎 Підключити гаманець</button>
-        <button class="btn" onclick="showInvitePopup()">👥 Запросити друга</button>
-        <button class="btn btn-secondary" onclick="alert('Мінімальний вивід: 5 USDT')">📥 Вивести кошти</button>
+
+        <!-- Вкладка 2: Гаманець -->
+        <div id="tab-wallet" class="tab-content">
+            <div class="card">
+                <h3>Підключення гаманця</h3>
+                <p style="color: var(--tg-theme-hint-color); font-size: 14px;">Підключіть свій TON-гаманець для виведення USDT.</p>
+                <div id="ton-connect-btn"></div>
+            </div>
+
+            <div class="card">
+                <h3>Виведення коштів</h3>
+                <p style="font-size: 14px; text-align: left; color: var(--tg-theme-hint-color);">Мінімальна сума: 1.00 USDT</p>
+                <button class="btn" onclick="withdrawFunds()">💸 Вивести на гаманець</button>
+            </div>
+        </div>
+
+        <!-- Вкладка 3: Особистий кабінет -->
+        <div id="tab-profile" class="tab-content">
+            <div class="card" style="text-align: left;">
+                <h3 style="text-align: center; margin-top: 0;">👤 Мій кабінет</h3>
+                <p><strong>Ваш ID:</strong> <span id="user-id">Завантаження...</span></p>
+                <p><strong>Запрошено друзів:</strong> <span id="ref-count">0</span></p>
+            </div>
+
+            <div class="card">
+                <h3>Реферальна програма</h3>
+                <p style="color: var(--tg-theme-hint-color); font-size: 14px;">Отримуйте +10% від заробітку кожного запрошеного друга!</p>
+                <div class="ref-box" id="ref-link">https://t.me/your_bot?start=ref_id</div>
+                <button class="btn btn-secondary" onclick="copyRefLink()">📋 Скопіювати посилання</button>
+                <button class="btn" onclick="shareBot()">🔗 Запросити друга в TG</button>
+            </div>
+        </div>
+
     </div>
 
-    <!-- НАВІГАЦІЯ -->
+    <!-- Нижня панель -->
     <div class="nav-bar">
-        <div class="nav-item active" onclick="switchScreen('home', this)">
-            <div class="nav-icon">👁</div>
-            <div>Відеореклама</div>
+        <div class="nav-item active" onclick="switchTab('main', this)">
+            <span class="nav-icon">🏠</span>Головна
         </div>
-        <div class="nav-item" onclick="switchScreen('profile', this)">
-            <div class="nav-icon">👤</div>
-            <div>Особистий кабінет</div>
+        <div class="nav-item" onclick="switchTab('wallet', this)">
+            <span class="nav-icon">👛</span>Гаманець
+        </div>
+        <div class="nav-item" onclick="switchTab('profile', this)">
+            <span class="nav-icon">👤</span>Кабінет
         </div>
     </div>
 
-<script>
-    const tg = window.Telegram.WebApp;
-    tg.ready();
-    tg.expand();
-
-    let userId = "guest";
-    let userName = "Користувач WoodGrow";
-
-    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-        userId = tg.initDataUnsafe.user.id || userId;
-        userName = tg.initDataUnsafe.user.username ? '@' + tg.initDataUnsafe.user.username : (tg.initDataUnsafe.user.first_name || userName);
-    }
-    
-    document.getElementById('user-name').innerText = userName;
-    document.getElementById('user-avatar').innerText = userName.charAt(0) === '@' ? userName.charAt(1).toUpperCase() : userName.charAt(0).toUpperCase();
-
-    const botUsername = "WoodGrowCoinBot"; 
-
-    let bal = 0.0000;
-    let views = 0;
-
-    function watchAd() {
-        alert("Тут запускатиметься реальне відео!");
-        bal += 0.0050;
-        views += 1;
-        document.getElementById('balance').innerText = bal.toFixed(4);
-        document.getElementById('stats-views').innerText = views;
-    }
-
-    function switchScreen(sId, el) {
-        document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-        document.getElementById('screen-' + sId).classList.add('active');
-        el.classList.add('active');
-    }
-
-    // НАДІЙНА РЕФЕРАЛКА: Текст просто показується у фірмовому вікні Telegram, звідки його можна скопіювати
-    function showInvitePopup() {
-        const myInviteLink = "https://t.me" + botUsername + "?start=ref_" + userId;
-        if (tg.showPopup) {
-            tg.showPopup({
-                title: 'Запросити друга',
-                message: 'Скопіюйте це посилання та надішліть другу:\n\n' + myInviteLink,
-                buttons: [{type: 'ok', text: 'Зрозуміло'}]
-            });
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            document.getElementById('user-id').innerText = tg.initDataUnsafe.user.id;
+            document.getElementById('ref-link').innerText = `https://t.me/Помилка_Введіть_Юзернейм_Бота?start=${tg.initDataUnsafe.user.id}`;
         } else {
-            alert('Ваше посилання:\n' + myInviteLink);
+            document.getElementById('user-id').innerText = "123456789 (Тест)";
         }
-    }
 
-    // НАДІЙНИЙ ГАМАНЕЦЬ: Інструкція у фірмовому вікні Telegram
-    function showWalletPopup() {
-        if (tg.showPopup) {
-            tg.showPopup({
-                title: 'Підключення гаманця',
-                message: 'Щоб надійно підключити ваш Tonkeeper чи Wallet, закрийте це графічне вікно та натисніть синю кнопку 💎 Підключити гаманець у нашому головному чат-боті WoodGrow Coin.',
-                buttons: [{type: 'close', text: 'Закрити і перейти до бота'}]
-            }, function() {
-                tg.close(); // Автоматично закриває Mini App, повертаючи користувача в чат до Manybot кнопки
-            });
-        } else {
-            alert('Будь ласка, використовуйте кнопку "💎 Підключити гаманець" в самому чаті бота.');
+        let balance = parseFloat(localStorage.getItem('user_balance') || '0.00');
+        document.getElementById('user-balance').innerText = balance.toFixed(4);
+
+        function switchTab(tabName, element) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            document.getElementById('tab-' + tabName).classList.add('active');
+            element.classList.add('active');
         }
-    }
-</script>
+
+        const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+            manifestUrl: 'https://raw.githubusercontent.com/ton-community/tutorials/main/03-client/test/public/tonconnect-manifest.json',
+            buttonRootId: 'ton-connect-btn'
+        });
+
+        const AdController = window.Adsgram ? window.Adsgram.init({ blockId: "YOUR_ADSGRAM_BLOCK_ID" }) : null;
+
+        function watchVideoAd() {
+            if (!AdController) {
+                alert("Демо-режим: Реклама завантажується... (У Telegram тут буде відео)");
+                balance += 0.005;
+                updateBalance();
+                return;
+            }
+            tg.MainButton.setText("Завантаження реклами...").show();
+            AdController.show().then((result) => {
+                balance += 0.007;
+                updateBalance();
+                tg.MainButton.hide();
+                alert("Гроші нараховані!");
+            }).catch((result) => {
+                tg.MainButton.hide();
+                alert("Рекламу не було прогледжено повністю.");
+            });
+        }
+
+        function updateBalance() {
+            localStorage.setItem('user_balance', balance.toString());
+            document.getElementById('user-balance').innerText = balance.toFixed(4);
+        }
+
+        function copyRefLink() {
+            navigator.clipboard.writeText(document.getElementById('ref-link').innerText);
+            alert("Скопійовано!");
+        }
+
+        function shareBot() {
+            const link = document.getElementById('ref-link').innerText;
+            const text = "👋 Приєднуйся та заробляй USDT разом зі мною!";
+            tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(text)}`);
+        }
+
+        function withdrawFunds() {
+            if (!tonConnectUI.connected) {
+                alert("Підключіть свій TON-гаманець!");
+                return;
+            }
+            if (balance < 1.00) {
+                alert("Мінімальна сума виведення: 1.00 USDT");
+                return;
+            }
+            alert("Заявку на виведення прийнято!");
+        }
+    </script>
 </body>
 </html>
