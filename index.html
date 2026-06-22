@@ -4,14 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>WoodGrow Coin Bot</title>
-    <!-- Підключення Telegram WebApp SDK -->
+    <!-- Підключение Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Підключення TON Connect SDK для гаманців -->
+    <!-- Підключение TON Connect SDK для гаманців -->
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
-    <!-- Підключення Adsgram SDK -->
+    <!-- Підключение Adsgram SDK -->
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
-    <!-- Інтеграція Сервісу 4 через нативний тег скрипта -->
-    <script src="https://pl29851117.effectivecpmnetwork.com/c4/5d/93/c45d93c72f9027c7dbf67dbfb73d6488.js" async defer></script>
     
     <style>
         :root {
@@ -232,9 +230,17 @@
             font-size: 18px;
             letter-spacing: 0.5px;
         }
+
+        /* Контейнер для динамічного завантаження Сервісу 4 */
+        #script-ad-container {
+            display: none;
+        }
     </style>
 </head>
 <body>
+
+    <!-- Контейнер під скрипт 4-го сервісу -->
+    <div id="script-ad-container"></div>
 
     <div class="container">
         
@@ -249,41 +255,41 @@
             <!-- СЕРВІС 1 -->
             <div style="margin-bottom: 15px;">
                 <div class="service-meta">
-                    <span>Сервіс 1 (Adsgram)</span>
+                    <span>Сервіс 1 (Adsgram Video)</span>
                     <span id="timer-service1" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
                     <span id="limit-service1" class="limit-indicator">0 / 20</span>
                 </div>
-                <button class="btn" id="btn-service1" onclick="watchAdsgram()">📺 СЕРВІС 1 (Adsgram Video)</button>
+                <button class="btn" id="btn-service1" onclick="watchAdsgram()">СЕРВІС 1</button>
             </div>
 
             <!-- СЕРВІС 2 -->
             <div style="margin-bottom: 15px;">
                 <div class="service-meta">
-                    <span>Сервіс 2 (Adsterra Direct)</span>
+                    <span>Сервіс 2 (AdExium Video)</span>
                     <span id="timer-service2" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
                     <span id="limit-service2" class="limit-indicator">0 / 20</span>
                 </div>
-                <button class="btn" id="btn-service2" onclick="watchDirectLink('service2', 'https://www.effectivecpmnetwork.com/gbzuytbhy?key=8595ffd9c4e7bfcd3fbacb124a4b0c74')">🎬 СЕРВІС 2 (AdExium Video)</button>
+                <button class="btn" id="btn-service2" onclick="watchDirectLink('service2', 'https://www.effectivecpmnetwork.com/gbzuytbhy?key=8595ffd9c4e7bfcd3fbacb124a4b0c74')">СЕРВІС 2</button>
             </div>
 
             <!-- СЕРВІС 3 -->
             <div style="margin-bottom: 15px;">
                 <div class="service-meta">
-                    <span>Сервіс 3 (HilltopAds)</span>
+                    <span>Сервіс 3 (GigaPubs VIP)</span>
                     <span id="timer-service3" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
                     <span id="limit-service3" class="limit-indicator">0 / 20</span>
                 </div>
-                <button class="btn" id="btn-service3" onclick="watchDirectLink('service3', 'https://affectionatestorage.com/gQiXSO')">🔥 СЕРВІС 3 (GigaPubs VIP)</button>
+                <button class="btn" id="btn-service3" onclick="watchDirectLink('service3', 'https://affectionatestorage.com/gQiXSO')">СЕРВІС 3</button>
             </div>
 
             <!-- СЕРВІС 4 -->
             <div style="margin-bottom: 15px;">
                 <div class="service-meta">
-                    <span>Сервіс 4 (Smart Script)</span>
+                    <span>Сервіс 4 (Adsterra Pro)</span>
                     <span id="timer-service4" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
                     <span id="limit-service4" class="limit-indicator">0 / 20</span>
                 </div>
-                <button class="btn" id="btn-service4" onclick="watchScriptAd('service4')">🚀 СЕРВІС 4 (Adsterra Pro)</button>
+                <button class="btn" id="btn-service4" onclick="watchScriptAd('service4')">СЕРВІС 4</button>
             </div>
         </div>
 
@@ -318,7 +324,6 @@
                     <h4>Monetag Смарт-Оффер</h4>
                     <p>+0.0050 USDT</p>
                 </div>
-                <!-- Встав сюди своє посилання Smart Link від Monetag замість '#' -->
                 <button class="task-btn" onclick="window.open('#', '_blank'); alert('Зачекайте повного завантаження оффера для зарахування!')">Перейти</button>
             </div>
         </div>
@@ -327,7 +332,7 @@
         <div id="tab-wallet" class="tab-content">
             <div class="card">
                 <h3>Підключення гаманця</h3>
-                <p style="color: #a1a1aa; font-size: 14px;">Підключіть свій TON-гаманець для миттвого виведення накопичених USDT.</p>
+                <p style="color: #a1a1aa; font-size: 14px;">Підключіть свій TON-гаманець для миттєвого виведення накопичених USDT.</p>
                 <div id="ton-connect-btn"></div>
             </div>
 
@@ -456,14 +461,24 @@
             }, 1500);
         }
 
-        // СЕРВІС 4: КЛИК НА ОФЕР ЧЕРЕЗ СКРИПТ АДСТЕРРИ
+        // СЕРВІС 4: КОНСТРУКТОР ДИНАМІЧНОГО СКРИПТА (ВИПРАВЛЕНО)
         function watchScriptAd(serviceKey) {
             if (viewCounts[serviceKey] >= MAX_VIEWS) return;
-            // Скрипт працює у фоні/сторінці, тому відкриваємо безпечну прокладку або робимо клік
-            alert("Завантаження інтегрованого смарт-скрипта Сервісу 4...");
+            
+            const container = document.getElementById('script-ad-container');
+            container.innerHTML = ''; // Очищуємо попередній запуск
+            
+            // Створюємо та вмонтовуємо тег скрипта безпосередньо в момент натискання кнопки
+            const script = document.createElement('script');
+            script.src = "https://pl29851117.effectivecpmnetwork.com/c4/5d/93/c45d93c72f9027c7dbf67dbfb73d6488.js";
+            script.async = true;
+            
+            container.appendChild(script);
+            
+            // Зараховуємо винагороду
             setTimeout(() => {
                 rewardUser(serviceKey);
-            }, 2000);
+            }, 1500);
         }
 
         // ЗАГАЛЬНА ФУНКЦІЯ НАРАХУВАННЯ
