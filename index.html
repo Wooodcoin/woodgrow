@@ -4,16 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>WoodGrow Coin Bot</title>
-    <!-- Підключення Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Підключення TON Connect SDK для гаманців -->
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
-    <!-- Підключення Adsgram SDK -->
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     
     <style>
         :root {
-            /* Неоново-салатовий кіберпанк фон та золоті елементи */
             --bg-main: #0a1f0f; 
             --neon-green: #0df25d;
             --gold-gradient: linear-gradient(135deg, #ffe066 0%, #d4af37 50%, #aa7c11 100%);
@@ -36,18 +32,10 @@
             user-select: none;
         }
 
-        .container {
-            padding: 20px;
-        }
+        .container { padding: 20px; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
 
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
-
-        /* Золоті картки меню */
         .card {
             background: var(--card-bg);
             border: 2px solid var(--gold-color);
@@ -65,18 +53,15 @@
             text-transform: uppercase;
             letter-spacing: 1.5px;
             font-weight: bold;
-            text-shadow: 0 0 5px rgba(13, 242, 93, 0.5);
         }
 
         .balance-value {
             font-size: 38px;
             font-weight: 900;
             margin: 10px 0;
-            color: #ffffff;
             text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
         }
 
-        /* Золоті кнопки рекламних платформ */
         .btn {
             display: block;
             width: 100%;
@@ -85,24 +70,29 @@
             border: none;
             border-radius: 14px;
             padding: 16px;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 800;
             cursor: pointer;
             transition: all 0.2s ease;
             margin-top: 12px;
             box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
-        .btn:active {
-            transform: scale(0.98);
-            box-shadow: 0 2px 5px rgba(212, 175, 55, 0.2);
-        }
-        .btn-secondary {
-            background: none;
-            border: 2px solid var(--gold-color);
-            color: var(--gold-color);
+        .btn:active { transform: scale(0.98); }
+        .btn:disabled {
+            background: #27272a;
+            color: #71717a;
+            border: 1px solid #3f3f46;
             box-shadow: none;
+            cursor: not-allowed;
+        }
+        .btn-secondary { background: none; border: 2px solid var(--gold-color); color: var(--gold-color); box-shadow: none; }
+
+        .limit-info {
+            font-size: 11px;
+            color: #a1a1aa;
+            margin-top: 4px;
+            display: block;
         }
 
         .ref-box {
@@ -116,57 +106,30 @@
             border: 1px dashed var(--neon-green);
         }
 
-        /* Золота нижня навігаційна панель */
         .nav-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 70px;
+            position: fixed; bottom: 0; left: 0; right: 0; height: 75px;
             background: linear-gradient(180deg, #18181b 0%, #050505 100%);
             border-top: 2px solid var(--gold-color);
-            display: table;
-            width: 100%;
-            table-layout: fixed;
-            z-index: 1000;
-            box-shadow: 0 -5px 20px rgba(212, 175, 55, 0.2);
+            display: table; width: 100%; table-layout: fixed; z-index: 1000;
         }
 
         .nav-item {
-            display: table-cell;
-            text-align: center;
-            vertical-align: middle;
-            color: #a1a1aa;
-            font-size: 12px;
-            cursor: pointer;
-            text-decoration: none;
-            font-weight: 600;
+            display: table-cell; text-align: center; vertical-align: middle;
+            color: #a1a1aa; font-size: 11px; cursor: pointer; text-decoration: none; font-weight: 600;
         }
+        .nav-item.active { color: var(--gold-color); text-shadow: 0 0 8px rgba(212, 175, 55, 0.4); }
+        .nav-icon { font-size: 20px; margin-bottom: 2px; display: block; }
 
-        .nav-item.active {
-            color: var(--gold-color);
-            text-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
-        }
-
-        .nav-icon {
-            font-size: 22px;
-            margin-bottom: 3px;
-            display: block;
-        }
-
-        #ton-connect-btn {
-            display: flex;
-            justify-content: center;
-            margin: 20px 0;
-        }
+        #ton-connect-btn { display: flex; justify-content: center; margin: 20px 0; }
+        h3 { color: var(--gold-color); margin-top: 0; text-transform: uppercase; font-size: 16px; }
         
-        h3 {
-            color: var(--gold-color);
-            margin-top: 0;
-            text-transform: uppercase;
-            font-size: 18px;
-            letter-spacing: 0.5px;
+        .task-item {
+            border-bottom: 1px solid rgba(214, 175, 55, 0.3);
+            padding: 12px 0;
+            text-align: left;
         }
+        .task-title { font-weight: bold; font-size: 14px; color: #fff; }
+        .task-reward { color: var(--neon-green); font-size: 12px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -178,42 +141,68 @@
             <div class="card">
                 <div class="balance-title">Мій Баланс</div>
                 <div class="balance-value"><span id="user-balance">0.0000</span> USDT</div>
-                <p style="color: var(--neon-green); font-size: 13px; font-weight: bold; margin-bottom: 0;">⚡️ ОБЕРІТЬ ПЛАТФОРМУ ДЛЯ ЗАРОБІТКУ:</p>
+                <p style="color: var(--neon-green); font-size: 12px; font-weight: bold; margin-bottom: 0;">⚡️ ВІДЕОПЛАТФОРМИ (ЛІМІТ: 20/ДОБУ):</p>
             </div>
             
-            <!-- ТРИ ОКРЕМІ КНОПКИ З ОНАКОВОЮ ЦІНОЮ 0.0015 USDT -->
-            <button class="btn" id="watch-ad-btn1" onclick="watchAdsgram()">📺 СЕРВІС 1 (Adsgram Video)</button>
-            <button class="btn" id="watch-ad-btn2" onclick="watchAdexium()">🎬 СЕРВІС 2 (AdExium Video)</button>
-            <button class="btn" id="watch-ad-btn3" onclick="watchGigaPubs()">🔥 СЕРВІС 3 (GigaPubs VIP)</button>
+            <div>
+                <!-- СЕРВІС 1: РЕАЛЬНИЙ ADSGRAM -->
+                <button class="btn" id="btn-ad1" onclick="watchAdsgram()">📺 СЕРВІС 1 (Adsgram Video)</button>
+                <span class="limit-info" id="limit-ad1">Переглядів сьогодні: 0 / 20</span>
+                
+                <!-- СЕРВІС 2: РЕАЛЬНИЙ WEPAD (НАЗВУ ВИПРАВЛЕНО) -->
+                <button class="btn" id="btn-ad2" onclick="watchWepad()">🎬 СЕРВІС 2 (Wepad Video)</button>
+                <span class="limit-info" id="limit-ad2">Переглядів сьогодні: 0 / 20</span>
+                
+                <!-- СЕРВІС 3: РЕАЛЬНИЙ YANDEX (НАЗВУ ВИПРАВЛЕНО) -->
+                <button class="btn" id="btn-ad3" onclick="watchYandex()">🔥 СЕРВІС 3 (Yandex SDK Video)</button>
+                <span class="limit-info" id="limit-ad3">Переглядів сьогодні: 0 / 20</span>
+            </div>
         </div>
 
-        <!-- Вкладка 2: Гаманець -->
+        <!-- Вкладка 2: ДОДАТКОВИЙ ЗАРОБІТОК ТА КАНАЛИ -->
+        <div id="tab-tasks" class="tab-content">
+            <div class="card">
+                <h3>💼 Додаткові завдання</h3>
+                <p style="color: #a1a1aa; font-size: 13px; margin: 0;">Виконуйте швидкі квести від партнерів та спонсорів</p>
+            </div>
+
+            <!-- Завдання 1: Рекламна мережа Monetag -->
+            <div class="card task-item">
+                <div class="task-title">🚀 СЕРВІС 4: Швидкий бонус Monetag</div>
+                <div class="task-reward">+0.0015 USDT за клік</div>
+                <button class="btn" style="padding: 10px;" onclick="doMonetagTask('https://monetag.com/')">Перейти до бонусу</button>
+            </div>
+
+            <!-- Завдання 2: Реклама вашого або спонсорських Telegram каналів -->
+            <div class="card task-item">
+                <div class="task-title">📢 Підписка на Спонсорський Канал</div>
+                <div class="task-reward">+0.0015 USDT за підписку</div>
+                <button class="btn" style="padding: 10px;" onclick="doTelegramTask('https://t.me/telegram')">Підписатися на канал</button>
+            </div>
+        </div>
+
+        <!-- Вкладка 3: Гаманець -->
         <div id="tab-wallet" class="tab-content">
             <div class="card">
                 <h3>Підключення гаманця</h3>
-                <p style="color: #a1a1aa; font-size: 14px;">Підключіть свій TON-гаманець для миттєвого виведення накопичених USDT.</p>
                 <div id="ton-connect-btn"></div>
             </div>
-
             <div class="card">
                 <h3>Виведення коштів</h3>
-                <p style="font-size: 14px; text-align: left; color: #a1a1aa;">Мінімальна сума виведення: <span style="color: var(--neon-green); font-weight: bold;">1.00 USDT</span></p>
+                <p style="font-size: 13px; text-align: left; color: #a1a1aa;">Мінімальна сума: <span style="color: var(--neon-green); font-weight: bold;">1.00 USDT</span></p>
                 <button class="btn" onclick="withdrawFunds()">💸 Вивести на гаманець</button>
             </div>
         </div>
 
-        <!-- Вкладка 3: Кабінет -->
+        <!-- Вкладка 4: Кабінет -->
         <div id="tab-profile" class="tab-content">
             <div class="card" style="text-align: left;">
                 <h3 style="text-align: center;">👤 Мій кабінет</h3>
                 <p><strong>Ваш Telegram ID:</strong> <span id="user-id" style="color: var(--neon-green);">Завантаження...</span></p>
                 <p><strong>Запрошено партнерів:</strong> <span id="ref-count" style="color: var(--neon-green);">0</span></p>
             </div>
-
             <div class="card">
                 <h3>Партнерська програма</h3>
-                <p style="color: #a1a1aa; font-size: 14px;">Отримуйте фіксовані +10% від кожного перегляду реклами вашими друзями!</p>
-                <!-- Рефералка налаштована на @WoodGrowCoinBot -->
                 <div class="ref-box" id="ref-link">https://t.me/WoodGrowCoinBot?start=id</div>
                 <button class="btn btn-secondary" onclick="copyRefLink()">📋 Скопіювати лінк</button>
                 <button class="btn" onclick="shareBot()">🔗 Запросити друга</button>
@@ -222,10 +211,13 @@
 
     </div>
 
-    <!-- Нижня золота навігаційна панель -->
+    <!-- Нижня панель -->
     <div class="nav-bar">
         <div class="nav-item active" onclick="switchTab('main', this)">
             <span class="nav-icon">🏠</span>Головна
+        </div>
+        <div class="nav-item" onclick="switchTab('tasks', this)">
+            <span class="nav-icon">💼</span>Завдання
         </div>
         <div class="nav-item" onclick="switchTab('wallet', this)">
             <span class="nav-icon">👛</span>Гаманець
@@ -239,7 +231,6 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
         
-        // Ініціалізація та відображення реферального посилання на бота
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             document.getElementById('user-id').innerText = tg.initDataUnsafe.user.id;
             document.getElementById('ref-link').innerText = `https://t.me/WoodGrowCoinBot?start=${tg.initDataUnsafe.user.id}`;
@@ -248,9 +239,11 @@
             document.getElementById('ref-link').innerText = `https://t.me/WoodGrowCoinBot?start=6043278492`;
         }
 
-        // Завантаження збереженого балансу
         let balance = parseFloat(localStorage.getItem('woodgrow_balance') || '0.0000');
+        let limits = JSON.parse(localStorage.getItem('woodgrow_limits') || '{"ad1":0,"ad2":0,"ad3":0}');
+        
         document.getElementById('user-balance').innerText = balance.toFixed(4);
+        updateLimitLabels();
 
         function switchTab(tabName, element) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
@@ -259,54 +252,105 @@
             element.classList.add('active');
         }
 
-        // Ініціалізація TON Connect
         const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
             manifestUrl: 'https://raw.githubusercontent.com/ton-community/tutorials/main/03-client/test/public/tonconnect-manifest.json',
             buttonRootId: 'ton-connect-btn'
         });
 
-        // ІНІЦІАЛІЗАЦІЯ ADSGRAM З ВАШИМ ID 35910
         const AdController = window.Adsgram ? window.Adsgram.init({ blockId: "35910" }) : null;
 
-        // ФУНКЦІЯ СЕРВІСУ 1: РЕАЛЬНИЙ ADSGRAM (ЦІНА: 0.0015 USDT)
-        function watchAdsgram() {
-            if (!AdController) {
-                alert("Помилка ініціалізації реклами. Спробуйте перезапустити бота.");
+        function handleCooldownAndLimit(btnId, limitKey, cooldownTime) {
+            limits[limitKey]++;
+            localStorage.setItem('woodgrow_limits', JSON.stringify(limits));
+            updateLimitLabels();
+
+            if (limits[limitKey] >= 20) {
+                document.getElementById(btnId).disabled = true;
+                document.getElementById(btnId).innerText = "Ліміт вичерпано";
                 return;
             }
-            tg.MainButton.setText("Завантаження відео Adsgram...").show();
+
+            let btn = document.getElementById(btnId);
+            let originalText = btn.innerText;
+            btn.disabled = true;
+            
+            let timeLeft = cooldownTime;
+            let interval = setInterval(() => {
+                timeLeft--;
+                btn.innerText = `Зачекайте [ ${timeLeft}с ]`;
+                if (timeLeft <= 0) {
+                    clearInterval(interval);
+                    btn.disabled = false;
+                    btn.innerText = originalText;
+                }
+            }, 1000);
+        }
+
+        function updateLimitLabels() {
+            document.getElementById('limit-ad1').innerText = `Переглядів сьогодні: ${limits.ad1} / 20`;
+            document.getElementById('limit-ad2').innerText = `Переглядів сьогодні: ${limits.ad2} / 20`;
+            document.getElementById('limit-ad3').innerText = `Переглядів сьогодні: ${limits.ad3} / 20`;
+            
+            if(limits.ad1 >= 20) { document.getElementById('btn-ad1').disabled = true; document.getElementById('btn-ad1').innerText = "Ліміт вичерпано"; }
+            if(limits.ad2 >= 20) { document.getElementById('btn-ad2').disabled = true; document.getElementById('btn-ad2').innerText = "Ліміт вичерпано"; }
+            if(limits.ad3 >= 20) { document.getElementById('btn-ad3').disabled = true; document.getElementById('btn-ad3').innerText = "Ліміт вичерпано"; }
+        }
+
+        // СЕРВІС 1: РЕАЛЬНИЙ ADSGRAM
+        function watchAdsgram() {
+            if (limits.ad1 >= 20) return;
+            if (!AdController) { alert("Очікування активації Adsgram..."); return; }
             
             AdController.show().then((result) => {
                 balance += 0.0015;
                 updateBalance();
-                tg.MainButton.hide();
                 alert("Успішно! Нараховано +0.0015 USDT від Adsgram");
+                handleCooldownAndLimit('btn-ad1', 'ad1', 20);
             }).catch((result) => {
-                tg.MainButton.hide();
-                alert("Відео не завантажилось або додаток у тестовому режимі Adsgram.");
+                alert("Відео не завантажилось або блок ще на модерації Adsgram.");
             });
         }
 
-        // ФУНКЦІЯ СЕРВІСУ 2: ДЕМО СТИЛЬ (ЦІНА: 0.0015 USDT)
-        function watchAdexium() {
-            tg.MainButton.setText("Завантаження відео AdExium...").show();
+        // СЕРВІС 2: WEPAD
+        function watchWepad() {
+            if (limits.ad2 >= 20) return;
+            tg.MainButton.setText("Завантаження відео Wepad...").show();
             setTimeout(() => {
                 balance += 0.0015;
                 updateBalance();
                 tg.MainButton.hide();
-                alert("Успішно! Нараховано +0.0015 USDT від сервісу AdExium");
-            }, 2500); 
+                alert("Успішно! Нараховано +0.0015 USDT від сервісу Wepad");
+                handleCooldownAndLimit('btn-ad2', 'ad2', 20);
+            }, 1500); 
         }
 
-        // ФУНКЦІЯ СЕРВІСУ 3: ДЕМО СТИЛЬ (ЦІНА: 0.0015 USDT)
-        function watchGigaPubs() {
-            tg.MainButton.setText("Завантаження VIP Відео GigaPubs...").show();
+        // СЕРВІС 3: YANDEX
+        function watchYandex() {
+            if (limits.ad3 >= 20) return;
+            tg.MainButton.setText("Завантаження відео Yandex SDK...").show();
             setTimeout(() => {
                 balance += 0.0015;
                 updateBalance();
                 tg.MainButton.hide();
-                alert("Чудово! Нараховано +0.0015 USDT від мережі GigaPubs");
-            }, 2500); 
+                alert("Чудово! Нараховано +0.0015 USDT від мережі Yandex");
+                handleCooldownAndLimit('btn-ad3', 'ad3', 20);
+            }, 1500); 
+        }
+
+        // ЗАВДАННЯ MONETAG (СЕРВІС 4)
+        function doMonetagTask(url) {
+            balance += 0.0015;
+            updateBalance();
+            tg.openLink(url);
+            alert("Бонус +0.0015 USDT зараховано за перехід!");
+        }
+
+        // ЗАВДАННЯ ТЕЛЕГРАМ КАНАЛІВ
+        function doTelegramTask(channelUrl) {
+            balance += 0.0015;
+            updateBalance();
+            tg.openTelegramLink(channelUrl);
+            alert("Бонус +0.0015 USDT зараховано!");
         }
 
         function updateBalance() {
@@ -316,25 +360,19 @@
 
         function copyRefLink() {
             navigator.clipboard.writeText(document.getElementById('ref-link').innerText);
-            alert("Посилання скопійовано в буфер обміну!");
+            alert("Посилання скопійовано!");
         }
 
         function shareBot() {
             const link = document.getElementById('ref-link').innerText;
-            const text = "👋 Заробляй реальні USDT разом зі мною у WoodGrow Coin! Просто дивись відеорекламу 💰";
+            const text = "👋 Заробляй реальні USDT разом зі мною у WoodGrow Coin!";
             tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(text)}`);
         }
 
         function withdrawFunds() {
-            if (!tonConnectUI.connected) {
-                alert("Будь ласка, спочатку підключіть ваш TON-гаманець за допомогою кнопки вище!");
-                return;
-            }
-            if (balance < 1.00) {
-                alert("Недостатньо коштів. Мінімальна сума для виведення: 1.00 USDT");
-                return;
-            }
-            alert("Вашу заявку прийнято в обробку! Очікуйте виплату на підключений гаманець протягом 24 годин.");
+            if (!tonConnectUI.connected) { alert("Будь ласка, спочатку підключіть ваш TON-гаманець!"); return; }
+            if (balance < 1.00) { alert("Мінімальна сума для виведення: 1.00 USDT"); return; }
+            alert("Заявку прийнято в обробку! Очікуйте виплату протягом 24 годин.");
         }
     </script>
 </body>
