@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WoodGrow Coin</title>
-    <!-- Офіційний скрипт Telegram для роботи Mini App -->
     <script src="https://telegram.org"></script>
     <style>
         body {
@@ -73,21 +72,6 @@
         }
         .username { font-size: 18px; font-weight: bold; margin-bottom: 20px; }
 
-        .ref-box {
-            background: rgba(255,255,255,0.05);
-            border-radius: 12px;
-            padding: 20px;
-            width: 100%;
-            box-sizing: border-box;
-            text-align: center;
-        }
-        .ref-info-text {
-            font-size: 13px;
-            color: #a3c2a8;
-            margin-bottom: 15px;
-            line-height: 1.4;
-        }
-
         .btn {
             width: 100%;
             max-width: 280px;
@@ -99,14 +83,14 @@
             font-weight: bold;
             border-radius: 12px;
             cursor: pointer;
-        }
-        .btn-secondary {
-            background: linear-gradient(135deg, #8d6e63, #4e342e);
-            margin-top: 15px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
         }
         .btn-ton {
             background: linear-gradient(135deg, #0088cc, #005580);
-            margin-bottom: 15px;
+        }
+        .btn-secondary {
+            background: linear-gradient(135deg, #8d6e63, #4e342e);
         }
 
         .nav-bar {
@@ -136,7 +120,7 @@
         <h1>WoodGrow Coin</h1>
     </div>
 
-    <!-- ЕКРАН 1: ГОЛОВНА -->
+    <!-- ЕКРАН 1: ВІДЕОРЕКЛАМА -->
     <div id="screen-home" class="content-section active">
         <div class="logo-container">🌳</div>
         <div class="balance-card">
@@ -146,54 +130,39 @@
         <button class="btn" onclick="watchAd()">👁 Дивитись відео (+0.005 USDT)</button>
     </div>
 
-    <!-- ЕКРАН 2: КАБІНЕТ -->
+    <!-- ЕКРАН 2: ОСОБИСТИЙ КАБІНЕТ -->
     <div id="screen-profile" class="content-section">
         <div class="avatar" id="user-avatar">👤</div>
         <div class="username" id="user-name">Завантаження...</div>
+        
         <div class="balance-card" style="width:100%;">
             <div class="balance-label">Переглянуто роликів</div>
             <div class="balance-value" id="stats-views">0</div>
         </div>
-        <!-- Графічна кнопка, яка безпечно веде користувача в чат бота для підключення -->
-        <button class="btn btn-ton" onclick="redirectToBotWallet()">💎 Підключити гаманець TON</button>
+        
+        <!-- ВСІ КНОПКИ ТЕПЕР ТУТ, ЯК У ВАШОМУ МЕНЮ -->
+        <button class="btn btn-ton" onclick="redirectToBotWallet()">💎 Підключити гаманець</button>
+        <button class="btn" onclick="shareInviteLink()">👥 Запросити друга</button>
         <button class="btn btn-secondary" onclick="alert('Мінімальний вивід: 5 USDT')">📥 Вивести кошти</button>
     </div>
 
-    <!-- ЕКРАН 3: ДРУЗІ -->
-    <div id="screen-friends" class="content-section">
-        <h2>Запроси друзів</h2>
-        <div class="ref-box">
-            <div class="ref-info-text">
-                Отримуйте +10% від заробітку кожного запрошеного друга! Натисніть кнопку нижче, щоб вибрати друга в Telegram та надіслати йому запрошення.
-            </div>
-            <!-- Повністю робоча графічна кнопка запрошення через Manybot -->
-            <button class="btn" onclick="shareInviteLink()">✉️ Надіслати другу в Telegram</button>
-        </div>
-    </div>
-
-    <!-- НИЖНЯ НАВІГАЦІЯ (ТАБ-БАР) -->
+    <!-- НИЖНЯ НАВІГАЦІЯ: ТЕПЕР ТІЛЬКИ ДВА ПУНКТИ -->
     <div class="nav-bar">
         <div class="nav-item active" onclick="switchScreen('home', this)">
-            <div class="nav-icon">🌳</div>
-            <div>Особистий кабінет</div>
+            <div class="nav-icon">👁</div>
+            <div>Відеореклама</div>
         </div>
         <div class="nav-item" onclick="switchScreen('profile', this)">
-            <div class="nav-icon">💵</div>
-            <div>Робота</div>
-        </div>
-        <div class="nav-item" onclick="switchScreen('friends', this)">
-            <div class="nav-icon">💰</div>
-            <div>Гаманець</div>
+            <div class="nav-icon">👤</div>
+            <div>Особистий кабінет</div>
         </div>
     </div>
 
 <script>
-    // Ініціалізація Telegram Web App
     const tg = window.Telegram.WebApp;
     tg.ready();
     tg.expand();
 
-    // Отримуємо юзернейм або ім'я користувача прямо з Телеграм
     let userId = "guest";
     let userName = "Користувач WoodGrow";
 
@@ -205,10 +174,8 @@
     document.getElementById('user-name').innerText = userName;
     document.getElementById('user-avatar').innerText = userName.charAt(0) === '@' ? userName.charAt(1).toUpperCase() : userName.charAt(0).toUpperCase();
 
-    // Замініть на точний юзернейм вашого бота
     const botUsername = "WoodGrowCoinBot"; 
 
-    // Внутрішня симуляція балансу для тестового перегляду роликів
     let bal = 0.0000;
     let views = 0;
 
@@ -220,7 +187,6 @@
         document.getElementById('stats-views').innerText = views;
     }
 
-    // Функція перемикання екранів у меню
     function switchScreen(sId, el) {
         document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
@@ -228,21 +194,18 @@
         el.classList.add('active');
     }
 
-    // ГРАФІЧНА РЕФЕРАЛКА: перенаправляє у вікно вибору друзів через Manybot
     function shareInviteLink() {
         const textMessage = "Приєднуйся до WoodGrow Coin, дивись відео та заробляй USDT разом зі мною! 🌳💰";
-        // Генеруємо посилання, яке Manybot зрозуміє як реферальне
         const myInviteLink = "https://t.me" + botUsername + "?start=ref_" + userId;
         const telegramShareUrl = "https://t.meshare/url?url=" + encodeURIComponent(myInviteLink) + "&text=" + encodeURIComponent(textMessage);
-        
         tg.openTelegramLink(telegramShareUrl);
     }
 
-    // ГРАФІЧНИЙ ГАМАНЕЦЬ: перенаправляє користувача у чат бота на команду /wallet
+    // Кнопка безпечно веде в чат вашого бота, запускаючи команду /wallet
     function redirectToBotWallet() {
         const botChatUrl = "https://t.me" + botUsername + "?start=wallet";
         tg.openTelegramLink(botChatUrl);
-        tg.close(); // Закриваємо Mini App, щоб користувач одразу опинився в чаті бота
+        tg.close(); 
     }
 </script>
 </body>
