@@ -4,12 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>WoodGrow Coin Bot</title>
-    <!-- Підключение Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Підключение TON Connect SDK для гаманців -->
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
-    <!-- Підключение Adsgram SDK -->
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+    
+    <script src="https://pl29851117.effectivecpmnetwork.com/c4/5d/93/c45d93c72f9027c7dbf67dbfb73d6488.js" async defer></script>
     
     <style>
         :root {
@@ -230,21 +229,12 @@
             font-size: 18px;
             letter-spacing: 0.5px;
         }
-
-        /* Контейнер для динамічного завантаження Сервісу 4 */
-        #script-ad-container {
-            display: none;
-        }
     </style>
 </head>
 <body>
 
-    <!-- Контейнер під скрипт 4-го сервісу -->
-    <div id="script-ad-container"></div>
-
     <div class="container">
         
-        <!-- Вкладка 1: Головна -->
         <div id="tab-main" class="tab-content active">
             <div class="card">
                 <div class="balance-title">Мій Баланс</div>
@@ -252,7 +242,6 @@
                 <p style="color: var(--neon-green); font-size: 13px; font-weight: bold; margin-bottom: 0;">⚡️ ОБЕРІТЬ ПЛАТФОРМУ ДЛЯ ЗАРОБІТКУ:</p>
             </div>
             
-            <!-- СЕРВІС 1 -->
             <div style="margin-bottom: 15px;">
                 <div class="service-meta">
                     <span>Сервіс 1 (Adsgram Video)</span>
@@ -262,7 +251,6 @@
                 <button class="btn" id="btn-service1" onclick="watchAdsgram()">СЕРВІС 1</button>
             </div>
 
-            <!-- СЕРВІС 2 -->
             <div style="margin-bottom: 15px;">
                 <div class="service-meta">
                     <span>Сервіс 2 (AdExium Video)</span>
@@ -272,7 +260,6 @@
                 <button class="btn" id="btn-service2" onclick="watchDirectLink('service2', 'https://www.effectivecpmnetwork.com/gbzuytbhy?key=8595ffd9c4e7bfcd3fbacb124a4b0c74')">СЕРВІС 2</button>
             </div>
 
-            <!-- СЕРВІС 3 -->
             <div style="margin-bottom: 15px;">
                 <div class="service-meta">
                     <span>Сервіс 3 (GigaPubs VIP)</span>
@@ -282,25 +269,22 @@
                 <button class="btn" id="btn-service3" onclick="watchDirectLink('service3', 'https://affectionatestorage.com/gQiXSO')">СЕРВІС 3</button>
             </div>
 
-            <!-- СЕРВІС 4 -->
             <div style="margin-bottom: 15px;">
                 <div class="service-meta">
                     <span>Сервіс 4 (Adsterra Pro)</span>
                     <span id="timer-service4" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
                     <span id="limit-service4" class="limit-indicator">0 / 20</span>
                 </div>
-                <button class="btn" id="btn-service4" onclick="watchScriptAd('service4')">СЕРВІС 4</button>
+                <button class="btn" id="btn-service4" onclick="watchDirectLink('service4', 'https://www.effectivecpmnetwork.com/gbzuytbhy?key=8595ffd9c4e7bfcd3fbacb124a4b0c74')">СЕРВІС 4</button>
             </div>
         </div>
 
-        <!-- Вкладка 2: Завдання -->
         <div id="tab-tasks" class="tab-content">
             <div class="card">
                 <h3>📋 Виконання завдань</h3>
                 <p style="color: #a1a1aa; font-size: 14px;">Підписуйтесь на ресурси та виконуйте оффери для додаткового доходу.</p>
             </div>
 
-            <!-- Завдання Telegram 1 -->
             <div class="task-item">
                 <div class="task-info">
                     <h4>Підписка на Спонсора 1</h4>
@@ -309,7 +293,6 @@
                 <button class="task-btn" onclick="doTelegramTask('https://t.me/your_channel_link1', 0.01)">Виконати</button>
             </div>
 
-            <!-- Завдання Telegram 2 -->
             <div class="task-item">
                 <div class="task-info">
                     <h4>Підписка на Новини WoodGrow</h4>
@@ -318,7 +301,6 @@
                 <button class="task-btn" onclick="doTelegramTask('https://t.me/your_channel_link2', 0.01)">Виконати</button>
             </div>
 
-            <!-- Завдання Monetag -->
             <div class="task-item">
                 <div class="task-info">
                     <h4>Monetag Смарт-Оффер</h4>
@@ -328,7 +310,6 @@
             </div>
         </div>
 
-        <!-- Вкладка 3: Гаманець -->
         <div id="tab-wallet" class="tab-content">
             <div class="card">
                 <h3>Підключення гаманця</h3>
@@ -343,7 +324,6 @@
             </div>
         </div>
 
-        <!-- Вкладка 4: Кабінет -->
         <div id="tab-profile" class="tab-content">
             <div class="card" style="text-align: left;">
                 <h3 style="text-align: center;">👤 Мій кабінет</h3>
@@ -362,7 +342,6 @@
 
     </div>
 
-    <!-- Нижня золота навігаційна панель -->
     <div class="nav-bar">
         <div class="nav-item active" onclick="switchTab('main', this)">
             <span class="nav-icon">🏠</span>Головна
@@ -452,30 +431,10 @@
             });
         }
 
-        // СЕРВІС 2 ТА СЕРВІС 3: DIRECT LINKS
+        // УНІВЕРСАЛЬНИЙ БЕЗПЕЧНИЙ РЕДІРЕКТ ДЛЯ СЕРВІСІВ 2, 3 ТА 4
         function watchDirectLink(serviceKey, url) {
             if (viewCounts[serviceKey] >= MAX_VIEWS) return;
             window.open(url, '_blank');
-            setTimeout(() => {
-                rewardUser(serviceKey);
-            }, 1500);
-        }
-
-        // СЕРВІС 4: КОНСТРУКТОР ДИНАМІЧНОГО СКРИПТА (ВИПРАВЛЕНО)
-        function watchScriptAd(serviceKey) {
-            if (viewCounts[serviceKey] >= MAX_VIEWS) return;
-            
-            const container = document.getElementById('script-ad-container');
-            container.innerHTML = ''; // Очищуємо попередній запуск
-            
-            // Створюємо та вмонтовуємо тег скрипта безпосередньо в момент натискання кнопки
-            const script = document.createElement('script');
-            script.src = "https://pl29851117.effectivecpmnetwork.com/c4/5d/93/c45d93c72f9027c7dbf67dbfb73d6488.js";
-            script.async = true;
-            
-            container.appendChild(script);
-            
-            // Зараховуємо винагороду
             setTimeout(() => {
                 rewardUser(serviceKey);
             }, 1500);
