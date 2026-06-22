@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WoodGrow Coin</title>
+    <!-- Офіційний скрипт Telegram -->
     <script src="https://telegram.org"></script>
     <style>
         body {
@@ -133,20 +134,20 @@
     <!-- ЕКРАН 2: ОСОБИСТИЙ КАБІНЕТ -->
     <div id="screen-profile" class="content-section">
         <div class="avatar" id="user-avatar">👤</div>
-        <div class="username" id="user-name">Завантаження...</div>
+        <div class="username" id="user-name">Користувач WoodGrow</div>
         
         <div class="balance-card" style="width:100%;">
             <div class="balance-label">Переглянуто роликів</div>
             <div class="balance-value" id="stats-views">0</div>
         </div>
         
-        <!-- ВСІ КНОПКИ ТЕПЕР ТУТ, ЯК У ВАШОМУ МЕНЮ -->
-        <button class="btn btn-ton" onclick="redirectToBotWallet()">💎 Підключити гаманець</button>
-        <button class="btn" onclick="shareInviteLink()">👥 Запросити друга</button>
+        <!-- КНОПКИ З НАДІЙНИМИ СИСТЕМНИМИ ПОП-АПАМИ -->
+        <button class="btn btn-ton" onclick="showWalletPopup()">💎 Підключити гаманець</button>
+        <button class="btn" onclick="showInvitePopup()">👥 Запросити друга</button>
         <button class="btn btn-secondary" onclick="alert('Мінімальний вивід: 5 USDT')">📥 Вивести кошти</button>
     </div>
 
-    <!-- НИЖНЯ НАВІГАЦІЯ: ТЕПЕР ТІЛЬКИ ДВА ПУНКТИ -->
+    <!-- НАВІГАЦІЯ -->
     <div class="nav-bar">
         <div class="nav-item active" onclick="switchScreen('home', this)">
             <div class="nav-icon">👁</div>
@@ -194,18 +195,33 @@
         el.classList.add('active');
     }
 
-    function shareInviteLink() {
-        const textMessage = "Приєднуйся до WoodGrow Coin, дивись відео та заробляй USDT разом зі мною! 🌳💰";
+    // НАДІЙНА РЕФЕРАЛКА: Текст просто показується у фірмовому вікні Telegram, звідки його можна скопіювати
+    function showInvitePopup() {
         const myInviteLink = "https://t.me" + botUsername + "?start=ref_" + userId;
-        const telegramShareUrl = "https://t.meshare/url?url=" + encodeURIComponent(myInviteLink) + "&text=" + encodeURIComponent(textMessage);
-        tg.openTelegramLink(telegramShareUrl);
+        if (tg.showPopup) {
+            tg.showPopup({
+                title: 'Запросити друга',
+                message: 'Скопіюйте це посилання та надішліть другу:\n\n' + myInviteLink,
+                buttons: [{type: 'ok', text: 'Зрозуміло'}]
+            });
+        } else {
+            alert('Ваше посилання:\n' + myInviteLink);
+        }
     }
 
-    // Кнопка безпечно веде в чат вашого бота, запускаючи команду /wallet
-    function redirectToBotWallet() {
-        const botChatUrl = "https://t.me" + botUsername + "?start=wallet";
-        tg.openTelegramLink(botChatUrl);
-        tg.close(); 
+    // НАДІЙНИЙ ГАМАНЕЦЬ: Інструкція у фірмовому вікні Telegram
+    function showWalletPopup() {
+        if (tg.showPopup) {
+            tg.showPopup({
+                title: 'Підключення гаманця',
+                message: 'Щоб надійно підключити ваш Tonkeeper чи Wallet, закрийте це графічне вікно та натисніть синю кнопку 💎 Підключити гаманець у нашому головному чат-боті WoodGrow Coin.',
+                buttons: [{type: 'close', text: 'Закрити і перейти до бота'}]
+            }, function() {
+                tg.close(); // Автоматично закриває Mini App, повертаючи користувача в чат до Manybot кнопки
+            });
+        } else {
+            alert('Будь ласка, використовуйте кнопку "💎 Підключити гаманець" в самому чаті бота.');
+        }
     }
 </script>
 </body>
