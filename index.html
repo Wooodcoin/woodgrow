@@ -3,186 +3,487 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WoodGrow Монетизація</title>
+    <title>WoodGrow Premium App</title>
     <!-- Підключаємо скрипт Adsgram (Сервіс 1) -->
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     <style>
+        :root {
+            --neon-lime: #39ff14;
+            --neon-glow: rgba(57, 255, 20, 0.6);
+            --gold-primary: #ffd700;
+            --gold-gradient: linear-gradient(135deg, #ffe066 0%, #d4af37 50%, #aa7c11 100%);
+            --bg-dark: #0a0a0a;
+            --panel-bg: #141414;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #1a1a1a;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-dark);
             color: #ffffff;
-            text-align: center;
-            padding: 20px;
             margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            user-select: none;
+            -webkit-user-select: none;
         }
-        .container {
-            max-width: 400px;
+
+        .content-container {
+            flex: 1;
+            padding: 20px;
+            padding-bottom: 90px;
+            max-width: 480px;
             margin: 0 auto;
-            background: #2d2d2d;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            width: 100%;
+            box-sizing: border-box;
         }
-        h1 { color: #4caf50; font-size: 24px; margin-bottom: 5px; }
-        .balance-box {
-            font-size: 22px;
+
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        /* Золота панель балансу */
+        .gold-panel {
+            background: var(--gold-gradient);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.3);
+            color: #000000;
+            margin-bottom: 25px;
+            border: 1px solid #fff3b3;
+        }
+        .gold-panel h2 {
+            margin: 0 0 5px 0;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.8;
+        }
+        .balance-display {
+            font-size: 36px;
+            font-weight: 900;
+            margin: 5px 0;
+        }
+
+        .standard-panel {
+            background-color: var(--panel-bg);
+            border: 1px solid #262626;
+            border-radius: 14px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .neon-title {
+            color: var(--neon-lime);
+            text-shadow: 0 0 10px var(--neon-glow);
+            font-size: 24px;
+            margin-top: 0;
+        }
+
+        /* Індивідуальні блоки сервісів */
+        .ad-block {
             margin: 20px 0;
-            background: #3d3d3d;
-            padding: 12px;
-            border-radius: 10px;
-            border: 1px solid #4caf50;
+            text-align: left;
         }
-        .balance-value { font-weight: bold; color: #4caf50; }
-        
-        /* Стилі рекламних кнопок */
+        .service-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #aaa;
+            margin-bottom: 5px;
+            padding: 0 2px;
+        }
+        .limit-text {
+            font-weight: bold;
+            color: #ccc;
+        }
+        .limit-text.maxed {
+            color: #ff3333;
+        }
+        .inner-timer {
+            font-size: 13px;
+            color: #ff3333;
+            margin-bottom: 5px;
+            display: none;
+            font-weight: bold;
+        }
+
         .ad-button {
             display: block;
             width: 100%;
-            padding: 14px 0;
-            margin: 12px 0;
-            font-size: 16px;
+            background: transparent;
+            color: var(--neon-lime);
+            border: 2px solid var(--neon-lime);
+            padding: 15px;
+            font-size: 15px;
             font-weight: bold;
-            color: white;
-            border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
-            transition: background 0.3s, transform 0.1s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 0 8px rgba(57, 255, 20, 0.2);
+            transition: all 0.2s ease;
+            box-sizing: border-box;
         }
-        .ad-button:active { transform: scale(0.98); }
-        
-        #btn-service1 { background: #0088cc; } /* Adsgram */
-        #btn-service2 { background: #ff9800; } /* Adsterra 1 */
-        #btn-service3 { background: #9c27b0; } /* HilltopAds */
-        #btn-service4 { background: #e91e63; } /* Adsterra 2 */
-        
+        .ad-button:not(:disabled):hover {
+            background: var(--neon-lime);
+            color: #000000;
+            box-shadow: 0 0 20px var(--neon-glow);
+        }
         .ad-button:disabled {
-            background: #555555 !important;
-            color: #888888;
+            border-color: #444;
+            color: #666;
+            box-shadow: none;
             cursor: not-allowed;
-            transform: none;
         }
-        
-        #cooldown-timer {
-            font-size: 18px;
-            color: #ff5722;
+
+        .wallet-btn {
+            background: var(--gold-gradient);
+            color: #000;
             font-weight: bold;
-            margin-top: 15px;
-            display: none;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2);
+            width: 100%;
+        }
+
+        .ref-box {
+            background: #222;
+            padding: 10px;
+            border-radius: 8px;
+            word-break: break-all;
+            margin: 15px 0;
+            border: 1px dashed var(--gold-primary);
+            color: var(--gold-primary);
+        }
+
+        /* Нижнє меню */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background-color: var(--panel-bg);
+            border-top: 1px solid rgba(212, 175, 55, 0.3);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: none;
+            border: none;
+            color: #888888;
+            font-size: 12px;
+            cursor: pointer;
+            flex: 1;
+            padding: 8px 0;
+        }
+        .nav-item svg {
+            width: 24px;
+            height: 24px;
+            margin-bottom: 4px;
+            fill: currentColor;
+        }
+        .nav-item.active {
+            color: var(--neon-lime);
+            filter: drop-shadow(0 0 4px var(--neon-glow));
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>WoodGrow</h1>
-    <p>Переглядайте рекламу та заробляйте реальний баланс!</p>
+<div class="content-container">
     
-    <div class="balance-box">
-        Баланс: <span id="balance" class="balance-value">$0.0000</span>
+    <!-- ВКЛАДКА 1: ГОЛОВНА -->
+    <div id="tab-home" class="tab-content active">
+        <div class="gold-panel">
+            <h2>Поточний Баланс</h2>
+            <div id="balance" class="balance-display">$0.0000</div>
+        </div>
+
+        <div class="standard-panel">
+            <h3 class="neon-title">Доступні Сервіси</h3>
+            <p style="color: #aaa; font-size: 14px; margin-top: -10px; margin-bottom: 25px;">Кожен сервіс має ліміт 20 переглядів та власний таймер на 2 хвилини.</p>
+            
+            <!-- Сервіс 1 -->
+            <div class="ad-block">
+                <div class="service-info">
+                    <span>Сервіс 1 (Adsgram)</span>
+                    <span class="limit-text" id="limit-service1">0 / 20</span>
+                </div>
+                <div id="timer-service1" class="inner-timer">⏳ Доступно через: <span class="sec">120</span> сек</div>
+                <button id="btn-service1" class="ad-button" onclick="watchAdsgram()">Дивитись відео</button>
+            </div>
+
+            <!-- Сервіс 2 -->
+            <div class="ad-block">
+                <div class="service-info">
+                    <span>Сервіс 2 (Adsterra)</span>
+                    <span class="limit-text" id="limit-service2">0 / 20</span>
+                </div>
+                <div id="timer-service2" class="inner-timer">⏳ Доступно через: <span class="sec">120</span> сек</div>
+                <button id="btn-service2" class="ad-button" onclick="watchDirectLink('service2', 'https://www.effectivecpmnetwork.com/gbzuytbhy?key=8595ffd9c4e7bfcd3fbacb124a4b0c74')">Швидка реклама</button>
+            </div>
+
+            <!-- Сервіс 3 -->
+            <div class="ad-block">
+                <div class="service-info">
+                    <span>Сервіс 3 (HilltopAds)</span>
+                    <span class="limit-text" id="limit-service3">0 / 20</span>
+                </div>
+                <div id="timer-service3" class="inner-timer">⏳ Доступно через: <span class="sec">120</span> сек</div>
+                <button id="btn-service3" class="ad-button" onclick="watchDirectLink('service3', 'https://affectionatestorage.com/gQiXSO')">Бонусна реклама</button>
+            </div>
+
+            <!-- Сервіс 4 -->
+            <div class="ad-block">
+                <div class="service-info">
+                    <span>Сервіс 4 (Adsterra №2)</span>
+                    <span class="limit-text" id="limit-service4">0 / 20</span>
+                </div>
+                <div id="timer-service4" class="inner-timer">⏳ Доступно через: <span class="sec">120</span> сек</div>
+                <button id="btn-service4" class="ad-button" onclick="watchDirectLink('service4', 'https://pl29851117.effectivecpmnetwork.com/c4/5d/93/c45d93c72f9027c7dbf67dbfb73d6488.js')">Мега реклама</button>
+            </div>
+        </div>
     </div>
 
-    <!-- 4 Рекламні сервіси -->
-    <button id="btn-service1" class="ad-button" onclick="watchAdsgram()">Сервіс 1 (Відео Adsgram)</button>
-    <button id="btn-service2" class="ad-button" onclick="watchDirectLink('https://www.effectivecpmnetwork.com/gbzuytbhy?key=8595ffd9c4e7bfcd3fbacb124a4b0c74')">Сервіс 2 (Швидка Adsterra)</button>
-    <button id="btn-service3" class="ad-button" onclick="watchDirectLink('https://affectionatestorage.com/gQiXSO')">Сервіс 3 (Бонус HilltopAds)</button>
-    <button id="btn-service4" class="ad-button" onclick="watchDirectLink('https://pl29851117.effectivecpmnetwork.com/c4/5d/93/c45d93c72f9027c7dbf67dbfb73d6488.js')">Сервіс 4 (Мега Adsterra)</button>
+    <!-- ВКЛАДКА 2: ГАМАНЕЦЬ -->
+    <div id="tab-wallet" class="tab-content">
+        <h2 class="neon-title" style="text-align: center;">Фінанси & Гаманець</h2>
+        <div class="standard-panel" style="text-align: center; border: 1px solid var(--gold-primary);">
+            <p style="font-size: 15px; line-height: 1.5;">Підключіть ваш TON гаманець для швидкого виведення зароблених коштів.</p>
+            <div id="wallet-status" style="margin: 15px 0; font-weight: bold; color: #ff3333;">Гаманець не підключено ❌</div>
+            <button id="connect-wallet-btn" class="wallet-btn" onclick="toggleWallet()">Підключити TON гаманець</button>
+        </div>
+        
+        <div class="standard-panel">
+            <h3>Правила виплат:</h3>
+            <ul style="padding-left: 20px; color: #ccc; font-size: 14px; line-height: 1.6;">
+                <li>Мінімальна сума для виведення: <span style="color:var(--neon-lime); font-weight:bold; text-shadow: 0 0 5px var(--neon-glow);">$1.50</span></li>
+                <li>Виплати здійснюються в криптовалюті TON або USDT.</li>
+                <li>Обробка заявки триває до 24 годин.</li>
+            </ul>
+        </div>
+    </div>
 
-    <!-- Таймер блокування -->
-    <div id="cooldown-timer">Наступний клік через: <span id="timer-seconds">120</span> сек</div>
+    <!-- ВКЛАДКА 3: РЕФЕРАЛКА -->
+    <div id="tab-ref" class="tab-content">
+        <h2 class="neon-title" style="text-align: center;">Реферальна Програма</h2>
+        <div class="standard-panel">
+            <p style="font-size: 15px; line-height: 1.5; text-align: center;">Запрошуйте друзів та отримуйте фіксований бонус <span style="color:var(--neon-lime); font-weight:bold;">+$0.0050</span> за кожного активного реферала!</p>
+            <div class="ref-box" id="ref-link-display">https://t.me/woodgrow_bot?start=user123456</div>
+            <button class="wallet-btn" onclick="copyRefLink()">Скопіювати посилання</button>
+        </div>
+        <div class="standard-panel" style="text-align: center;">
+            <div style="font-size: 14px; color: #aaa;">Запрошено друзів: <b style="color: #fff; font-size: 18px;">0</b></div>
+        </div>
+    </div>
+
 </div>
 
+<!-- НИЖНЄ МЕНЮ -->
+<nav class="bottom-nav">
+    <button class="nav-item active" onclick="switchTab('home', this)">
+        <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        Головна
+    </button>
+    <button class="nav-item" onclick="switchTab('wallet', this)">
+        <svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+        Гаманець
+    </button>
+    <button class="nav-item" onclick="switchTab('ref', this)">
+        <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 1.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+        Рефералка
+    </button>
+</nav>
+
 <script>
-    // Ініціалізація Adsgram із вашим правильним ID: 35910
+    // Ініціалізація Adsgram (ID: 35910)
     const AdController = window.Adsgram ? window.Adsgram.init({ blockId: "35910" }) : null;
 
-    // Завантажуємо баланс (якщо новий користувач — ставимо 0.0)
+    const MAX_VIEWS = 20;
+    const services = ['service1', 'service2', 'service3', 'service4'];
+
+    // Стан додатка
     let balance = parseFloat(localStorage.getItem('user_balance')) || 0.0;
+    let walletConnected = localStorage.getItem('wallet_connected') === 'true';
+    
+    // Сховище для лімітів кожного сервісу окремо
+    let viewCounts = {
+        service1: parseInt(localStorage.getItem('view_count_service1')) || 0,
+        service2: parseInt(localStorage.getItem('view_count_service2')) || 0,
+        service3: parseInt(localStorage.getItem('view_count_service3')) || 0,
+        service4: parseInt(localStorage.getItem('view_count_service4')) || 0
+    };
+
+    // Оновлення початкового інтерфейсу
     document.getElementById('balance').innerText = "$" + balance.toFixed(4);
+    updateWalletUI();
+    
+    // Запускаємо перевірку лімітів та таймерів для кожного сервісу окремо
+    services.forEach(srv => {
+        updateLimitUI(srv);
+        checkSingleCooldown(srv);
+    });
 
-    // Перевіряємо, чи активний таймер після перезавантаження сторінки
-    checkCooldown();
+    function switchTab(tabId, buttonElement) {
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        document.getElementById('tab-' + tabId).classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+        buttonElement.classList.add('active');
+    }
 
-    // Логіка для Сервісу 1 (Adsgram відео)
+    // Візуальне відображення лімітів (наприклад: 5 / 20)
+    function updateLimitUI(serviceKey) {
+        const limitSpan = document.getElementById(`limit-${serviceKey}`);
+        limitSpan.innerText = `${viewCounts[serviceKey]} / ${MAX_VIEWS}`;
+        
+        if (viewCounts[serviceKey] >= MAX_VIEWS) {
+            limitSpan.classList.add('maxed');
+            limitSpan.innerText = "Максимум (20/20) 🛑";
+            const btnId = getButtonId(serviceKey);
+            document.getElementById(btnId).disabled = true;
+        }
+    }
+
+    function getButtonId(serviceKey) {
+        if (serviceKey === 'service1') return 'btn-service1';
+        if (serviceKey === 'service2') return 'btn-service2';
+        if (serviceKey === 'service3') return 'btn-service3';
+        return 'btn-service4';
+    }
+
+    // Клік по Сервісу 1 (Adsgram)
     function watchAdsgram() {
+        if (viewCounts['service1'] >= MAX_VIEWS) return;
         if (!AdController) {
-            alert("Завантаження реклами... Спробуйте ще раз за секунду.");
+            alert("Завантаження реклами... Спробуйте ще раз.");
             return;
         }
-        
-        AdController.show().then((result) => {
-            // Відео переглянуто повністю
-            rewardUser();
-        }).catch((result) => {
-            // Користувач закрив рекламу раніше часу
-            alert("Для отримання $0.0015 потрібно додивитися відео до кінця.");
+        AdController.show().then(() => {
+            rewardUser('service1');
+        }).catch(() => {
+            alert("Для нарахування $0.0015 додивіться відео до кінця.");
         });
     }
 
-    // Логіка для Сервісів 2, 3 та 4 (Прямі рекламні лінки)
-    function watchDirectLink(url) {
-        // Відкриваємо вікно з рекламою у новій вкладці
+    // Клік по Сервісах 2, 3, 4
+    function watchDirectLink(serviceKey, url) {
+        if (viewCounts[serviceKey] >= MAX_VIEWS) return;
         window.open(url, '_blank');
-        
-        // Автоматично зараховуємо винагороду за перехід та блокуємо додаток
         setTimeout(() => {
-            rewardUser();
+            rewardUser(serviceKey);
         }, 1000);
     }
 
-    // Нарахування доларів та запуск кулдауну
-    function rewardUser() {
-        // Додаємо рівно $0.0015 із математичним округленням до 4 знаків
+    // Зарахування винагороди
+    function rewardUser(serviceKey) {
         balance = parseFloat((balance + 0.0015).toFixed(4));
-        
-        // Зберігаємо та оновлюємо на екрані
+        viewCounts[serviceKey] += 1;
+
         localStorage.setItem('user_balance', balance);
+        localStorage.setItem(`view_count_${serviceKey}`, viewCounts[serviceKey]);
+
         document.getElementById('balance').innerText = "$" + balance.toFixed(4);
-        
-        // Фіксуємо час закінчення блокування (поточний час + 120 секунд)
-        const expireTime = Date.now() + 120000;
-        localStorage.setItem('cooldown_expire', expireTime);
-        
-        checkCooldown();
+        updateLimitUI(serviceKey);
+
+        // Якщо ліміт сервісу ще не вичерпано, вмикаємо індивідуальний таймер на 120 сек
+        if (viewCounts[serviceKey] < MAX_VIEWS) {
+            const expireTime = Date.now() + 120000;
+            localStorage.setItem(`cooldown_expire_${serviceKey}`, expireTime);
+            checkSingleCooldown(serviceKey);
+        }
     }
 
-    // Робота таймера зворотного відліку
-    function checkCooldown() {
-        const expireTime = localStorage.getItem('cooldown_expire');
+    // Робота індивідуального таймера для конкретного сервісу
+    function checkSingleCooldown(serviceKey) {
+        if (viewCounts[serviceKey] >= MAX_VIEWS) return;
+
+        const btnId = getButtonId(serviceKey);
+        const timerId = 'timer-' + serviceKey;
+        const expireTime = localStorage.getItem(`cooldown_expire_${serviceKey}`);
+        
         if (!expireTime) return;
 
         const remaining = Math.ceil((expireTime - Date.now()) / 1000);
 
         if (remaining > 0) {
-            setButtonsState(true); // Вимикаємо всі кнопки
-            const timerLayout = document.getElementById('cooldown-timer');
-            const timerSeconds = document.getElementById('timer-seconds');
-            timerLayout.style.display = 'block';
-            timerSeconds.innerText = remaining;
+            document.getElementById(btnId).disabled = true;
+            const timerBox = document.getElementById(timerId);
+            const secSpan = timerBox.querySelector('.sec');
+            timerBox.style.display = 'block';
+            secSpan.innerText = remaining;
 
             const interval = setInterval(() => {
                 const currentRemaining = Math.ceil((expireTime - Date.now()) / 1000);
-                if (currentRemaining <= 0) {
+                
+                // Якщо час вийшов або раптово скінчився ліміт
+                if (currentRemaining <= 0 || viewCounts[serviceKey] >= MAX_VIEWS) {
                     clearInterval(interval);
-                    setButtonsState(false); // Вмикаємо кнопки назад
-                    timerLayout.style.display = 'none';
-                    localStorage.removeItem('cooldown_expire');
+                    localStorage.removeItem(`cooldown_expire_${serviceKey}`);
+                    timerBox.style.display = 'none';
+                    
+                    if (viewCounts[serviceKey] < MAX_VIEWS) {
+                        document.getElementById(btnId).disabled = false;
+                    }
                 } else {
-                    timerSeconds.innerText = currentRemaining;
+                    secSpan.innerText = currentRemaining;
                 }
             }, 1000);
         } else {
-            setButtonsState(false);
-            document.getElementById('cooldown-timer').style.display = 'none';
-            localStorage.removeItem('cooldown_expire');
+            document.getElementById(btnId).disabled = false;
+            document.getElementById(timerId).style.display = 'none';
+            localStorage.removeItem(`cooldown_expire_${serviceKey}`);
         }
     }
 
-    // Функція керування станом кнопок (активні/заблоковані)
-    function setButtonsState(disabled) {
-        document.getElementById('btn-service1').disabled = disabled;
-        document.getElementById('btn-service2').disabled = disabled;
-        document.getElementById('btn-service3').disabled = disabled;
-        document.getElementById('btn-service4').disabled = disabled;
+    // Керування станом гаманця
+    function toggleWallet() {
+        walletConnected = !walletConnected;
+        localStorage.setItem('wallet_connected', walletConnected);
+        updateWalletUI();
+    }
+
+    function updateWalletUI() {
+        const statusDiv = document.getElementById('wallet-status');
+        const btn = document.getElementById('connect-wallet-btn');
+        if (walletConnected) {
+            statusDiv.innerHTML = "Гаманець TON підключено (UQ...x9z) ✅";
+            statusDiv.style.color = "var(--neon-lime)";
+            btn.innerText = "Відключити гаманець";
+        } else {
+            statusDiv.innerHTML = "Гаманець не підключено ❌";
+            statusDiv.style.color = "#ff3333";
+            btn.innerText = "Підключити TON гаманець";
+        }
+    }
+
+    // Копіювання рефералки
+    function copyRefLink() {
+        const linkText = document.getElementById('ref-link-display').innerText;
+        navigator.clipboard.writeText(linkText).then(() => {
+            alert("Реферальне посилання скопійовано!");
+        });
     }
 </script>
 
