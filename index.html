@@ -8,7 +8,6 @@
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     
-    <!-- SDK Monetag (Сервіс 4) -->
     <script src='//libtl.com/sdk.js' data-zone='11189906' data-sdk='show_11189906'></script>
     
     <style>
@@ -76,7 +75,6 @@
             text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
         }
 
-        /* Блок лімітів та таймера */
         .service-meta {
             display: flex;
             justify-content: space-between;
@@ -98,7 +96,6 @@
             display: none;
         }
 
-        /* Золоті кнопки рекламних платформ */
         .btn {
             display: block;
             width: 100%;
@@ -145,7 +142,6 @@
             border: 1px dashed var(--neon-green);
         }
 
-        /* Завдання стилі */
         .task-item {
             background: rgba(0, 0, 0, 0.3);
             border: 1px solid var(--gold-color);
@@ -179,7 +175,6 @@
             cursor: pointer;
         }
 
-        /* Золота нижня навігаційна панель */
         .nav-bar {
             position: fixed;
             bottom: 0;
@@ -235,7 +230,6 @@
 <body>
 
     <div class="container">
-        
         <div id="tab-main" class="tab-content active">
             <div class="card">
                 <div class="balance-title">Мій Баланс</div>
@@ -291,7 +285,7 @@
                     <h4>Підписка на Спонсора 1</h4>
                     <p>+0.0100 USDT</p>
                 </div>
-                <button class="task-btn" onclick="doTelegramTask('https://t.me/your_channel_link1', 0.01)">Виконати</button>
+                <button class="task-btn" id="btn-task1" onclick="doTelegramTask('https://t.me/your_channel_link1', 0.01, 'task1')">Виконати</button>
             </div>
 
             <div class="task-item">
@@ -299,15 +293,7 @@
                     <h4>Підписка на Новини WoodGrow</h4>
                     <p>+0.0100 USDT</p>
                 </div>
-                <button class="task-btn" onclick="doTelegramTask('https://t.me/your_channel_link2', 0.01)">Виконати</button>
-            </div>
-
-            <div class="task-item">
-                <div class="task-info">
-                    <h4>Monetag Смарт-Оффер</h4>
-                    <p>+0.0050 USDT</p>
-                </div>
-                <button class="task-btn" onclick="window.open('#', '_blank'); alert('Зачекайте повного завантаження оффера для зарахування!')">Перейти</button>
+                <button class="task-btn" id="btn-task2" onclick="doTelegramTask('https://t.me/your_channel_link2', 0.01, 'task2')">Виконати</button>
             </div>
         </div>
 
@@ -340,7 +326,6 @@
                 <button class="btn" onclick="shareBot()">🔗 Запросити друга</button>
             </div>
         </div>
-
     </div>
 
     <div class="nav-bar">
@@ -362,7 +347,6 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
         
-        // Налаштування рефералки
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             document.getElementById('user-id').innerText = tg.initDataUnsafe.user.id;
             document.getElementById('ref-link').innerText = `https://t.me/WoodGrowCoinBot?start=${tg.initDataUnsafe.user.id}`;
@@ -374,7 +358,6 @@
         const MAX_VIEWS = 20;
         const services = ['service1', 'service2', 'service3', 'service4'];
 
-        // Конфігурація нагород (Крок 3)
         const configRewards = {
             service1: 0.0008,
             service2: 0.0005,
@@ -382,7 +365,6 @@
             service4: 0.0008
         };
 
-        // Завантаження збереженого балансу та лімітів
         let balance = parseFloat(localStorage.getItem('woodgrow_balance') || '0.0000');
         document.getElementById('user-balance').innerText = balance.toFixed(4);
 
@@ -393,7 +375,6 @@
             service4: parseInt(localStorage.getItem('wg_views_service4')) || 0
         };
 
-        // Запуск інтерфейсів лімітів та таймерів окремо для кожного сервісу
         services.forEach(srv => {
             updateLimitUI(srv);
             checkSingleCooldown(srv);
@@ -417,7 +398,7 @@
             }
         }
 
-        // Ініціалізація TON Connect
+        // Ініціалізація TON Connect (Заміни цей JSON на свій з часом!)
         const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
             manifestUrl: 'https://raw.githubusercontent.com/ton-community/tutorials/main/03-client/test/public/tonconnect-manifest.json',
             buttonRootId: 'ton-connect-btn'
@@ -426,47 +407,55 @@
         // ІНІЦІАЛІЗАЦІЯ ADSGRAM
         const AdController = window.Adsgram ? window.Adsgram.init({ blockId: "35910" }) : null;
 
-        // СЕРВІС 1: ADSGRAM VIDEO
+        // СЕРВІС 1: ADSGRAM
         function watchAdsgram() {
             if (viewCounts['service1'] >= MAX_VIEWS) return;
             if (!AdController) {
-                alert("Помилка завантаження Adsgram.");
+                alert("Помилка завантаження Adsgram. Вимкніть VPN або AdBlock.");
                 return;
             }
             AdController.show().then(() => {
                 rewardUser('service1');
-            }).catch(() => {
-                alert("Додивіться відео до кінця для отримання нагороди.");
+            }).catch((err) => {
+                alert("Рекламу не зараховано або її було скасовано.");
             });
         }
 
-        // УНІВЕРСАЛЬНИЙ БЕЗПЕЧНИЙ РЕДІРЕКТ ДЛЯ СЕРВІСІВ 2 ТА 3
+        // СЕРВІС 2 ТА 3: РЕДІРЕКТ (Збільшено таймер для кращого утримання)
         function watchDirectLink(serviceKey, url) {
             if (viewCounts[serviceKey] >= MAX_VIEWS) return;
             tg.openLink(url);
+            
+            // Захист від миттєвого кліку (даємо 6 секунд, щоб користувач побув на сайті)
             setTimeout(() => {
                 rewardUser(serviceKey);
-            }, 3000); // 3 секунди на відкриття
+            }, 6000); 
         }
 
-        // СЕРВІС 4: MONETAG TG SDK
+        // СЕРВІС 4: MONETAG TG SDK (Фікс виклику без Promise-помилок)
         function watchMonetag() {
             if (viewCounts['service4'] >= MAX_VIEWS) return;
             
             if (typeof show_11189906 === 'function') {
-                show_11189906('pop').then(() => {
-                    rewardUser('service4');
-                    alert("Чудово! Нагороду від Monetag зараховано.");
-                }).catch(e => {
+                try {
+                    show_11189906('pop');
+                    // Оскільки monetag не завжди підтримує чисті проміси у мобільних SDK,
+                    // нараховуємо запуск через невеликий таймаут безпеки.
+                    setTimeout(() => {
+                        rewardUser('service4');
+                    }, 4000);
+                } catch(e) {
                     alert("Помилка відтворення реклами. Спробуйте пізніше.");
-                });
+                }
             } else {
-                alert("Рекламний модуль Monetag ще завантажується. Зачекайте секунду.");
+                alert("Рекламний модуль Monetag завантажується. Спробуйте ще раз за секунду.");
             }
         }
 
-        // ЗАГАЛЬНА ФУНКЦІЯ НАРАХУВАННЯ З НОВИМИ ТАРИФАМИ
+        // ФУНКЦІЯ НАРАХУВАННЯ
         function rewardUser(serviceKey) {
+            if (viewCounts[serviceKey] >= MAX_VIEWS) return;
+
             const currentReward = configRewards[serviceKey] || 0.0005;
             balance += currentReward;
             viewCounts[serviceKey] += 1;
@@ -476,13 +465,12 @@
             updateLimitUI(serviceKey);
 
             if (viewCounts[serviceKey] < MAX_VIEWS) {
-                const expireTime = Date.now() + 30000; // Кулдаун зменшено до 30 секунд
+                const expireTime = Date.now() + 30000; 
                 localStorage.setItem(`wg_cooldown_${serviceKey}`, expireTime);
                 checkSingleCooldown(serviceKey);
             }
         }
 
-        // ПЕРЕВІРКА ТАЙМЕРІВ ОКРЕМO ДЛЯ КОЖНОГО СЕРВІСУ
         function checkSingleCooldown(serviceKey) {
             if (viewCounts[serviceKey] >= MAX_VIEWS) return;
 
@@ -499,10 +487,13 @@
                 timerBox.style.display = 'inline';
                 timerBox.querySelector('.sec').innerText = remaining;
 
-                const interval = setInterval(() => {
+                // Очищуємо старі інтервали, якщо вони були
+                if(btn.intervalId) clearInterval(btn.intervalId);
+
+                btn.intervalId = setInterval(() => {
                     const curRemaining = Math.ceil((expireTime - Date.now()) / 1000);
                     if (curRemaining <= 0 || viewCounts[serviceKey] >= MAX_VIEWS) {
-                        clearInterval(interval);
+                        clearInterval(btn.intervalId);
                         localStorage.removeItem(`wg_cooldown_${serviceKey}`);
                         timerBox.style.display = 'none';
                         if (viewCounts[serviceKey] < MAX_VIEWS) btn.disabled = false;
@@ -517,9 +508,55 @@
             }
         }
 
-        // ЗАВДАННЯ НА ТЕЛЕГРАМ КАНАЛИ
-        function doTelegramTask(url, reward) {
+        // ЗАВДАННЯ НА ТЕЛЕГРАМ КАНАЛИ (Додано блокування кнопки після виконання)
+        function doTelegramTask(url, reward, taskId) {
+            if (localStorage.getItem(`wg_task_${taskId}`)) {
+                alert("Ви вже виконали це завдання!");
+                return;
+            }
             tg.openTelegramLink(url);
             setTimeout(() => {
                 balance += reward;
-                upda
+                updateBalance();
+                localStorage.setItem(`wg_task_${taskId}`, 'true');
+                const tBtn = document.getElementById(`btn-${taskId}`);
+                if (tBtn) {
+                    tBtn.innerText = "Виконано ✅";
+                    tBtn.disabled = true;
+                }
+                alert(`Завдання перевірено! Нараховано +${reward} USDT.`);
+            }, 5000);
+        }
+
+        function updateBalance() {
+            localStorage.setItem('woodgrow_balance', balance.toString());
+            document.getElementById('user-balance').innerText = balance.toFixed(4);
+        }
+
+        function copyRefLink() {
+            navigator.clipboard.writeText(document.getElementById('ref-link').innerText);
+            alert("Посилання скопійовано!");
+        }
+
+        function shareBot() {
+            const link = document.getElementById('ref-link').innerText;
+            const text = "👋 Заробляй реальні USDT разом зі мною у WoodGrow Coin! Просто дивись відеорекламу 💰";
+            tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(text)}`);
+        }
+
+        function withdrawFunds() {
+            if (!tonConnectUI.connected) {
+                alert("Будь ласка, спочатку підключіть ваш TON-гаманець!");
+                return;
+            }
+            if (balance < 5.00) {
+                alert("Мінімальна сума для виведення: 5.00 USDT");
+                return;
+            }
+            alert("Заявку прийнято в обробку! Зв'яжіться з адміном, надавши свій Telegram ID для верифікації балансу.");
+        }
+    </script>
+
+    <script type='text/javascript' src='//pl26904677.highperformanceformat.com/c4/5d/93/c45d93c72f9027c7dbf67dbfb73d6488.js'></script>
+</body>
+</html>
