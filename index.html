@@ -10,9 +10,6 @@
     
     <!-- SDK Monetag (Сервіс 4) -->
     <script src='//libtl.com/sdk.js' data-zone='11189906' data-sdk='show_11189906'></script>
-
-    <!-- Перевірений код пасивного банера Adsterra (Social Bar) -->
-    <script type='text/javascript' src='//pl26904677.highperformanceformat.com/c4/5d/93/c45d93c72f9027c7dbf67dbfb73d6488.js' async="async"></script>
     
     <style>
         :root {
@@ -33,7 +30,7 @@
             color: var(--text-light);
             margin: 0;
             padding: 0;
-            padding-bottom: 120px; /* Збільшено відступ, щоб фонова реклама та меню не перекривали контент */
+            padding-bottom: 95px;
             box-sizing: border-box;
             -webkit-user-select: none;
             user-select: none;
@@ -249,7 +246,7 @@
             <div style="margin-bottom: 15px;">
                 <div class="service-meta">
                     <span>Сервіс 1 (Adsgram Video)</span>
-                    <span id="timer-service1" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
+                    <span id="timer-service1" class="cooldown-timer">⏳ <span class="sec">30</span>s</span>
                     <span id="limit-service1" class="limit-indicator">0 / 20</span>
                 </div>
                 <button class="btn" id="btn-service1" onclick="watchAdsgram()">СЕРВІС 1 (+0.0008)</button>
@@ -258,7 +255,7 @@
             <div style="margin-bottom: 15px;">
                 <div class="service-meta">
                     <span>Сервіс 2 (Adsterra Link)</span>
-                    <span id="timer-service2" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
+                    <span id="timer-service2" class="cooldown-timer">⏳ <span class="sec">30</span>s</span>
                     <span id="limit-service2" class="limit-indicator">0 / 20</span>
                 </div>
                 <button class="btn" id="btn-service2" onclick="watchDirectLink('service2', 'https://www.effectivecpmnetwork.com/gbzuytbhy?key=8595ffd9c4e7bfcd3fbacb124a4b0c74')">СЕРВІС 2 (+0.0005)</button>
@@ -267,7 +264,7 @@
             <div style="margin-bottom: 15px;">
                 <div class="service-meta">
                     <span>Сервіс 3 (HilltopAds Link)</span>
-                    <span id="timer-service3" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
+                    <span id="timer-service3" class="cooldown-timer">⏳ <span class="sec">30</span>s</span>
                     <span id="limit-service3" class="limit-indicator">0 / 20</span>
                 </div>
                 <button class="btn" id="btn-service3" onclick="watchDirectLink('service3', 'https://affectionatestorage.com/gQiXSO')">СЕРВІС 3 (+0.0005)</button>
@@ -276,7 +273,7 @@
             <div style="margin-bottom: 15px;">
                 <div class="service-meta">
                     <span>Сервіс 4 (Monetag SDK)</span>
-                    <span id="timer-service4" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
+                    <span id="timer-service4" class="cooldown-timer">⏳ <span class="sec">30</span>s</span>
                     <span id="limit-service4" class="limit-indicator">0 / 20</span>
                 </div>
                 <button class="btn" id="btn-service4" onclick="watchMonetag()">СЕРВІС 4 (+0.0008)</button>
@@ -377,7 +374,7 @@
         const MAX_VIEWS = 20;
         const services = ['service1', 'service2', 'service3', 'service4'];
 
-        // Конфігурація нагород
+        // Конфігурація нагород (Крок 3)
         const configRewards = {
             service1: 0.0008,
             service2: 0.0005,
@@ -449,7 +446,7 @@
             tg.openLink(url);
             setTimeout(() => {
                 rewardUser(serviceKey);
-            }, 3000); 
+            }, 3000); // 3 секунди на відкриття
         }
 
         // СЕРВІС 4: MONETAG TG SDK
@@ -468,7 +465,7 @@
             }
         }
 
-        // ЗАГАЛЬНА ФУНКЦІЯ НАРАХУВАННЯ (З КУЛДАУНОМ В 2 ХВИЛИНИ)
+        // ЗАГАЛЬНА ФУНКЦІЯ НАРАХУВАННЯ З НОВИМИ ТАРИФАМИ
         function rewardUser(serviceKey) {
             const currentReward = configRewards[serviceKey] || 0.0005;
             balance += currentReward;
@@ -479,7 +476,7 @@
             updateLimitUI(serviceKey);
 
             if (viewCounts[serviceKey] < MAX_VIEWS) {
-                const expireTime = Date.now() + 120000; // Повернуто Кулдаун на 2 хвилини (120 секунд)
+                const expireTime = Date.now() + 30000; // Кулдаун зменшено до 30 секунд
                 localStorage.setItem(`wg_cooldown_${serviceKey}`, expireTime);
                 checkSingleCooldown(serviceKey);
             }
@@ -516,4 +513,13 @@
             } else {
                 btn.disabled = false;
                 timerBox.style.display = 'none';
-                lo
+                localStorage.removeItem(`wg_cooldown_${serviceKey}`);
+            }
+        }
+
+        // ЗАВДАННЯ НА ТЕЛЕГРАМ КАНАЛИ
+        function doTelegramTask(url, reward) {
+            tg.openTelegramLink(url);
+            setTimeout(() => {
+                balance += reward;
+                upda
