@@ -12,7 +12,6 @@
     
     <style>
         :root {
-            /* Неоново-салатовий кіберпанк фон та золоті елементи */
             --bg-main: #0a1f0f; 
             --neon-green: #0df25d;
             --gold-gradient: linear-gradient(135deg, #ffe066 0%, #d4af37 50%, #aa7c11 100%);
@@ -29,7 +28,8 @@
             color: var(--text-light);
             margin: 0;
             padding: 0;
-            padding-bottom: 95px;
+            /* Великий відступ знизу, бо тепер там і меню, і банер */
+            padding-bottom: 175px; 
             box-sizing: border-box;
             -webkit-user-select: none;
             user-select: none;
@@ -46,7 +46,6 @@
             display: block;
         }
 
-        /* Золоті картки меню */
         .card {
             background: var(--card-bg);
             border: 2px solid var(--gold-color);
@@ -175,12 +174,13 @@
             cursor: pointer;
         }
 
+        /* МЕНЮ НАВІГАЦІЇ (Піднято вище, щоб звільнити місце банеру) */
         .nav-bar {
             position: fixed;
-            bottom: 0;
+            bottom: 60px; /* Підняли на висоту банера */
             left: 0;
             right: 0;
-            height: 70px;
+            height: 65px;
             background: linear-gradient(180deg, #18181b 0%, #050505 100%);
             border-top: 2px solid var(--gold-color);
             display: table;
@@ -207,9 +207,25 @@
         }
 
         .nav-icon {
-            font-size: 20px;
+            font-size: 18px;
             margin-bottom: 2px;
             display: block;
+        }
+
+        /* НОВИЙ КОНТЕЙНЕР ДЛЯ ТВОРГО БАНЕРА В САМОМУ НИЗУ */
+        .bottom-ad-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: #000000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001; /* Поверх усього */
+            border-top: 1px solid rgba(212, 175, 55, 0.4);
+            overflow: hidden;
         }
 
         #ton-connect-btn {
@@ -313,7 +329,7 @@
 
         <div id="tab-profile" class="tab-content">
             <div class="card" style="text-align: left;">
-                <h3 style="text-align: center;">👤 Мій кабінет</h3>
+                h3 style="text-align: center;">👤 Мій кабінет</h3>
                 <p><strong>Ваш Telegram ID:</strong> <span id="user-id" style="color: var(--neon-green);">Завантаження...</span></p>
                 <p><strong>Запрошено партнерів:</strong> <span id="ref-count" style="color: var(--neon-green);">0</span></p>
             </div>
@@ -341,6 +357,10 @@
         <div class="nav-item" onclick="switchTab('profile', this)">
             <span class="nav-icon">👤</span>Кабінет
         </div>
+    </div>
+
+    <div class="bottom-ad-container">
+        <script src="https://pl29851117.effectivecpmnetwork.com/c4/5d/93/c45d93c72f9027c7dbf67dbfb73d6488.js"></script>
     </div>
 
     <script>
@@ -398,16 +418,13 @@
             }
         }
 
-        // Ініціалізація TON Connect (Заміни цей JSON на свій з часом!)
         const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
             manifestUrl: 'https://raw.githubusercontent.com/ton-community/tutorials/main/03-client/test/public/tonconnect-manifest.json',
             buttonRootId: 'ton-connect-btn'
         });
 
-        // ІНІЦІАЛІЗАЦІЯ ADSGRAM
         const AdController = window.Adsgram ? window.Adsgram.init({ blockId: "35910" }) : null;
 
-        // СЕРВІС 1: ADSGRAM
         function watchAdsgram() {
             if (viewCounts['service1'] >= MAX_VIEWS) return;
             if (!AdController) {
@@ -421,26 +438,21 @@
             });
         }
 
-        // СЕРВІС 2 ТА 3: РЕДІРЕКТ (Збільшено таймер для кращого утримання)
         function watchDirectLink(serviceKey, url) {
             if (viewCounts[serviceKey] >= MAX_VIEWS) return;
             tg.openLink(url);
             
-            // Захист від миттєвого кліку (даємо 6 секунд, щоб користувач побув на сайті)
             setTimeout(() => {
                 rewardUser(serviceKey);
             }, 6000); 
         }
 
-        // СЕРВІС 4: MONETAG TG SDK (Фікс виклику без Promise-помилок)
         function watchMonetag() {
             if (viewCounts['service4'] >= MAX_VIEWS) return;
             
             if (typeof show_11189906 === 'function') {
                 try {
                     show_11189906('pop');
-                    // Оскільки monetag не завжди підтримує чисті проміси у мобільних SDK,
-                    // нараховуємо запуск через невеликий таймаут безпеки.
                     setTimeout(() => {
                         rewardUser('service4');
                     }, 4000);
@@ -452,7 +464,6 @@
             }
         }
 
-        // ФУНКЦІЯ НАРАХУВАННЯ
         function rewardUser(serviceKey) {
             if (viewCounts[serviceKey] >= MAX_VIEWS) return;
 
@@ -487,7 +498,6 @@
                 timerBox.style.display = 'inline';
                 timerBox.querySelector('.sec').innerText = remaining;
 
-                // Очищуємо старі інтервали, якщо вони були
                 if(btn.intervalId) clearInterval(btn.intervalId);
 
                 btn.intervalId = setInterval(() => {
@@ -508,7 +518,6 @@
             }
         }
 
-        // ЗАВДАННЯ НА ТЕЛЕГРАМ КАНАЛИ (Додано блокування кнопки після виконання)
         function doTelegramTask(url, reward, taskId) {
             if (localStorage.getItem(`wg_task_${taskId}`)) {
                 alert("Ви вже виконали це завдання!");
