@@ -99,6 +99,20 @@
             box-shadow: none;
             border: 1px solid #3f3f46;
         }
+        
+        /* Кнопка готовності забрати бонус */
+        .btn.ready-claim {
+            background: linear-gradient(135deg, #0df25d 0%, #08a63f 100%) !important;
+            color: #000000 !important;
+            box-shadow: 0 4px 20px rgba(13, 242, 93, 0.5) !important;
+            animation: pulseGlow 1.5s infinite;
+        }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 4px 15px rgba(13, 242, 93, 0.4); }
+            50% { box-shadow: 0 4px 25px rgba(13, 242, 93, 0.8); }
+            100% { box-shadow: 0 4px 15px rgba(13, 242, 93, 0.4); }
+        }
 
         /* --- НАВІГАЦІЙНА ПАНЕЛЬ --- */
         .nav-bar {
@@ -247,7 +261,7 @@
                     <span id="timer-service2" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
                     <span id="limit-service2" class="limit-indicator">0 / 20</span>
                 </div>
-                <button class="btn" id="btn-service2" onclick="handleBtnClick('service2', () => watchDirectLink('service2', 'https://www.effectivecpmnetwork.com/gbzuytbhy?key=8595ffd9c4e7bfcd3fbacb124a4b0c74'))">СЕРВІС 2 (+0.0002)</button>
+                <button class="btn" id="btn-service2" onclick="startDirectLinkTimer('service2', 'https://www.effectivecpmnetwork.com/gbzuytbhy?key=8595ffd9c4e7bfcd3fbacb124a4b0c74')">СЕРВІС 2 (+0.0002)</button>
             </div>
 
             <div style="margin-bottom: 15px;">
@@ -256,7 +270,7 @@
                     <span id="timer-service3" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
                     <span id="limit-service3" class="limit-indicator">0 / 20</span>
                 </div>
-                <button class="btn" id="btn-service3" onclick="handleBtnClick('service3', () => watchDirectLink('service3', 'https://affectionatestorage.com/gQiXSO'))">СЕРВІС 3 (+0.0002)</button>
+                <button class="btn" id="btn-service3" onclick="startDirectLinkTimer('service3', 'https://affectionatestorage.com/gQiXSO')">СЕРВІС 3 (+0.0002)</button>
             </div>
 
             <div style="margin-bottom: 15px;">
@@ -289,7 +303,7 @@
         <div id="tab-wallet" class="tab-content">
             <div class="card">
                 <h3>Підключення гаманця</h3>
-                <p style="color: #a1a1aa; font-size: 14px;">Підключіть свій TON-гаманець для фіксації вашої адреси в заявках.</p>
+                <p style="color: #a1a1aa; font-size: 14px;">Підключіть свій TON-гаманець для фіксавої адреси в заявках.</p>
                 <div id="ton-connect-btn"></div>
             </div>
 
@@ -316,7 +330,6 @@
                 <h3 style="text-align: center;">👤 Мій кабінет</h3>
                 <p><strong>Ваш Telegram ID:</strong> <span id="user-id" style="color: var(--neon-green);">Завантаження...</span></p>
                 
-                <!-- ВІДОБРАЖЕННЯ РЕФЕРАЛІВ -->
                 <div class="stats-grid">
                     <div class="stat-box">
                         <div class="stat-box-title">Реферали</div>
@@ -352,7 +365,7 @@
         </div>
     </div>
 
-    <!-- НАВІГАЦІЯ: НАЗВИ ПОВЕРНУТО, ЕМОДЗІ ЗАЛИШЕНО -->
+    <!-- НАВІГАЦІЙНА ПАНЕЛЬ -->
     <div class="nav-bar">
         <div class="nav-item active" onclick="switchTab('main', this)">
             <span class="nav-icon">⚙️</span>Головна
@@ -398,7 +411,6 @@
             document.getElementById('ref-link').innerText = `https://t.me/WoodGrowCoinBot?start=6043278492`;
         }
 
-        // Локальні змінні для рефералів (поки немає БД)
         let refCount = parseInt(localStorage.getItem('wg_ref_count')) || 0;
         let refBonus = parseFloat(localStorage.getItem('wg_ref_bonus')) || 0.0000;
         document.getElementById('ref-count').innerText = `${refCount} чол.`;
@@ -464,14 +476,24 @@
         function updateLimitUI(serviceKey) {
             const limitSpan = document.getElementById(`limit-${serviceKey}`);
             limitSpan.innerText = `${viewCounts[serviceKey]} / ${MAX_VIEWS}`;
+            
+            const btn = document.getElementById(`btn-${serviceKey}`);
+            
             if (viewCounts[serviceKey] >= MAX_VIEWS) {
                 limitSpan.className = 'limit-indicator maxed';
                 limitSpan.innerText = "20 / 20 🛑";
-                document.getElementById(`btn-${serviceKey}`).disabled = true;
+                btn.disabled = true;
+                btn.className = "btn";
+                if(serviceKey === 'service2') btn.innerText = "СЕРВІС 2 (+0.0002)";
+                if(serviceKey === 'service3') btn.innerText = "СЕРВІС 3 (+0.0002)";
             } else {
                 limitSpan.className = 'limit-indicator';
                 const expireTime = localStorage.getItem(`wg_cooldown_${serviceKey}`);
-                if (!expireTime || Date.now() >= expireTime) document.getElementById(`btn-${serviceKey}`).disabled = false;
+                if (!expireTime || Date.now() >= expireTime) {
+                    if (!btn.classList.contains('ready-claim')) {
+                        btn.disabled = false;
+                    }
+                }
             }
         }
 
@@ -496,17 +518,48 @@
             AdController.show().then(() => { rewardUser('support'); alert("Дякуємо! ❤️"); }).catch(() => alert("Відео перервано."));
         }
 
-        function watchDirectLink(serviceKey, url) {
-            if (viewCounts[serviceKey] >= MAX_VIEWS) return;
-            tg.openLink(url);
-            setTimeout(() => rewardUser(serviceKey), 6000); 
-        }
-
         function watchMonetag() {
             if (viewCounts['service4'] >= MAX_VIEWS) return;
             if (typeof show_11189906 === 'function') {
                 try { show_11189906('pop'); setTimeout(() => rewardUser('service4'), 4000); } catch(e) {}
             }
+        }
+
+        /* --- НОВА СИСТЕМА ДВОЕТАПНОГО ТАЙМЕРА ДЛЯ DIRECT LINKS --- */
+        let activeLinkTimers = {};
+
+        function startDirectLinkTimer(serviceKey, url) {
+            if (viewCounts[serviceKey] >= MAX_VIEWS) return;
+            const btn = document.getElementById(`btn-${serviceKey}`);
+            
+            // Якщо кнопка вже у стані "Забрати бонус"
+            if (btn.classList.contains('ready-claim')) {
+                btn.classList.remove('ready-claim');
+                if (serviceKey === 'service2') btn.innerText = "СЕРВІС 2 (+0.0002)";
+                if (serviceKey === 'service3') btn.innerText = "СЕРВІС 3 (+0.0002)";
+                rewardUser(serviceKey);
+                return;
+            }
+
+            // Інакше: перший клік — відкриваємо лінк і запускаємо 20 секунд
+            tg.openLink(url);
+            
+            btn.disabled = true;
+            let timeLeft = 20;
+            const originalName = serviceKey === 'service2' ? 'СЕРВІС 2' : 'СЕРВІС 3';
+            btn.innerText = `⏳ ПЕРЕВІРКА... ${timeLeft}s`;
+
+            activeLinkTimers[serviceKey] = setInterval(() => {
+                timeLeft--;
+                if (timeLeft <= 0) {
+                    clearInterval(activeLinkTimers[serviceKey]);
+                    btn.disabled = false;
+                    btn.classList.add('ready-claim');
+                    btn.innerText = `🎁 ЗАБРАТИ БОНУС (+${configRewards[serviceKey]})`;
+                } else {
+                    btn.innerText = `⏳ ПЕРЕВІРКА... ${timeLeft}s`;
+                }
+            }, 1000);
         }
 
         function rewardUser(serviceKey) {
@@ -532,6 +585,11 @@
 
             const remaining = Math.ceil((expireTime - Date.now()) / 1000);
             if (remaining > 0) {
+                if(activeLinkTimers[serviceKey]) clearInterval(activeLinkTimers[serviceKey]);
+                btn.classList.remove('ready-claim');
+                if (serviceKey === 'service2') btn.innerText = "СЕРВІС 2 (+0.0002)";
+                if (serviceKey === 'service3') btn.innerText = "СЕРВІС 3 (+0.0002)";
+
                 btn.disabled = true;
                 timerBox.style.display = 'inline';
                 timerBox.querySelector('.sec').innerText = remaining;
@@ -546,7 +604,7 @@
                     } else { timerBox.querySelector('.sec').innerText = curRemaining; }
                 }, 1000);
             } else {
-                if (viewCounts[serviceKey] < MAX_VIEWS) btn.disabled = false;
+                if (viewCounts[serviceKey] < MAX_VIEWS && !btn.classList.contains('ready-claim')) btn.disabled = false;
                 timerBox.style.display = 'none';
                 localStorage.removeItem(`wg_cooldown_${serviceKey}`);
             }
