@@ -8,6 +8,7 @@
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     
+    <!-- SDK Monetag (Сервіс 4) -->
     <script src='//libtl.com/sdk.js' data-zone='11189906' data-sdk='show_11189906'></script>
     
     <style>
@@ -28,8 +29,7 @@
             color: var(--text-light);
             margin: 0;
             padding: 0;
-            /* Великий відступ знизу, бо тепер там і меню, і банер */
-            padding-bottom: 175px; 
+            padding-bottom: 180px; 
             box-sizing: border-box;
             -webkit-user-select: none;
             user-select: none;
@@ -123,61 +123,10 @@
             cursor: not-allowed;
             border: 1px solid #3f3f46;
         }
-        .btn-secondary {
-            background: none;
-            border: 2px solid var(--gold-color);
-            color: var(--gold-color);
-            box-shadow: none;
-        }
 
-        .ref-box {
-            background-color: rgba(0, 0, 0, 0.4);
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 14px;
-            color: var(--neon-green);
-            word-break: break-all;
-            margin: 15px 0;
-            border: 1px dashed var(--neon-green);
-        }
-
-        .task-item {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--gold-color);
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 12px;
-            text-align: left;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .task-info h4 {
-            margin: 0 0 5px 0;
-            color: #ffffff;
-            font-size: 15px;
-        }
-        .task-info p {
-            margin: 0;
-            color: var(--neon-green);
-            font-size: 13px;
-            font-weight: bold;
-        }
-        .task-btn {
-            background: var(--gold-gradient);
-            color: var(--text-dark);
-            border: none;
-            padding: 8px 14px;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 12px;
-            cursor: pointer;
-        }
-
-        /* МЕНЮ НАВІГАЦІЇ (Піднято вище, щоб звільнити місце банеру) */
         .nav-bar {
             position: fixed;
-            bottom: 60px; /* Підняли на висоту банера */
+            bottom: 60px; 
             left: 0;
             right: 0;
             height: 65px;
@@ -212,7 +161,6 @@
             display: block;
         }
 
-        /* НОВИЙ КОНТЕЙНЕР ДЛЯ ТВОРГО БАНЕРА В САМОМУ НИЗУ */
         .bottom-ad-container {
             position: fixed;
             bottom: 0;
@@ -223,7 +171,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 1001; /* Поверх усього */
+            z-index: 1001; 
             border-top: 1px solid rgba(212, 175, 55, 0.4);
             overflow: hidden;
         }
@@ -246,6 +194,7 @@
 <body>
 
     <div class="container">
+        <!-- ГОЛОВНА -->
         <div id="tab-main" class="tab-content active">
             <div class="card">
                 <div class="balance-title">Мій Баланс</div>
@@ -256,63 +205,62 @@
             <div style="margin-bottom: 15px;">
                 <div class="service-meta">
                     <span>Сервіс 1 (Adsgram Video)</span>
-                    <span id="timer-service1" class="cooldown-timer">⏳ <span class="sec">30</span>s</span>
+                    <span id="timer-service1" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
                     <span id="limit-service1" class="limit-indicator">0 / 20</span>
                 </div>
-                <button class="btn" id="btn-service1" onclick="watchAdsgram()">СЕРВІС 1 (+0.0008)</button>
+                <button class="btn" id="btn-service1" onclick="watchAdsgram()">СЕРВІС 1 (+0.0004)</button>
             </div>
 
             <div style="margin-bottom: 15px;">
                 <div class="service-meta">
                     <span>Сервіс 2 (Adsterra Link)</span>
-                    <span id="timer-service2" class="cooldown-timer">⏳ <span class="sec">30</span>s</span>
+                    <span id="timer-service2" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
                     <span id="limit-service2" class="limit-indicator">0 / 20</span>
                 </div>
-                <button class="btn" id="btn-service2" onclick="watchDirectLink('service2', 'https://www.effectivecpmnetwork.com/gbzuytbhy?key=8595ffd9c4e7bfcd3fbacb124a4b0c74')">СЕРВІС 2 (+0.0005)</button>
+                <button class="btn" id="btn-service2" onclick="watchDirectLink('service2', 'https://www.effectivecpmnetwork.com/gbzuytbhy?key=8595ffd9c4e7bfcd3fbacb124a4b0c74')">СЕРВІС 2 (+0.0002)</button>
             </div>
 
             <div style="margin-bottom: 15px;">
                 <div class="service-meta">
                     <span>Сервіс 3 (HilltopAds Link)</span>
-                    <span id="timer-service3" class="cooldown-timer">⏳ <span class="sec">30</span>s</span>
+                    <span id="timer-service3" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
                     <span id="limit-service3" class="limit-indicator">0 / 20</span>
                 </div>
-                <button class="btn" id="btn-service3" onclick="watchDirectLink('service3', 'https://affectionatestorage.com/gQiXSO')">СЕРВІС 3 (+0.0005)</button>
+                <button class="btn" id="btn-service3" onclick="watchDirectLink('service3', 'https://affectionatestorage.com/gQiXSO')">СЕРВІС 3 (+0.0002)</button>
             </div>
 
             <div style="margin-bottom: 15px;">
                 <div class="service-meta">
                     <span>Сервіс 4 (Monetag SDK)</span>
-                    <span id="timer-service4" class="cooldown-timer">⏳ <span class="sec">30</span>s</span>
+                    <span id="timer-service4" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
                     <span id="limit-service4" class="limit-indicator">0 / 20</span>
                 </div>
-                <button class="btn" id="btn-service4" onclick="watchMonetag()">СЕРВІС 4 (+0.0008)</button>
+                <button class="btn" id="btn-service4" onclick="watchMonetag()">СЕРВІС 4 (+0.0004)</button>
             </div>
         </div>
 
+        <!-- РЕКЛАМНА ПАНЕЛЬ (@VoooodCoin ВЖЕ ВСЕРЕДИНІ) -->
         <div id="tab-tasks" class="tab-content">
             <div class="card">
-                <h3>📋 Виконання завдань</h3>
-                <p style="color: #a1a1aa; font-size: 14px;">Підписуйтесь на ресурси та виконуйте оффери для додаткового доходу.</p>
+                <h3>📢 Рекламна Панель</h3>
+                <p style="color: #a1a1aa; font-size: 14px; text-align: left; line-height: 1.5;">
+                    Бажаєте просунути свій Telegram-канал, гру чи реферальне посилання? <br><br>
+                    🔥 <strong>Наші тарифи для спонсорів:</strong><br>
+                    • Розміщення каналу на 48 годин — <b>5.00 USDT</b><br>
+                    • Розміщення каналу на 7 днів — <b>12.00 USDT</b><br><br>
+                    <i>Отримайте тисячі переглядів та живих переходів від наших активних користувачів!</i>
+                </p>
+                <button class="btn" onclick="tg.openTelegramLink('https://t.me/VoooodCoin')">✉️ Замовити рекламу у Адміна</button>
             </div>
 
-            <div class="task-item">
-                <div class="task-info">
-                    <h4>Підписка на Спонсора 1</h4>
-                    <p>+0.0100 USDT</p>
-                </div>
-                <button class="task-btn" id="btn-task1" onclick="doTelegramTask('https://t.me/your_channel_link1', 0.01, 'task1')">Виконати</button>
-            </div>
-
-            <div class="task-item">
-                <div class="task-info">
-                    <h4>Підписка на Новини WoodGrow</h4>
-                    <p>+0.0100 USDT</p>
-                </div>
-                <button class="task-btn" id="btn-task2" onclick="doTelegramTask('https://t.me/your_channel_link2', 0.01, 'task2')">Виконати</button>
+            <div class="card" style="border: 1px dashed var(--neon-green);">
+                <h4 style="margin: 0 0 10px 0; color: #fff;">🔥 Спонсорський канал</h4>
+                <p style="font-size: 13px; color: #a1a1aa; margin-top: 0;">Підпишіться та підтримайте наш проєкт!</p>
+                <button class="btn" style="font-size: 13px; padding: 10px;" onclick="tg.openTelegramLink('https://t.me/VoooodCoin')">🔗 Перейти на канал</button>
             </div>
         </div>
 
+        <!-- ГАМАНЕЦЬ -->
         <div id="tab-wallet" class="tab-content">
             <div class="card">
                 <h3>Підключення гаманця</h3>
@@ -327,29 +275,30 @@
             </div>
         </div>
 
+        <!-- ПРОФІЛЬ -->
         <div id="tab-profile" class="tab-content">
             <div class="card" style="text-align: left;">
-                h3 style="text-align: center;">👤 Мій кабінет</h3>
+                <h3 style="text-align: center;">👤 Мій кабінет</h3>
                 <p><strong>Ваш Telegram ID:</strong> <span id="user-id" style="color: var(--neon-green);">Завантаження...</span></p>
-                <p><strong>Запрошено партнерів:</strong> <span id="ref-count" style="color: var(--neon-green);">0</span></p>
             </div>
 
             <div class="card">
                 <h3>Партнерська програма</h3>
                 <p style="color: #a1a1aa; font-size: 14px;">Отримуйте фіксовані +10% від кожного перегляду реклами вашими друзями!</p>
                 <div class="ref-box" id="ref-link">https://t.me/WoodGrowCoinBot?start=id</div>
-                <button class="btn btn-secondary" onclick="copyRefLink()">📋 Скопіювати лінк</button>
+                <button class="btn btn-secondary" style="background: none; border: 2px solid var(--gold-color); color: var(--gold-color);" onclick="copyRefLink()">📋 Скопіювати лінк</button>
                 <button class="btn" onclick="shareBot()">🔗 Запросити друга</button>
             </div>
         </div>
     </div>
 
+    <!-- МЕНЮ НАВІГАЦІЇ -->
     <div class="nav-bar">
         <div class="nav-item active" onclick="switchTab('main', this)">
             <span class="nav-icon">🏠</span>Головна
         </div>
         <div class="nav-item" onclick="switchTab('tasks', this)">
-            <span class="nav-icon">📊</span>Завдання
+            <span class="nav-icon">📢</span>Реклама
         </div>
         <div class="nav-item" onclick="switchTab('wallet', this)">
             <span class="nav-icon">👛</span>Гаманець
@@ -359,6 +308,7 @@
         </div>
     </div>
 
+    <!-- ТВІЙ БАНЕР В САМОМУ НИЗУ ЕКРАНА -->
     <div class="bottom-ad-container">
         <script src="https://pl29851117.effectivecpmnetwork.com/c4/5d/93/c45d93c72f9027c7dbf67dbfb73d6488.js"></script>
     </div>
@@ -379,14 +329,47 @@
         const services = ['service1', 'service2', 'service3', 'service4'];
 
         const configRewards = {
-            service1: 0.0008,
-            service2: 0.0005,
-            service3: 0.0005,
-            service4: 0.0008
+            service1: 0.0004,
+            service2: 0.0002,
+            service3: 0.0002,
+            service4: 0.0004
         };
 
-        let balance = parseFloat(localStorage.getItem('woodgrow_balance') || '0.0000');
+        const SECRET_SALT = "woodgrow_secure_9921";
+
+        function generateHash(val) {
+            let str = val.toFixed(4) + SECRET_SALT;
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = (hash << 5) - hash + str.charCodeAt(i);
+                hash |= 0;
+            }
+            return hash.toString();
+        }
+
+        let rawBalance = localStorage.getItem('woodgrow_balance') || '0.0000';
+        let savedHash = localStorage.getItem('woodgrow_b_hash') || '';
+        let balance = parseFloat(rawBalance);
+
+        if (rawBalance !== '0.0000' && generateHash(balance) !== savedHash) {
+            alert("⚠️ Виявлено спробу маніпуляції з балансом! Ваш баланс обнулено.");
+            balance = 0.0000;
+            localStorage.setItem('woodgrow_balance', '0.0000');
+            localStorage.setItem('woodgrow_b_hash', generateHash(0));
+        }
         document.getElementById('user-balance').innerText = balance.toFixed(4);
+
+        // --- ЛОГІКА СКИДАННЯ ЛІМІТІВ З НОВИМ ДНЕМ ---
+        const todayStr = new Date().toDateString(); 
+        const lastSavedDay = localStorage.getItem('wg_last_active_day') || '';
+
+        if (todayStr !== lastSavedDay) {
+            // Якщо настав новий день, очищуємо перегляди для всіх сервісів
+            services.forEach(srv => {
+                localStorage.setItem(`wg_views_${srv}`, '0');
+            });
+            localStorage.setItem('wg_last_active_day', todayStr);
+        }
 
         let viewCounts = {
             service1: parseInt(localStorage.getItem('wg_views_service1')) || 0,
@@ -415,6 +398,13 @@
                 limitSpan.classList.add('maxed');
                 limitSpan.innerText = "20 / 20 🛑";
                 document.getElementById(`btn-${serviceKey}`).disabled = true;
+            } else {
+                limitSpan.classList.remove('maxed');
+                // Перевіряємо, чи немає активного кулдауну, перш ніж увімкнути кнопку назад
+                const expireTime = localStorage.getItem(`wg_cooldown_${serviceKey}`);
+                if (!expireTime || Date.now() >= expireTime) {
+                    document.getElementById(`btn-${serviceKey}`).disabled = false;
+                }
             }
         }
 
@@ -434,14 +424,13 @@
             AdController.show().then(() => {
                 rewardUser('service1');
             }).catch((err) => {
-                alert("Рекламу не зараховано або її було скасовано.");
+                alert("Рекламу не зараховано.");
             });
         }
 
         function watchDirectLink(serviceKey, url) {
             if (viewCounts[serviceKey] >= MAX_VIEWS) return;
             tg.openLink(url);
-            
             setTimeout(() => {
                 rewardUser(serviceKey);
             }, 6000); 
@@ -449,7 +438,6 @@
 
         function watchMonetag() {
             if (viewCounts['service4'] >= MAX_VIEWS) return;
-            
             if (typeof show_11189906 === 'function') {
                 try {
                     show_11189906('pop');
@@ -457,27 +445,28 @@
                         rewardUser('service4');
                     }, 4000);
                 } catch(e) {
-                    alert("Помилка відтворення реклами. Спробуйте пізніше.");
+                    alert("Помилка відтворення.");
                 }
             } else {
-                alert("Рекламний модуль Monetag завантажується. Спробуйте ще раз за секунду.");
+                alert("Реклама вантажиться, зачекайте...");
             }
         }
 
         function rewardUser(serviceKey) {
             if (viewCounts[serviceKey] >= MAX_VIEWS) return;
 
-            const currentReward = configRewards[serviceKey] || 0.0005;
+            const currentReward = configRewards[serviceKey] || 0.0002;
             balance += currentReward;
             viewCounts[serviceKey] += 1;
 
-            localStorage.setItem(`wg_views_${serviceKey}`, viewCounts[serviceKey]);
+            localStorage.setItem(`wg_views_${serviceKey}`, viewCounts[serviceKey].toString());
             updateBalance();
             updateLimitUI(serviceKey);
 
             if (viewCounts[serviceKey] < MAX_VIEWS) {
-                const expireTime = Date.now() + 30000; 
-                localStorage.setItem(`wg_cooldown_${serviceKey}`, expireTime);
+                // КУЛДАУН ЗБІЛЬШЕНО ДО 2 ХВИЛИН (120000 мілісекунд)
+                const expireTime = Date.now() + 120000; 
+                localStorage.setItem(`wg_cooldown_${serviceKey}`, expireTime.toString());
                 checkSingleCooldown(serviceKey);
             }
         }
@@ -512,33 +501,15 @@
                     }
                 }, 1000);
             } else {
-                btn.disabled = false;
+                if (viewCounts[serviceKey] < MAX_VIEWS) btn.disabled = false;
                 timerBox.style.display = 'none';
                 localStorage.removeItem(`wg_cooldown_${serviceKey}`);
             }
         }
 
-        function doTelegramTask(url, reward, taskId) {
-            if (localStorage.getItem(`wg_task_${taskId}`)) {
-                alert("Ви вже виконали це завдання!");
-                return;
-            }
-            tg.openTelegramLink(url);
-            setTimeout(() => {
-                balance += reward;
-                updateBalance();
-                localStorage.setItem(`wg_task_${taskId}`, 'true');
-                const tBtn = document.getElementById(`btn-${taskId}`);
-                if (tBtn) {
-                    tBtn.innerText = "Виконано ✅";
-                    tBtn.disabled = true;
-                }
-                alert(`Завдання перевірено! Нараховано +${reward} USDT.`);
-            }, 5000);
-        }
-
         function updateBalance() {
             localStorage.setItem('woodgrow_balance', balance.toString());
+            localStorage.setItem('woodgrow_b_hash', generateHash(balance));
             document.getElementById('user-balance').innerText = balance.toFixed(4);
         }
 
@@ -549,23 +520,22 @@
 
         function shareBot() {
             const link = document.getElementById('ref-link').innerText;
-            const text = "👋 Заробляй реальні USDT разом зі мною у WoodGrow Coin! Просто дивись відеорекламу 💰";
+            const text = "👋 Заробляй реальні USDT разом зі мною у WoodGrow Coin!";
             tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(text)}`);
         }
 
         function withdrawFunds() {
             if (!tonConnectUI.connected) {
-                alert("Будь ласка, спочатку підключіть ваш TON-гаманець!");
+                alert("Будь ласка, підключіть ваш TON-гаманець!");
                 return;
             }
             if (balance < 5.00) {
                 alert("Мінімальна сума для виведення: 5.00 USDT");
                 return;
             }
-            alert("Заявку прийнято в обробку! Зв'яжіться з адміном, надавши свій Telegram ID для верифікації балансу.");
+            alert("Заявку прийнято! Перевірка хешу успішна. Зв'яжіться з адміном, вказавши свій ID.");
         }
     </script>
-
     <script type='text/javascript' src='//pl26904677.highperformanceformat.com/c4/5d/93/c45d93c72f9027c7dbf67dbfb73d6488.js'></script>
 </body>
 </html>
