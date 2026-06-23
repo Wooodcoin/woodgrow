@@ -100,7 +100,7 @@
             border: 1px solid #3f3f46;
         }
 
-        /* --- ПАНК НАВІГАЦІЙНА ПАНЕЛЬ --- */
+        /* --- НАВІГАЦІЙНА ПАНЕЛЬ --- */
         .nav-bar {
             position: fixed;
             bottom: 60px; 
@@ -203,6 +203,22 @@
             -webkit-user-select: text;
             user-select: text;
         }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .stat-box {
+            background: rgba(255,255,255,0.05);
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            text-align: center;
+        }
+        .stat-box-title { font-size: 11px; color: #a1a1aa; text-transform: uppercase; }
+        .stat-box-value { font-size: 16px; font-weight: bold; color: var(--neon-green); margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -299,6 +315,18 @@
             <div class="card" style="text-align: left;">
                 <h3 style="text-align: center;">👤 Мій кабінет</h3>
                 <p><strong>Ваш Telegram ID:</strong> <span id="user-id" style="color: var(--neon-green);">Завантаження...</span></p>
+                
+                <!-- ВІДОБРАЖЕННЯ РЕФЕРАЛІВ -->
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-box-title">Реферали</div>
+                        <div class="stat-box-value" id="ref-count">0 чол.</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-box-title">Ref Бонус</div>
+                        <div class="stat-box-value" id="ref-bonus">0.0000 USDT</div>
+                    </div>
+                </div>
             </div>
 
             <div class="card">
@@ -324,19 +352,19 @@
         </div>
     </div>
 
-    <!-- ОНОВЛЕНА НАВІГАЦІЯ В СТИЛІ ПАНК/ТЕХНО -->
+    <!-- НАВІГАЦІЯ: НАЗВИ ПОВЕРНУТО, ЕМОДЗІ ЗАЛИШЕНО -->
     <div class="nav-bar">
         <div class="nav-item active" onclick="switchTab('main', this)">
-            <span class="nav-icon">⚙️</span>Термінал
+            <span class="nav-icon">⚙️</span>Головна
         </div>
         <div class="nav-item" onclick="switchTab('tasks', this)">
-            <span class="nav-icon">⚡️</span>Промо
+            <span class="nav-icon">⚡️</span>Реклама
         </div>
         <div class="nav-item" onclick="switchTab('wallet', this)">
-            <span class="nav-icon">💼</span>Ядро
+            <span class="nav-icon">💼</span>Гаманець
         </div>
         <div class="nav-item" onclick="switchTab('profile', this)">
-            <span class="nav-icon">🖥️</span>Статус
+            <span class="nav-icon">🖥️</span>Кабінет
         </div>
     </div>
 
@@ -369,6 +397,12 @@
             document.getElementById('user-id').innerText = "6043278492";
             document.getElementById('ref-link').innerText = `https://t.me/WoodGrowCoinBot?start=6043278492`;
         }
+
+        // Локальні змінні для рефералів (поки немає БД)
+        let refCount = parseInt(localStorage.getItem('wg_ref_count')) || 0;
+        let refBonus = parseFloat(localStorage.getItem('wg_ref_bonus')) || 0.0000;
+        document.getElementById('ref-count').innerText = `${refCount} чол.`;
+        document.getElementById('ref-bonus').innerText = `${refBonus.toFixed(4)} USDT`;
 
         const MAX_VIEWS = 20;
         const services = ['service1', 'service2', 'service3', 'service4', 'support'];
@@ -530,7 +564,6 @@
             tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent("👋 Заробляй зі мною!")}`);
         }
 
-        // МІНІМАЛКА ПОВЕРНУТА НА 5 USDT
         function withdrawFunds() {
             if (!tonConnectUI.connected || currentWalletAddress === "Не підключено") {
                 alert("❌ Спочатку підключіть ваш TON-гаманець!");
