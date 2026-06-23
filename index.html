@@ -100,30 +100,47 @@
             border: 1px solid #3f3f46;
         }
 
+        /* --- ПАНК НАВІГАЦІЙНА ПАНЕЛЬ --- */
         .nav-bar {
             position: fixed;
             bottom: 60px; 
             left: 0;
             right: 0;
             height: 65px;
-            background: linear-gradient(180deg, #18181b 0%, #050505 100%);
+            background: linear-gradient(180deg, #141416 0%, #000000 100%);
             border-top: 2px solid var(--gold-color);
             display: table;
             width: 100%;
             table-layout: fixed;
             z-index: 1000;
+            box-shadow: 0 -5px 15px rgba(212, 175, 55, 0.2);
         }
 
         .nav-item {
             display: table-cell;
             text-align: center;
             vertical-align: middle;
-            color: #a1a1aa;
+            color: #71717a;
             font-size: 11px;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.5px;
             cursor: pointer;
+            transition: color 0.2s ease;
         }
-        .nav-item.active { color: var(--gold-color); }
-        .nav-icon { font-size: 18px; margin-bottom: 2px; display: block; }
+        .nav-item.active { 
+            color: var(--neon-green); 
+            text-shadow: 0 0 8px rgba(13, 242, 93, 0.6);
+        }
+        .nav-icon { 
+            font-size: 20px; 
+            margin-bottom: 2px; 
+            display: block; 
+            transition: transform 0.2s ease;
+        }
+        .nav-item.active .nav-icon {
+            transform: scale(1.15);
+        }
 
         .bottom-ad-container {
             position: fixed;
@@ -142,11 +159,11 @@
         h3 { color: var(--gold-color); margin-top: 0; text-transform: uppercase; font-size: 18px; }
         .instruction-list { text-align: left; font-size: 13px; color: #a1a1aa; line-height: 1.6; padding-left: 20px; margin: 15px 0; }
 
-        /* --- СТИЛІ ДЛЯ МОДАЛЬНОГО ВІКНА ВИВОДУ --- */
+        /* --- СТИЛІ МОДАЛЬНОГО ВІКНА --- */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.85);
+            background: rgba(0, 0, 0, 0.9);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -161,21 +178,21 @@
             pointer-events: auto;
         }
         .modal-window {
-            background: #121214;
-            border: 2px solid var(--gold-color);
+            background: #0d0d11;
+            border: 2px solid var(--neon-green);
             border-radius: 20px;
             padding: 20px;
             width: 100%;
             max-width: 400px;
             text-align: center;
-            box-shadow: 0 0 30px rgba(212, 175, 55, 0.4);
+            box-shadow: 0 0 35px rgba(13, 242, 93, 0.4);
         }
         .modal-textarea {
             width: 100%;
             height: 130px;
-            background: #1a1a1e;
-            color: #ffffff;
-            border: 1px solid rgba(212, 175, 55, 0.5);
+            background: #141418;
+            color: var(--neon-green);
+            border: 1px solid rgba(13, 242, 93, 0.5);
             border-radius: 10px;
             padding: 10px;
             box-sizing: border-box;
@@ -184,7 +201,7 @@
             resize: none;
             margin: 15px 0;
             -webkit-user-select: text;
-            user-select: text; /* Дозволяє виділяти текст пальцем */
+            user-select: text;
         }
     </style>
 </head>
@@ -266,13 +283,13 @@
                     <h4 style="margin: 0; font-size: 14px; color: var(--gold-color); text-align: left;">💡 Інструкція з виведення коштів:</h4>
                     <ol class="instruction-list">
                         <li>Підключіть свій TON-гаманець вище.</li>
-                        <li>Натисніть кнопку «Вивести на гаманець» (Мін. 0.001 USDT).</li>
+                        <li>Натисніть кнопку «Вивести на гаманець» (Мін. 5 USDT).</li>
                         <li>Підтвердіть дію. Ваш баланс автоматично скинеться, а система згенерує текст заявки.</li>
                         <li>Скопіюйте текст із вікна та надішліть адміну в особисті для виплати.</li>
                         <li style="color: #ffcc00; font-weight: bold; list-style-type: '⚠️ ';">ВАЖЛИВО: Для підключення використовуйте додаток <u>Tonkeeper</u>. Офіційний Telegram Wallet всередині апок може працювати з перебоями!</li>
                     </ol>
                 </div>
-                <p style="font-size: 14px; text-align: left; color: #a1a1aa; margin-top: 15px;">Мінімальна сума: <span style="color: var(--neon-green); font-weight: bold;">0.001 USDT</span></p>
+                <p style="font-size: 14px; text-align: left; color: #a1a1aa; margin-top: 15px;">Мінімальна сума: <span style="color: var(--neon-green); font-weight: bold;">5 USDT</span></p>
                 <button class="btn" onclick="withdrawFunds()">💸 Вивести на гаманець</button>
             </div>
         </div>
@@ -294,32 +311,32 @@
         </div>
     </div>
 
-    <!-- КРАСИВЕ ВНУТРІШНЄ ВІКНО ДЛЯ СКОПІЙОВАНОЇ ЗАЯВКИ -->
+    <!-- ВНУТРІШНЄ ВІКНО ДЛЯ СКОПІЙОВАНОЇ ЗАЯВКИ -->
     <div class="modal-overlay" id="withdraw-modal">
         <div class="modal-window">
-            <h3 style="margin-bottom: 5px;">📄 ЗАЯВКА СФОРМОВАНА</h3>
-            <p style="font-size: 12px; color: #a1a1aa; margin: 0;">Ваш баланс обнулено. Натисніть кнопку нижче, щоб скопіювати текст, і надішліть його адміну.</p>
+            <h3 style="color: var(--neon-green); margin-bottom: 5px;">⚡️ ЗАЯВКА СФОРМОВАНА ⚡️</h3>
+            <p style="font-size: 12px; color: #a1a1aa; margin: 0;">Ваш баланс обнулено. Скопіюйте шифр нижче та надішліть адміну.</p>
             
             <textarea class="modal-textarea" id="modal-text-field" readonly></textarea>
             
-            <button class="btn" id="modal-copy-btn" onclick="copyModalText()">📋 СКОПІЮВАТИ ТЕКСТ</button>
+            <button class="btn" id="modal-copy-btn" style="background: linear-gradient(135deg, #0df25d 0%, #08a63f 100%); color: #000;" onclick="copyModalText()">📋 СКОПІЮВАТИ ТЕКСТ</button>
             <button class="btn" style="background: none; border: 2px solid #ffffff; color: #ffffff; margin-top: 10px;" onclick="goToAdmin()">✈️ НАПИСАТИ АДМІНУ (@VoooodCoin)</button>
         </div>
     </div>
 
-    <!-- НАВІГАЦІЯ -->
+    <!-- ОНОВЛЕНА НАВІГАЦІЯ В СТИЛІ ПАНК/ТЕХНО -->
     <div class="nav-bar">
         <div class="nav-item active" onclick="switchTab('main', this)">
-            <span class="nav-icon">🏠</span>Головна
+            <span class="nav-icon">⚙️</span>Термінал
         </div>
         <div class="nav-item" onclick="switchTab('tasks', this)">
-            <span class="nav-icon">📢</span>Реклама
+            <span class="nav-icon">⚡️</span>Промо
         </div>
         <div class="nav-item" onclick="switchTab('wallet', this)">
-            <span class="nav-icon">👛</span>Гаманець
+            <span class="nav-icon">💼</span>Ядро
         </div>
         <div class="nav-item" onclick="switchTab('profile', this)">
-            <span class="nav-icon">👤</span>Кабінет
+            <span class="nav-icon">🖥️</span>Статус
         </div>
     </div>
 
@@ -513,14 +530,14 @@
             tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent("👋 Заробляй зі мною!")}`);
         }
 
-        // НОВА СИСТЕМА ДВОЕТАПНОГО ВИВЕДЕННЯ З HTML-МОДАЛЬНИМ ВІКНОМ
+        // МІНІМАЛКА ПОВЕРНУТА НА 5 USDT
         function withdrawFunds() {
             if (!tonConnectUI.connected || currentWalletAddress === "Не підключено") {
                 alert("❌ Спочатку підключіть ваш TON-гаманець!");
                 return;
             }
-            if (balance < 0.001) {
-                alert(`❌ Мінімальна сума для виведення: 0.001 USDT (У вас ${balance.toFixed(4)})`);
+            if (balance < 5.0) {
+                alert(`❌ Мінімальна сума для виведення: 5 USDT (У вас ${balance.toFixed(4)})`);
                 return;
             }
 
@@ -532,44 +549,35 @@
             const finalWallet = currentWalletAddress;
             const securityCheckCode = generateHash(balance);
 
-            // Обнуляємо баланс
             balance = 0.0000;
             updateBalance();
 
-            // Складання тексту заявки
             const applicationText = `ЗАЯВКА НА ВИВІД WOODGROW:\n• ID: ${finalUserId}\n• Сума: ${finalSum} USDT\n• TON Гаманець: ${finalWallet}\n• Код безпеки: ${securityCheckCode}`;
 
-            // Поміщаємо текст в текстове поле нашого модального вікна
             document.getElementById('modal-text-field').value = applicationText;
-
-            // Спробуємо скопіювати в буфер автоматично одразу
             navigator.clipboard.writeText(applicationText).catch(() => {});
-
-            // Відкриваємо модальне вікно на екрані
             document.getElementById('withdraw-modal').classList.add('active');
         }
 
-        // Функція для ручного кліку по кнопці "Скопіювати" у модальному вікні
         function copyModalText() {
             const textField = document.getElementById('modal-text-field');
             textField.select();
-            textField.setSelectionRange(0, 99999); // Для мобільних пристроїв
+            textField.setSelectionRange(0, 99999);
             
             navigator.clipboard.writeText(textField.value).then(() => {
                 const copyBtn = document.getElementById('modal-copy-btn');
-                copyBtn.innerText = "✅ ТЕКСТ СКОПІЙОВАНО!";
+                copyBtn.innerText = "✅ ШИФР СКОПІЙОВАНО!";
                 copyBtn.style.background = "#0df25d";
                 copyBtn.style.color = "#111111";
                 setTimeout(() => {
                     copyBtn.innerText = "📋 СКОПІЮВАТИ ТЕКСТ";
-                    copyBtn.style.background = "var(--gold-gradient)";
+                    copyBtn.style.background = "linear-gradient(135deg, #0df25d 0%, #08a63f 100%)";
                 }, 3000);
             }).catch(() => {
-                alert("Помилка автокопіювання. Затисніть пальцем текст у полі та скопіюйте його вручну.");
+                alert("Затисніть пальцем текст у полі та скопіюйте його вручну.");
             });
         }
 
-        // Швидкий перехід до адміна
         function goToAdmin() {
             tg.openTelegramLink("https://t.me/VoooodCoin");
         }
