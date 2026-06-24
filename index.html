@@ -394,7 +394,14 @@
         // --- ТОЧНІ НАЛАШТУВАННЯ SUPABASE ---
         const SUPABASE_URL = "https://ebgfhzizbcxsxpfqusap.supabase.co";
         const SUPABASE_KEY = "sb_publishable_wSVAHiv6Wc7q6T5GVurACg_wiZSTlpt";
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        let supabase = null;
+        try {
+            // Виправлено створення клієнта для версії v2 з CDN
+            supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+        } catch(err) {
+            alert("Помилка ініціалізації Supabase клієнта: " + err.message);
+        }
 
         let currentWalletAddress = "Не підключено";
         let userId = "6043278492"; 
@@ -425,11 +432,16 @@
             return hash.toString();
         }
 
-        // ================= ТЕСТОВА СИСТЕМА КРОКІВ З ALERT =================
+        // ================= СИСТЕМА ДІАГНОСТИКИ =================
         async function initUserSession() {
             try {
                 alert("Крок 1: Починаємо вхід...");
                 
+                if (!supabase) {
+                    alert("🛑 Помилка: Об'єкт клієнта Supabase не створено! Код далі не виконається.");
+                    return;
+                }
+
                 let referrerId = null;
                 if (tg.initDataUnsafe && tg.initDataUnsafe.start_param) {
                     referrerId = tg.initDataUnsafe.start_param.trim();
@@ -443,10 +455,10 @@
                 if (regError) {
                     alert("Помилка в add_new_user: " + regError.message);
                 } else {
-                    alert(" add_new_user виконано успішно!");
+                    alert("🟢 add_new_user виконано успішно!");
                 }
 
-                alert("Крок 3: Пробуємо прочитати таблицю Users (без лапок)...");
+                alert("Крок 3: Пробуємо прочитати таблицю Users...");
                 let { data: user, error: fetchError } = await supabase
                     .from('Users') 
                     .select('*')
@@ -459,9 +471,9 @@
                 
                 if (user) {
                     balance = parseFloat(user.balance) || 0.0000;
-                    alert(" Успіх! Отримано баланс з бази: " + balance);
+                    alert("🎉 Успіх! Отримано баланс з бази: " + balance);
                 } else {
-                    alert(" Користувача не знайдено в базі, вмикаємо локальний баланс.");
+                    alert("⚠️ Користувача не знайдено в базі, вмикаємо локальний баланс.");
                     balance = parseFloat(localStorage.getItem('woodgrow_balance')) || 0.0000;
                 }
                 
@@ -476,6 +488,7 @@
 
         async function updateRefCounter() {
             try {
+                if(!supabase) return;
                 const { data: count, error: countError } = await supabase.rpc('get_user_ref_count_safe', { user_id_param: userId });
                 if (!countError && count !== null) {
                     refCount = count;
@@ -520,9 +533,11 @@
 
         function updateLimitUI(serviceKey) {
             const limitSpan = document.getElementById(`limit-${serviceKey}`);
+            if(!limitSpan) return;
             limitSpan.innerText = `${viewCounts[serviceKey]} / ${MAX_VIEWS}`;
             
             const btn = document.getElementById(`btn-${serviceKey}`);
+            if(!btn) return;
             
             if (viewCounts[serviceKey] >= MAX_VIEWS) {
                 limitSpan.className = 'limit-indicator maxed';
@@ -575,6 +590,7 @@
         function startDirectLinkTimer(serviceKey, url) {
             if (viewCounts[serviceKey] >= MAX_VIEWS) return;
             const btn = document.getElementById(`btn-${serviceKey}`);
+            if(!btn) return;
             
             if (btn.classList.contains('ready-claim')) {
                 btn.classList.remove('ready-claim');
@@ -607,7 +623,7 @@
             if (viewCounts[serviceKey] >= MAX_VIEWS) return;
             const reward = configRewards[serviceKey];
             
-            if (reward > 0) {
+            if (reward > 0 && supabase) {
                 const clientHash = generateHash(reward);
                 try {
                     const { data: newBalance, error } = await supabase.rpc('reward_user_safe', {
@@ -624,6 +640,8 @@
                 } catch(e) {
                     balance += reward;
                 }
+            } else {
+                balance += reward;
             }
 
             viewCounts[serviceKey] += 1;
@@ -641,6 +659,7 @@
             if (viewCounts[serviceKey] >= MAX_VIEWS) return;
             const btn = document.getElementById(`btn-${serviceKey}`);
             const timerBox = document.getElementById(`timer-${serviceKey}`);
+            if(!btn || !timerBox) return;
             const expireTime = localStorage.getItem(`wg_cooldown_${serviceKey}`);
             if (!expireTime) return;
 
@@ -671,6 +690,7 @@
             }
         }
 
+        // Синхронізація локального сховища з візуалом при запуску
         function updateBalance() {
             localStorage.setItem('woodgrow_balance', balance.toString());
             localStorage.setItem('woodgrow_b_hash', generateHash(balance));
@@ -701,10 +721,12 @@
             const finalWallet = currentWalletAddress;
             const securityCheckCode = generateHash(balance);
 
-            try {
-                await supabase.from('Users').update({ balance: 0.0000 }).eq('id', userId);
-            } catch(e) {
-                console.error(e);
+            if(supabase) {
+                try {
+                    await supabase.from('Users').update({ balance: 0.0000 }).eq('id', userId);
+                } catch(e) {
+                    console.error(e);
+                }
             }
 
             balance = 0.0000;
@@ -740,6 +762,7 @@
             tg.openTelegramLink("https://t.me/VoooodCoin");
         }
 
+        // Запуск сесії користувача
         initUserSession();
     </script>
 </body>
