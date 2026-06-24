@@ -7,10 +7,8 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
-    
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <script src='//libtl.com/sdk.js' data-zone='11189906' data-sdk='show_11189906'></script>
+    <!-- Офіційний JS-клієнт Supabase для хмарної синхронізації -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     
     <style>
         :root {
@@ -218,7 +216,7 @@
         
         .stats-grid {
             display: grid;
-            grid-template-columns: 1fr;
+            grid-template-columns: 1fr 1fr;
             gap: 10px;
             margin-top: 15px;
         }
@@ -236,6 +234,7 @@
 <body>
 
     <div class="container">
+        <!-- ГОЛОВНА -->
         <div id="tab-main" class="tab-content active">
             <div class="card">
                 <div class="balance-title">Мій Баланс</div>
@@ -276,10 +275,11 @@
                     <span id="timer-service4" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
                     <span id="limit-service4" class="limit-indicator">0 / 20</span>
                 </div>
-                <button class="btn" id="btn-service4" onclick="handleBtnClick('service4', watchMonetag)">СЕРВІС 4 (+0.0004)</button>
+                <button class="btn" id="btn-service4" onclick="handleBtnClick('service4', watchMonetagSafe)">СЕРВІС 4 (+0.0004)</button>
             </div>
         </div>
 
+        <!-- РЕКЛАМА -->
         <div id="tab-tasks" class="tab-content">
             <div class="card" style="border: 2px dashed var(--gold-color);">
                 <h3>🎁 Підтримка проєкту</h3>
@@ -295,10 +295,11 @@
             </div>
         </div>
 
+        <!-- ГАМАНЕЦЬ -->
         <div id="tab-wallet" class="tab-content">
             <div class="card">
                 <h3>Підключення гаманця</h3>
-                <p style="color: #a1a1aa; font-size: 14px;">Підключіть свій TON-гаманець для фіксавої адреси в заявках.</p>
+                <p style="color: #a1a1aa; font-size: 14px;">Підключіть свій TON-гаманець для фіксації адреси в заявках.</p>
                 <div id="ton-connect-btn"></div>
             </div>
 
@@ -309,9 +310,9 @@
                     <ol class="instruction-list">
                         <li>Підключіть свій TON-гаманець вище.</li>
                         <li>Натисніть кнопку «Вивести на гаманець» (Мін. 5 USDT).</li>
-                        <li>Підтвердіть дію. Ваш баланс автоматично скинеться, а система згенерує текст заявки.</li>
+                        <li>Підтвердіть дію. Ваш баланс автоматично скинеться в нуль, а система згенерує зашифровану заявку.</li>
                         <li>Скопіюйте текст із вікна та надішліть адміну в особисті для виплати.</li>
-                        <li style="color: #ffcc00; font-weight: bold; list-style-type: '⚠️ ';">ВАЖЛИВО: Для підключення використовуйте додаток <u>Tonkeeper</u>. Офіційний Telegram Wallet всередині апок може працювати з перебоями!</li>
+                        <li style="color: #ffcc00; font-weight: bold; list-style-type: '⚠️ ';">ВАЖЛИВО: Для стабільного підключення використовуйте додаток <u>Tonkeeper</u>. Вбудований Telegram Wallet може працювати з перебоями!</li>
                     </ol>
                 </div>
                 <p style="font-size: 14px; text-align: left; color: #a1a1aa; margin-top: 15px;">Мінімальна сума: <span style="color: var(--neon-green); font-weight: bold;">5 USDT</span></p>
@@ -319,6 +320,7 @@
             </div>
         </div>
 
+        <!-- ПРОФІЛЬ -->
         <div id="tab-profile" class="tab-content">
             <div class="card" style="text-align: left;">
                 <h3 style="text-align: center;">👤 Мій кабінет</h3>
@@ -326,15 +328,19 @@
                 
                 <div class="stats-grid">
                     <div class="stat-box">
-                        <div class="stat-box-title">Запрошено друзів</div>
+                        <div class="stat-box-title">Реферали</div>
                         <div class="stat-box-value" id="ref-count">0 чол.</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-box-title">Ваш статус</div>
+                        <div class="stat-box-value" style="color: #ffe066;">Active</div>
                     </div>
                 </div>
             </div>
 
             <div class="card">
                 <h3>Партнерська програма</h3>
-                <p style="color: #a1a1aa; font-size: 14px;">Запрошуйте друзів та отримуйте фіксований бонус +0.0005 USDT, щойно ваш друг подивиться першу рекламу!</p>
+                <p style="color: #a1a1aa; font-size: 14px;">Запрошуйте друзів та отримуйте фіксований бонус +0.0005 USDT за кожного!</p>
                 <div class="ref-box" id="ref-link" style="background-color: rgba(0, 0, 0, 0.4); padding: 12px; border-radius: 8px; font-size: 14px; color: var(--neon-green); word-break: break-all; margin: 15px 0; border: 1px dashed var(--neon-green);">https://t.me/WoodGrowCoinBot?start=id</div>
                 <button class="btn btn-secondary" style="background: none; border: 2px solid var(--gold-color); color: var(--gold-color);" onclick="copyRefLink()">📋 Скопіювати лінк</button>
                 <button class="btn" onclick="shareBot()">🔗 Запросити друга</button>
@@ -342,10 +348,11 @@
         </div>
     </div>
 
+    <!-- ВНУТРІШНЄ МОДАЛЬНЕ ВІКНО ДЛЯ ЗАЯВКИ -->
     <div class="modal-overlay" id="withdraw-modal">
         <div class="modal-window">
             <h3 style="color: var(--neon-green); margin-bottom: 5px;">⚡️ ЗАЯВКА СФОРМОВАНА ⚡️</h3>
-            <p style="font-size: 12px; color: #a1a1aa; margin: 0;">Ваш баланс обнулено. Скопіюйте шифр нижче та надішліть адміну.</p>
+            <p style="font-size: 12px; color: #a1a1aa; margin: 0;">Ваш баланс обнулено в хмарі. Скопіюйте текст нижче та надішліть адміну.</p>
             
             <textarea class="modal-textarea" id="modal-text-field" readonly></textarea>
             
@@ -354,6 +361,7 @@
         </div>
     </div>
 
+    <!-- НАВІГАЦІЙНА ПАНЕЛЬ -->
     <div class="nav-bar">
         <div class="nav-item active" onclick="switchTab('main', this)">
             <span class="nav-icon">⚙️</span>Головна
@@ -369,6 +377,7 @@
         </div>
     </div>
 
+    <!-- ADSTERRA BANNER -->
     <div class="bottom-ad-container" id="adsterra-holder">
         <script type="text/javascript">
             atOptions = { 'key' : 'c45d93c72f9027c7dbf67dbfb73d6488', 'format' : 'iframe', 'height' : 60, 'width' : 468, 'params' : {} };
@@ -377,15 +386,17 @@
     </div>
 
     <script>
-        // Ініціалізація Supabase з твоїми ключами
-        const SUPABASE_URL = "https://ebgfhzizbcxsxpfqusap.supabase.co";
-        const SUPABASE_ANON_KEY = "sb_publishable_wSVAHiv6Wc7q6T5GVurACg_wiZSTlpt";
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        let userId = "6043278492"; // Дефолтне значення для тестування поза TG
+        // --- ТОЧНІ НАЛАШТУВАННЯ SUPABASE (ВШИТІ АВТОМАТИЧНО) ---
+        const SUPABASE_URL = "https://ebgfhzizbcxsxpfqusap.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_wSVAHiv6Wc7q6T5GVurACg_wiZSTlpt";
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let currentWalletAddress = "Не підключено";
+        let userId = "6043278492"; // Дефолтне значення для тестів
+
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             userId = tg.initDataUnsafe.user.id.toString();
         }
@@ -393,17 +404,6 @@
         document.getElementById('user-id').innerText = userId;
         document.getElementById('ref-link').innerText = `https://t.me/WoodGrowCoinBot?start=${userId}`;
 
-        window.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
-                if (typeof show_11189906 === 'function') {
-                    try { show_11189906('pop'); } catch(e) {}
-                }
-            }, 1500);
-            initUserSession();
-        });
-
-        let balance = 0.0000;
-        let currentWalletAddress = "Не підключено";
         const MAX_VIEWS = 20;
         const services = ['service1', 'service2', 'service3', 'service4', 'support'];
         const configRewards = { service1: 0.0004, service2: 0.0002, service3: 0.0002, service4: 0.0004, support: 0.0000 };
@@ -419,14 +419,20 @@
             return hash.toString();
         }
 
-        // Синхронізація сесії з Supabase
+        let balance = 0.0000;
+
+        // Автоматична синхронізація з базою та обробка рефералки
         async function initUserSession() {
             try {
-                // 1. Отримуємо або створюємо користувача в таблиці users
                 let { data: user, error } = await supabase.from('users').select('*').eq('id', userId).maybeSingle();
                 
+                if (error) {
+                    console.error("Помилка Supabase:", error.message);
+                    return;
+                }
+                
+                // Реєстрація нового користувача
                 if (!user) {
-                    // Якщо користувача немає, реєструємо його
                     let referrerId = null;
                     if (tg.initDataUnsafe && tg.initDataUnsafe.start_param) {
                         const startParam = tg.initDataUnsafe.start_param.trim();
@@ -435,67 +441,75 @@
                         }
                     }
 
-                    const initialHash = generateHash(0.0000);
                     const { data: newUser, error: createError } = await supabase.from('users').insert([{ 
                         id: userId, 
                         balance: 0.0000, 
                         referred_by: referrerId 
-                    }]).select().single();
+                    }]).select().maybeSingle();
                     
-                    if (createError) throw createError;
+                    if (createError) return;
                     user = newUser;
 
-                    // Якщо є реферер, фіксуємо потенційний реферал у таблиці referrals
-                    if (referrerId) {
+                    // Облік реферала
+                    if (referrerId && user) {
                         await supabase.from('referrals').insert([{
                             referrer_id: referrerId,
                             referred_id: userId,
                             bonus_given: false
                         }]);
+                        
+                        // Нарахування $0.0005 тому, хто запросив
+                        let { data: refUser } = await supabase.from('users').select('balance').eq('id', referrerId).maybeSingle();
+                        if (refUser) {
+                            let newRefBalance = (parseFloat(refUser.balance) || 0) + 0.0005;
+                            await supabase.from('users').update({ balance: newRefBalance }).eq('id', referrerId);
+                        }
                     }
                 }
 
-                balance = parseFloat(user.balance) || 0.0000;
-                document.getElementById('user-balance').innerText = balance.toFixed(4);
+                if (user) {
+                    balance = parseFloat(user.balance) || 0.0000;
+                    document.getElementById('user-balance').innerText = balance.toFixed(4);
+                }
 
-                // 2. Завантажуємо кількість рефералів у Кабінет
+                // Кількість рефералів з бази
                 let { count, error: countError } = await supabase.from('referrals').select('*', { count: 'exact', head: true }).eq('referrer_id', userId);
                 if (!countError) {
                     document.getElementById('ref-count').innerText = `${count || 0} чол.`;
                 }
 
-                // 3. Відновлення щоденних лімітів кліків реклами з localStorage
-                const todayStr = new Date().toDateString(); 
-                const lastSavedDay = localStorage.getItem('wg_last_active_day') || '';
-                if (todayStr !== lastSavedDay) {
-                    services.forEach(srv => localStorage.setItem(`wg_views_${srv}`, '0'));
-                    localStorage.setItem('wg_last_active_day', todayStr);
-                }
-
-                viewCounts = {
-                    service1: parseInt(localStorage.getItem('wg_views_service1')) || 0,
-                    service2: parseInt(localStorage.getItem('wg_views_service2')) || 0,
-                    service3: parseInt(localStorage.getItem('wg_views_service3')) || 0,
-                    service4: parseInt(localStorage.getItem('wg_views_service4')) || 0,
-                    support: parseInt(localStorage.getItem('wg_views_support')) || 0
-                };
-
-                services.forEach(srv => { updateLimitUI(srv); checkSingleCooldown(srv); });
-
             } catch (err) {
-                console.error("Помилка сесії Supabase: ", err);
+                console.error("Критичний збій сесії:", err);
             }
         }
 
-        let viewCounts = { service1: 0, service2: 0, service3: 0, service4: 0, support: 0 };
+        initUserSession();
+
+        // Контроль локальних денних лімітів кліків
+        const todayStr = new Date().toDateString(); 
+        const lastSavedDay = localStorage.getItem('wg_last_active_day') || '';
+        if (todayStr !== lastSavedDay) {
+            services.forEach(srv => localStorage.setItem(`wg_views_${srv}`, '0'));
+            localStorage.setItem('wg_last_active_day', todayStr);
+        }
+
+        let viewCounts = {
+            service1: parseInt(localStorage.getItem('wg_views_service1')) || 0,
+            service2: parseInt(localStorage.getItem('wg_views_service2')) || 0,
+            service3: parseInt(localStorage.getItem('wg_views_service3')) || 0,
+            service4: parseInt(localStorage.getItem('wg_views_service4')) || 0,
+            support: parseInt(localStorage.getItem('wg_views_support')) || 0
+        };
+
         let isClickBlocked = false;
-        
         function handleBtnClick(serviceKey, actionFunction) {
             if (isClickBlocked) return; 
             isClickBlocked = true;
             setTimeout(() => { isClickBlocked = false; }, 1000);
             actionFunction();
         }
+
+        services.forEach(srv => { updateLimitUI(srv); checkSingleCooldown(srv); });
 
         function switchTab(tabName, element) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
@@ -541,19 +555,38 @@
 
         function watchAdsgram() {
             if (viewCounts['service1'] >= MAX_VIEWS || !AdController) return;
-            AdController.show().then(() => rewardUser('service1')).catch(() => alert("Рекламу не зараховано."));
+            AdController.show().then(() => rewardUser('service1')).catch(() => alert("Відео не доглянуто."));
         }
 
         function watchSupportAd() {
             if (viewCounts['support'] >= MAX_VIEWS || !AdController) return;
-            AdController.show().then(() => { rewardUser('support'); alert("Дякуємо! ❤️"); }).catch(() => alert("Відео перервано."));
+            AdController.show().then(() => { rewardUser('support'); alert("Дякуємо за підтримку! ❤️"); }).catch(() => alert("Відео перервано."));
         }
 
-        function watchMonetag() {
+        // ДИНАМІЧНИЙ БЕЗПЕЧНИЙ ВИКЛИК MONETAG ДЛЯ СЕРВІСУ 4
+        function watchMonetagSafe() {
             if (viewCounts['service4'] >= MAX_VIEWS) return;
-            if (typeof show_11189906 === 'function') {
-                try { show_11189906('pop'); setTimeout(() => rewardUser('service4'), 4000); } catch(e) {}
-            }
+
+            // Створюємо та додаємо скрипт Monetag динамічно
+            const monetagScript = document.createElement('script');
+            monetagScript.src = '//libtl.com/sdk.js';
+            monetagScript.setAttribute('data-zone', '11189906');
+            monetagScript.setAttribute('data-sdk', 'show_11189906');
+            
+            monetagScript.onload = function() {
+                // Коли реклама завантажилася, з невеликою затримкою даємо нагороду та видаляємо скрипт з DOM
+                setTimeout(() => {
+                    rewardUser('service4');
+                    monetagScript.remove();
+                }, 1500);
+            };
+
+            monetagScript.onerror = function() {
+                alert("Не вдалося завантажити рекламу Monetag. Спробуйте пізніше або через VPN.");
+                monetagScript.remove();
+            };
+
+            document.head.appendChild(monetagScript);
         }
 
         let activeLinkTimers = {};
@@ -571,6 +604,7 @@
             }
 
             tg.openLink(url);
+            
             btn.disabled = true;
             let timeLeft = 20;
             btn.innerText = `⏳ ПЕРЕВІРКА... ${timeLeft}s`;
@@ -588,46 +622,26 @@
             }, 1000);
         }
 
-        // НАРАХУВАННЯ ВИНАГОРОДИ З СИНХРОНІЗАЦІЄЮ В SUPABASE
+        // Синхронізація нарахувань з базою даних
         async function rewardUser(serviceKey) {
             if (viewCounts[serviceKey] >= MAX_VIEWS) return;
             
-            try {
-                balance += configRewards[serviceKey];
-                viewCounts[serviceKey] += 1;
-                localStorage.setItem(`wg_views_${serviceKey}`, viewCounts[serviceKey].toString());
-                
-                // Зберігаємо баланс в Supabase
-                await supabase.from('users').update({ balance: balance }).eq('id', userId);
-                
-                document.getElementById('user-balance').innerText = balance.toFixed(4);
-                updateLimitUI(serviceKey);
+            balance += configRewards[serviceKey];
+            viewCounts[serviceKey] += 1;
+            localStorage.setItem(`wg_views_${serviceKey}`, viewCounts[serviceKey].toString());
+            
+            // Записуємо баланс у Supabase
+            const { error } = await supabase.from('users').update({ balance: balance }).eq('id', userId);
+            if (error) {
+                console.error("Збій збереження:", error.message);
+            }
 
-                // ЛОГІКА ОДНОРАЗОВОГО РЕФЕРАЛЬНОГО БОНУСУ ЗА ПЕРШУ ДІЮ
-                let { data: refRecord, error: refError } = await supabase.from('referrals').select('*').eq('referred_id', userId).eq('bonus_given', false).maybeSingle();
-                
-                if (refRecord) {
-                    const inviterId = refRecord.referrer_id;
-                    
-                    // Отримуємо поточний баланс того, хто запросив
-                    let { data: inviter, error: invError } = await supabase.from('users').select('balance').eq('id', inviterId).maybeSingle();
-                    if (inviter) {
-                        let inviterNewBalance = (parseFloat(inviter.balance) || 0) + 0.0005;
-                        
-                        // Нараховуємо бонус запросившому другу
-                        await supabase.from('users').update({ balance: inviterNewBalance }).eq('id', inviterId);
-                        
-                        // Закриваємо реферал (bonus_given = true)
-                        await supabase.from('referrals').update({ bonus_given: true }).eq('id', refRecord.id);
-                    }
-                }
+            document.getElementById('user-balance').innerText = balance.toFixed(4);
+            updateLimitUI(serviceKey);
 
-                if (viewCounts[serviceKey] < MAX_VIEWS) {
-                    localStorage.setItem(`wg_cooldown_${serviceKey}`, (Date.now() + 120000).toString());
-                    checkSingleCooldown(serviceKey);
-                }
-            } catch (err) {
-                console.error("Помилка збереження винагороди: ", err);
+            if (viewCounts[serviceKey] < MAX_VIEWS) {
+                localStorage.setItem(`wg_cooldown_${serviceKey}`, (Date.now() + 120000).toString());
+                checkSingleCooldown(serviceKey);
             }
         }
 
@@ -665,24 +679,24 @@
             }
         }
 
-        function copyRefLink() { navigator.clipboard.writeText(document.getElementById('ref-link').innerText); alert("Скопійовано!"); }
-        
+        function copyRefLink() { navigator.clipboard.writeText(document.getElementById('ref-link').innerText); alert("Посилання скопійовано!"); }
         function shareBot() {
             const link = document.getElementById('ref-link').innerText;
-            tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent("👋 Заробляй зі мною!")}`);
+            tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent("👋 Гей! Почни заробляти разом зі мною в WoodGrow Coin Bot!")}`);
         }
 
+        // Процес фіксації та шифрування заявки на вивід
         async function withdrawFunds() {
             if (!tonConnectUI.connected || currentWalletAddress === "Не підключено") {
                 alert("❌ Спочатку підключіть ваш TON-гаманець!");
                 return;
             }
             if (balance < 5.0) {
-                alert(`❌ Мінімальна сума для виведення: 5 USDT (У вас ${balance.toFixed(4)})`);
+                alert(`❌ Мінімальна сума для виведення: 5 USDT (Ваш баланс: ${balance.toFixed(4)})`);
                 return;
             }
 
-            const confirmed = confirm(`Ви впевнені, що хочете вивести ${balance.toFixed(4)} USDT?\n\nПісля натискання "ОК" баланс буде скинуто, а додаток згенерує текст для копіювання.`);
+            const confirmed = confirm(`Ви дійсно хочете подати заявку на виведення ${balance.toFixed(4)} USDT?\n\nВаш хмарний баланс обнулиться, і система видасть шифр заявки.`);
             if (!confirmed) return;
 
             const finalUserId = userId;
@@ -690,21 +704,17 @@
             const finalWallet = currentWalletAddress;
             const securityCheckCode = generateHash(balance);
 
-            try {
-                balance = 0.0000;
-                // Обнуляємо баланс у Supabase
-                await supabase.from('users').update({ balance: 0.0000 }).eq('id', userId);
-                
-                document.getElementById('user-balance').innerText = balance.toFixed(4);
+            balance = 0.0000;
+            
+            // Моментальне обнулення балансу в хмарі Supabase для захисту від повторних надуживань
+            await supabase.from('users').update({ balance: 0.0000 }).eq('id', userId);
+            document.getElementById('user-balance').innerText = balance.toFixed(4);
 
-                const applicationText = `ЗАЯВКА НА ВИВІД WOODGROW:\n• ID: ${finalUserId}\n• Сума: ${finalSum} USDT\n• TON Гаманець: ${finalWallet}\n• Код безпеки: ${securityCheckCode}`;
+            const applicationText = `ЗАЯВКА НА ВИВІД WOODGROW:\n• ID: ${finalUserId}\n• Сума: ${finalSum} USDT\n• TON Гаманець: ${finalWallet}\n• Код безпеки: ${securityCheckCode}`;
 
-                document.getElementById('modal-text-field').value = applicationText;
-                navigator.clipboard.writeText(applicationText).catch(() => {});
-                document.getElementById('withdraw-modal').classList.add('active');
-            } catch (err) {
-                alert("Помилка бази даних під час списання. Спробуйте ще раз.");
-            }
+            document.getElementById('modal-text-field').value = applicationText;
+            navigator.clipboard.writeText(applicationText).catch(() => {});
+            document.getElementById('withdraw-modal').classList.add('active');
         }
 
         function copyModalText() {
@@ -722,7 +732,7 @@
                     copyBtn.style.background = "linear-gradient(135deg, #0df25d 0%, #08a63f 100%)";
                 }, 3000);
             }).catch(() => {
-                alert("Затисніть пальцем текст у полі та скопіюйте його вручну.");
+                alert("Будь ласка, виділіть та скопіюйте текст у полі вручну.");
             });
         }
 
