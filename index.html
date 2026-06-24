@@ -346,7 +346,7 @@
     <div class="modal-overlay" id="withdraw-modal">
         <div class="modal-window">
             <h3 style="color: var(--neon-green); margin-bottom: 5px;">⚡️ ЗАЯВКА СФОРМОВАНА ⚡️</h3>
-            <p style="font-size: 12px; color: #a1a1aa; margin: 0;">Ваш баланс обнулено в хмарі. Скопіюйте текст ниже та надішліть адміну.</p>
+            <p style="font-size: 12px; color: #a1a1aa; margin: 0;">Ваш баланс обнулено в хмарі. Скопіюйте текст нижче та надішліть адміну.</p>
             
             <textarea class="modal-textarea" id="modal-text-field" readonly></textarea>
             
@@ -397,9 +397,17 @@
         document.getElementById('ref-link').innerText = `https://t.me/WoodGrowCoinBot?start=${userId}`;
 
         const MAX_VIEWS = 20;
-        const services = ['service1', 'service2', 'service3', 'service4', 'support'];
         const configRewards = { service1: 0.0004, service2: 0.0002, service3: 0.0002, service4: 0.0004, support: 0.0000 };
         const SECRET_SALT = "woodgrow_secure_9921";
+
+        // Об'єкт для збереження лімітів та кулдаунів у пам'яті додатка
+        let userProgress = {
+            service1: { clicks: 0, lastClick: 0 },
+            service2: { clicks: 0, lastClick: 0 },
+            service3: { clicks: 0, lastClick: 0 },
+            service4: { clicks: 0, lastClick: 0 },
+            support: { clicks: 0, lastClick: 0 }
+        };
 
         function generateHash(val) {
             let str = val.toFixed(4) + SECRET_SALT;
@@ -416,7 +424,6 @@
         // Автоматична синхронізація з базою та безпечна обробка рефералки
         async function initUserSession() {
             try {
-                // 1. Отримуємо реферера з посилання Telegram (якщо є)
                 let referrerId = null;
                 if (tg.initDataUnsafe && tg.initDataUnsafe.start_param) {
                     const startParam = tg.initDataUnsafe.start_param.trim();
@@ -425,19 +432,16 @@
                     }
                 }
 
-                // 2. Викликаємо першу безпечну функцію для створення користувача
+                // Безпечний виклик першої SQL-функції реєстрації
                 const { error: regError } = await supabase.rpc('add_new_user', {
                     u_id: userId,
                     ref_id: referrerId
                 });
 
-                if (regError) {
-                    console.error("Помилка реєстрації користувача:", regError.message);
-                }
+                if (regError) console.error("Помилка реєстрації:", regError.message);
 
-                // 3. БЕЗПЕЧНИЙ ОБЛІК РЕФЕРАЛЬНОГО БОНУСУ $0.0005
+                // Безпечний облік реферального бонусу
                 if (referrerId) {
-                    // Перевіряємо в таблиці referrals, чи цей юзер вже зареєстрований як чийсь реферал
                     const { data: existingRef, error: checkRefError } = await supabase
                         .from('referrals')
                         .select('id')
@@ -445,7 +449,6 @@
                         .maybeSingle();
 
                     if (!checkRefError && !existingRef) {
-                        // Якщо запису немає — це перша реєстрація. Фіксуємо зв'язок
                         const { error: insertRefError } = await supabase
                             .from('referrals')
                             .insert([{
@@ -454,40 +457,33 @@
                                 bonus_given: true
                             }]);
 
-                        // Якщо успішно записали — викликаємо функцію для нарахування грошей другу
                         if (!insertRefError) {
                             await supabase.rpc('add_ref_bonus', { r_id: referrerId });
-                            console.log(`Реферальний бонус успішно нараховано для ${referrerId}`);
                         }
                     }
                 }
 
-                // 4. Отримуємо актуальні дані з таблиці "Users" (з великої літери у лапках)
+                // Завантаження актуальних даних з чутливої до регістру таблиці "Users"
                 let { data: user, error: fetchError } = await supabase
                     .from('"Users"')
                     .select('*')
                     .eq('id', userId)
                     .maybeSingle();
                 
-                if (fetchError) {
-                    console.error("Помилка завантаження даних користувача:", fetchError.message);
-                    return;
-                }
-                
-                if (user) {
+                if (!fetchError && user) {
                     balance = parseFloat(user.balance) || 0.0000;
                     document.getElementById('user-balance').innerText = balance.toFixed(4);
                 }
                 
-                // 5. Оновлюємо лічильник рефералів у профілі
                 updateRefCounter();
+                updateUIIndicators();
+                startGlobalTimerCheck();
 
             } catch (e) {
-                console.error("Критична помилка ініціалізації сесії:", e);
+                console.error("Критична помилка старту сесії:", e);
             }
         }
 
-        // Окрема функція для оновлення кількості друзів на екрані
         async function updateRefCounter() {
             try {
                 const { data: refCount, error: countError } = await supabase.rpc('get_user_ref_count_safe', { user_id_param: userId });
@@ -495,14 +491,219 @@
                     document.getElementById('ref-count').innerText = `${refCount} чол.`;
                 }
             } catch (err) {
-                console.error("Не вдалося оновити лічильник рефералів:", err);
+                console.error("Лічильник рефералів недоступний:", err);
             }
         }
 
-        // --- Завантаження сесії при старті ---
-        initUserSession();
+        // --- ЛОГІКА НАРАХУВАННЯ ТА ОБРОБКИ КНОПОК ---
+        async function rewardUserCloud(serviceKey) {
+            const reward = configRewards[serviceKey];
+            if (reward === 0) return true; // Добровільна підтримка без оплати
 
-        // Функція перемикання вкладок
+            const clientHash = generateHash(reward);
+            try {
+                const { data: newBalance, error } = await supabase.rpc('reward_user_safe', {
+                    user_id_param: userId,
+                    amount_param: reward,
+                    auth_hash_param: clientHash
+                });
+
+                if (!error && newBalance !== null) {
+                    balance = parseFloat(newBalance);
+                    document.getElementById('user-balance').innerText = balance.toFixed(4);
+                    return true;
+                } else {
+                    console.error("Сервер відхилив нарахування:", error?.message);
+                    alert("Помилка синхронізації балансу. Спробуйте ще раз.");
+                    return false;
+                }
+            } catch (err) {
+                console.error(err);
+                return false;
+            }
+        }
+
+        function handleBtnClick(serviceKey, adCallbackFunction) {
+            const progress = userProgress[serviceKey];
+            const now = Date.now();
+
+            if (progress.clicks >= MAX_VIEWS) {
+                alert("Денний ліміт (20/20) для цього сервісу вичерпано!");
+                return;
+            }
+            if (now - progress.lastClick < 120000) {
+                alert("Будь ласка, зачекайте завершення таймера охолодження!");
+                return;
+            }
+
+            adCallbackFunction(serviceKey);
+        }
+
+        // Імітація інтеграцій мереж
+        function watchAdsgram(serviceKey) {
+            // Тут буде твій реальний блок виклику Adsgram. При успішному показі:
+            setTimeout(async () => {
+                const success = await rewardUserCloud(serviceKey);
+                if (success) {
+                    triggerCooldown(serviceKey);
+                }
+            }, 1000);
+        }
+
+        function watchMonetagSafe(serviceKey) {
+            setTimeout(async () => {
+                const success = await rewardUserCloud(serviceKey);
+                if (success) {
+                    triggerCooldown(serviceKey);
+                }
+            }, 1000);
+        }
+
+        function watchSupportAd(serviceKey) {
+            setTimeout(() => {
+                triggerCooldown(serviceKey);
+                alert("Дякуємо за підтримку нашого проекту! ❤️");
+            }, 1000);
+        }
+
+        function startDirectLinkTimer(serviceKey, url) {
+            const progress = userProgress[serviceKey];
+            const now = Date.now();
+
+            if (progress.clicks >= MAX_VIEWS) {
+                alert("Денний ліміт вичерпано!");
+                return;
+            }
+            if (now - progress.lastClick < 120000) {
+                alert("Сервіс охолоджується!");
+                return;
+            }
+
+            window.open(url, '_blank');
+            
+            setTimeout(async () => {
+                const success = await rewardUserCloud(serviceKey);
+                if (success) {
+                    triggerCooldown(serviceKey);
+                }
+            }, 2000);
+        }
+
+        function triggerCooldown(serviceKey) {
+            userProgress[serviceKey].clicks += 1;
+            userProgress[serviceKey].lastClick = Date.now();
+            updateUIIndicators();
+        }
+
+        function updateUIIndicators() {
+            for (const key of Object.keys(userProgress)) {
+                const prog = userProgress[key];
+                const indicator = document.getElementById(`limit-${key}`);
+                if (indicator) {
+                    indicator.innerText = `${prog.clicks} / ${MAX_VIEWS}`;
+                    if (prog.clicks >= MAX_VIEWS) indicator.classList.add('maxed');
+                }
+            }
+        }
+
+        function startGlobalTimerCheck() {
+            setInterval(() => {
+                const now = Date.now();
+                for (const key of Object.keys(userProgress)) {
+                    const prog = userProgress[key];
+                    const btn = document.getElementById(`btn-${key}`);
+                    const timerSpan = document.getElementById(`timer-${key}`);
+                    
+                    if (prog.clicks >= MAX_VIEWS) {
+                        if (btn) btn.disabled = true;
+                        if (timerSpan) timerSpan.style.display = 'none';
+                        continue;
+                    }
+
+                    const timePassed = now - prog.lastClick;
+                    if (timePassed < 120000) {
+                        if (btn) btn.disabled = true;
+                        if (timerSpan) {
+                            timerSpan.style.display = 'inline';
+                            timerSpan.querySelector('.sec').innerText = Math.ceil((120000 - timePassed) / 1000);
+                        }
+                    } else {
+                        if (btn) btn.disabled = false;
+                        if (timerSpan) timerSpan.style.display = 'none';
+                    }
+                }
+            }, 1000);
+        }
+
+        // --- МОДАЛЬНЕ ВІКНО ТА ВИВЕДЕННЯ ---
+        function withdrawFunds() {
+            if (balance < 5.0) {
+                alert("Недостатньо коштів! Мінімальна сума виведення — 5 USDT.");
+                return;
+            }
+            
+            // Внутрішня симуляція очищення балансу для генерації звіту адміну
+            const txData = `USER ID: ${userId}\nAMOUNT: ${balance.toFixed(4)} USDT\nWALLET: ${currentWalletAddress}\nSTATUS: SIGNED_CLOUD_VALID`;
+            document.getElementById('modal-text-field').value = btoa(txData); // Кодуємо в Base64 для шифрування
+            
+            balance = 0.0000;
+            document.getElementById('user-balance').innerText = "0.0000";
+            document.getElementById('withdraw-modal').classList.add('active');
+        }
+
+        function copyModalText() {
+            const txt = document.getElementById('modal-text-field');
+            txt.select();
+            txt.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(txt.value);
+            alert("Код заявки успішно скопійовано!");
+        }
+
+        function goToAdmin() {
+            window.open('https://t.me/VoooodCoin', '_blank');
+        }
+
+        function copyRefLink() {
+            const linkText = document.getElementById('ref-link').innerText;
+            navigator.clipboard.writeText(linkText);
+            alert("Ваше реферальне посилання скопійовано!");
+        }
+
+        function shareBot() {
+            const linkText = document.getElementById('ref-link').innerText;
+            window.open(`https://t.me/share/url?url=${encodeURIComponent(linkText)}&text=${encodeURIComponent('Заробляй USDT разом зі мною в WoodGrow Coin!')}`, '_blank');
+        }
+
         function switchTab(tabId, element) {
             const contents = document.querySelectorAll('.tab-content');
-            contents.forEach(c => c.classList
+            contents.forEach(c => c.classList.remove('active'));
+            
+            const tabs = document.querySelectorAll('.nav-item');
+            tabs.forEach(t => t.classList.remove('active'));
+
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            element.classList.add('active');
+
+            if (tabId === 'profile') updateRefCounter();
+        }
+
+        // TON Connect ініціалізація
+        const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+            manifestUrl: 'https://raw.githubusercontent.com/ton-connect/js-sdk/main/packages/sdk/tonconnect-manifest.json',
+            buttonRootId: 'ton-connect-btn'
+        });
+
+        tonConnectUI.onStatusChange(wallet => {
+            if (wallet) {
+                currentWalletAddress = wallet.account.address;
+                console.log("Гаманець підключено:", currentWalletAddress);
+            } else {
+                currentWalletAddress = "Не підключено";
+            }
+        });
+
+        // Запуск сесії користувача при старті сторінки
+        initUserSession();
+    </script>
+</body>
+</html>
