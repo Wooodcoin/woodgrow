@@ -7,6 +7,7 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+    <!-- Офіційний JS-клієнт Supabase для хмарної синхронізації -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     
     <style>
@@ -161,7 +162,7 @@
             background: #000000;
             display: block;
             text-align: center;
-            z-index: 1001; 
+            z-index: 101; 
             border-top: 1px solid rgba(212, 175, 55, 0.4);
         }
 
@@ -233,6 +234,7 @@
 <body>
 
     <div class="container">
+        <!-- ГОЛОВНА -->
         <div id="tab-main" class="tab-content active">
             <div class="card">
                 <div class="balance-title">Мій Баланс</div>
@@ -277,6 +279,7 @@
             </div>
         </div>
 
+        <!-- РЕКЛАМА -->
         <div id="tab-tasks" class="tab-content">
             <div class="card" style="border: 2px dashed var(--gold-color);">
                 <h3>🎁 Підтримка проєкту</h3>
@@ -292,6 +295,7 @@
             </div>
         </div>
 
+        <!-- ГАМАНЕЦЬ -->
         <div id="tab-wallet" class="tab-content">
             <div class="card">
                 <h3>Підключення гаманця</h3>
@@ -316,6 +320,7 @@
             </div>
         </div>
 
+        <!-- ПРОФІЛЬ -->
         <div id="tab-profile" class="tab-content">
             <div class="card" style="text-align: left;">
                 <h3 style="text-align: center;">👤 Мій кабінет</h3>
@@ -343,6 +348,7 @@
         </div>
     </div>
 
+    <!-- ВНУТРІШНЄ МОДАЛЬНЕ ВІКНО ДЛЯ ЗАЯВКИ -->
     <div class="modal-overlay" id="withdraw-modal">
         <div class="modal-window">
             <h3 style="color: var(--neon-green); margin-bottom: 5px;">⚡️ ЗАЯВКА СФОРМОВАНА ⚡️</h3>
@@ -355,6 +361,7 @@
         </div>
     </div>
 
+    <!-- НАВІГАЦІЙНА ПАНЕЛЬ -->
     <div class="nav-bar">
         <div class="nav-item active" onclick="switchTab('main', this)">
             <span class="nav-icon">⚙️</span>Головна
@@ -370,6 +377,7 @@
         </div>
     </div>
 
+    <!-- ADSTERRA BANNER -->
     <div class="bottom-ad-container" id="adsterra-holder">
         <script type="text/javascript">
             atOptions = { 'key' : 'c45d93c72f9027c7dbf67dbfb73d6488', 'format' : 'iframe', 'height' : 60, 'width' : 468, 'params' : {} };
@@ -381,7 +389,7 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // --- ТОЧНІ НАЛАШТУВАННЯ SUPABASE (ВШИТІ З ВЕЛИКОЮ ЛІТЕРОЮ ДЛЯ ТАБЛИЦІ) ---
+        // --- ТОЧНІ НАЛАШТУВАННЯ SUPABASE (ВСЕ МАЛЕНЬКИМИ ЛІТЕРАМИ) ---
         const SUPABASE_URL = "https://ebgfhzizbcxsxpfqusap.supabase.co";
         const SUPABASE_KEY = "sb_publishable_wSVAHiv6Wc7q6T5GVurACg_wiZSTlpt";
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -416,8 +424,8 @@
         // Автоматична синхронізація з базою та обробка рефералки
         async function initUserSession() {
             try {
-                // Виправлено назву таблиці на 'Users'
-                let { data: user, error } = await supabase.from('Users').select('*').eq('id', userId).maybeSingle();
+                // Зміна на маленькі літери 'users'
+                let { data: user, error } = await supabase.from('users').select('*').eq('id', userId).maybeSingle();
                 
                 if (error) {
                     console.error("Помилка Supabase:", error.message);
@@ -434,8 +442,8 @@
                         }
                     }
 
-                    // Виправлено назву таблиці на 'Users'
-                    const { data: newUser, error: createError } = await supabase.from('Users').insert([{ 
+                    // Зміна на маленькі літери 'users'
+                    const { data: newUser, error: createError } = await supabase.from('users').insert([{ 
                         id: userId, 
                         balance: 0.0000, 
                         referred_by: referrerId 
@@ -444,7 +452,7 @@
                     if (createError) return;
                     user = newUser;
 
-                    // Облік реферала (таблиця referrals з маленької літери)
+                    // Облік реферала (маленькі літери)
                     if (referrerId && user) {
                         await supabase.from('referrals').insert([{
                             referrer_id: referrerId,
@@ -453,10 +461,10 @@
                         }]);
                         
                         // Нарахування $0.0005 тому, хто запросив
-                        let { data: refUser } = await supabase.from('Users').select('balance').eq('id', referrerId).maybeSingle();
+                        let { data: refUser } = await supabase.from('users').select('balance').eq('id', referrerId).maybeSingle();
                         if (refUser) {
                             let newRefBalance = (parseFloat(refUser.balance) || 0) + 0.0005;
-                            await supabase.from('Users').update({ balance: newRefBalance }).eq('id', referrerId);
+                            await supabase.from('users').update({ balance: newRefBalance }).eq('id', referrerId);
                         }
                     }
                 }
@@ -622,8 +630,8 @@
             viewCounts[serviceKey] += 1;
             localStorage.setItem(`wg_views_${serviceKey}`, viewCounts[serviceKey].toString());
             
-            // Записуємо баланс у таблицю 'Users' (з великої літери)
-            const { error } = await supabase.from('Users').update({ balance: balance }).eq('id', userId);
+            // Записуємо баланс у маленьку таблицю 'users'
+            const { error } = await supabase.from('users').update({ balance: balance }).eq('id', userId);
             if (error) {
                 console.error("Збій збереження балансу:", error.message);
             }
@@ -698,8 +706,8 @@
 
             balance = 0.0000;
             
-            // Моментальне обнулення балансу в хмарі 'Users'
-            await supabase.from('Users').update({ balance: 0.0000 }).eq('id', userId);
+            // Моментальне обнулення балансу в хмарі 'users'
+            await supabase.from('users').update({ balance: 0.0000 }).eq('id', userId);
             document.getElementById('user-balance').innerText = balance.toFixed(4);
 
             const applicationText = `ЗАЯВКА НА ВИВІД WOODGROW:\n• ID: ${finalUserId}\n• Сума: ${finalSum} USDT\n• TON Гаманець: ${finalWallet}\n• Код безпеки: ${securityCheckCode}`;
