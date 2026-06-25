@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>WoodGrow Coin Bot</title>
+    <title>WoodGrow Автономний Тест</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     
     <style>
         :root {
@@ -27,8 +25,6 @@
             padding: 20px;
             padding-bottom: 100px;
             box-sizing: border-box;
-            -webkit-user-select: none;
-            user-select: none;
         }
 
         .tab-content { display: none; }
@@ -41,20 +37,13 @@
             padding: 20px;
             margin-bottom: 20px;
             text-align: center;
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
-        }
-
-        .balance-title {
-            font-size: 14px;
-            color: var(--neon-green);
-            text-transform: uppercase;
-            font-weight: bold;
         }
 
         .balance-value {
             font-size: 38px;
             font-weight: 900;
             margin: 10px 0;
+            color: #ffffff;
         }
 
         .btn {
@@ -68,7 +57,6 @@
             font-size: 16px;
             font-weight: 800;
             cursor: pointer;
-            margin-top: 10px;
             text-transform: uppercase;
         }
 
@@ -86,7 +74,7 @@
 
         .nav-item {
             color: #71717a;
-            font-size: 11px;
+            font-size: 12px;
             text-transform: uppercase;
             font-weight: 700;
             text-align: center;
@@ -102,38 +90,28 @@
 </head>
 <body>
 
+    <!-- Вкладка 1: ГОЛОВНА -->
     <div id="tab-main" class="tab-content active">
         <div class="card">
-            <div class="balance-title">Мій Баланс</div>
+            <div style="font-size: 14px; color: var(--neon-green);">АВТОНОМНИЙ БАЛАНС (БЕЗ БАЗИ)</div>
             <div class="balance-value"><span id="user-balance">0.0000</span> USDT</div>
         </div>
-        <button class="btn" onclick="simulateWatchAd()">Перегляд реклами (+0.0004)</button>
+        <button class="btn" onclick="addClickBalance()">Клікнути (+0.0004)</button>
     </div>
 
-    <div id="tab-wallet" class="tab-content">
-        <div class="card">
-            <h3>Гаманець TON</h3>
-            <div id="ton-connect-btn"></div>
-            <button class="btn" style="margin-top:20px;" onclick="withdrawFunds()">Вивести кошти (Мін. 5 USDT)</button>
-        </div>
-    </div>
-
+    <!-- Вкладка 2: КАБІНЕТ -->
     <div id="tab-profile" class="tab-content">
-        <div class="card" style="text-align: left;">
-            <h3>Профіль користувача</h3>
-            <p><strong>Ваш ID:</strong> <span id="user-id">Завантаження...</span></p>
-            <p><strong>Реферали:</strong> <span id="ref-count">0 чол.</span></p>
-            <p><strong>Реферальне посилання:</strong></p>
-            <div id="ref-link" style="color:var(--neon-green); word-break:break-all; font-size:12px; background:rgba(0,0,0,0.4); padding:10px; border-radius:8px;">Завантаження...</div>
+        <div class="card">
+            <h3>Тестовий Кабінет</h3>
+            <p>Якщо ти бачиш цей текст після натискання на кнопку меню, значить хостинг і навігація працюють!</p>
+            <button class="btn" onclick="resetLocalData()" style="background: red; color: white;">Скинути баланс</button>
         </div>
     </div>
 
+    <!-- НАВІГАЦІЯ -->
     <div class="nav-bar">
         <div class="nav-item active" onclick="switchTab('main', this)">
             <span class="nav-icon">⚙️</span>Головна
-        </div>
-        <div class="nav-item" onclick="switchTab('wallet', this)">
-            <span class="nav-icon">💼</span>Гаманець
         </div>
         <div class="nav-item" onclick="switchTab('profile', this)">
             <span class="nav-icon">🖥️</span>Кабінет
@@ -141,128 +119,49 @@
     </div>
 
     <script>
-        const tg = window.Telegram.WebApp;
-        
-        // Ініціалізація інтерфейсу відразу
+        // Ініціалізація Telegram WebApp
         try {
-            tg.expand();
-            tg.ready();
-        } catch(e) {}
-
-        const SUPABASE_URL = "https://ebgfhzizbcxsxpfqusap.supabase.co";
-        const SUPABASE_KEY = "sb_publishable_wSVAHiv6Wc7q6T5GVurACg_wiZSTlpt";
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        let userId = "6043278492"; // Тестовий дефолт
-        let balance = 0.0000;
-        let userReferrer = null;
-
-        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            userId = tg.initDataUnsafe.user.id.toString();
+            if (window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.expand();
+                window.Telegram.WebApp.ready();
+            }
+        } catch(e) {
+            console.error("Помилка Telegram SDK", e);
         }
 
-        document.getElementById('user-id').innerText = userId;
-        document.getElementById('ref-link').innerText = `https://t.me/WoodGrowCoinBot?start=${userId}`;
+        // Завантаження балансу з пам'яті телефону
+        let balance = parseFloat(localStorage.getItem('test_balance')) || 0.0000;
+        document.getElementById('user-balance').innerText = balance.toFixed(4);
 
-        // Функція перемикання вкладок (працює залізно і незалежно від бази)
+        // Функція перемикання вкладок
         function switchTab(tabId, element) {
+            // Ховаємо всі вкладки
             const contents = document.querySelectorAll('.tab-content');
             contents.forEach(c => c.classList.remove('active'));
             
+            // Робимо всі кнопки меню неактивними
             const tabs = document.querySelectorAll('.nav-item');
             tabs.forEach(t => t.classList.remove('active'));
 
+            // Показуємо потрібну вкладку
             document.getElementById(`tab-${tabId}`).classList.add('active');
             element.classList.add('active');
-            
-            if (tabId === 'profile') loadRefCounter();
         }
 
-        // Завантаження даних з Supabase
-        async function loadUserSession() {
-            try {
-                let { data: user, error } = await supabase
-                    .from('Users')
-                    .select('*')
-                    .eq('id', userId)
-                    .maybeSingle();
-
-                if (!user && !error) {
-                    let referrerId = null;
-                    if (tg.initDataUnsafe && tg.initDataUnsafe.start_param) {
-                        const start = tg.initDataUnsafe.start_param.trim();
-                        if (start !== userId) referrerId = start;
-                    }
-
-                    const { data: newUser } = await supabase
-                        .from('Users')
-                        .insert([{ id: userId, balance: 0.0000, referred_by: referrerId }])
-                        .select()
-                        .single();
-                    user = newUser;
-                }
-
-                if (user) {
-                    balance = parseFloat(user.balance) || 0.0000;
-                    userReferrer = user.referred_by;
-                    document.getElementById('user-balance').innerText = balance.toFixed(4);
-                }
-            } catch (e) {
-                alert("Помилка підключення до Supabase: " + e.message);
-            }
+        // Нарахування балансу (локально)
+        function addClickBalance() {
+            balance += 0.0004;
+            document.getElementById('user-balance').innerText = balance.toFixed(4);
+            localStorage.setItem('test_balance', balance.toString());
         }
 
-        async function loadRefCounter() {
-            try {
-                const { count, error } = await supabase
-                    .from('Users')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('referred_by', userId);
-                if (!error && count !== null) {
-                    document.getElementById('ref-count').innerText = `${count} чол.`;
-                }
-            } catch(e) {}
+        // Скидання даних
+        function resetLocalData() {
+            balance = 0.0000;
+            document.getElementById('user-balance').innerText = balance.toFixed(4);
+            localStorage.removeItem('test_balance');
+            alert("Дані скинуто!");
         }
-
-        async function simulateWatchAd() {
-            try {
-                let newBalance = balance + 0.0004;
-                const { error } = await supabase
-                    .from('Users')
-                    .update({ balance: newBalance })
-                    .eq('id', userId);
-
-                if (!error) {
-                    balance = newBalance;
-                    document.getElementById('user-balance').innerText = balance.toFixed(4);
-                    alert("Успішно нараховано +0.0004 USDT!");
-                    
-                    if (userReferrer) {
-                        // Нарахування 10% рефереру
-                        let { data: rUser } = await supabase.from('Users').select('balance').eq('id', userReferrer).maybeSingle();
-                        if (rUser) {
-                            let rBonus = (parseFloat(rUser.balance) || 0) + 0.00004;
-                            await supabase.from('Users').update({ balance: rBonus }).eq('id', userReferrer);
-                        }
-                    }
-                } else {
-                    alert("Помилка бази даних: " + error.message);
-                }
-            } catch(e) {
-                alert("Критична помилка запиту: " + e.message);
-            }
-        }
-
-        async function withdrawFunds() {
-            if (balance < 5.0) {
-                alert("Мінімальна сума — 5 USDT. Ваш баланс: " + balance.toFixed(4));
-                return;
-            }
-            // Логіка виведення...
-        }
-
-        // Старт сесії
-        loadUserSession();
     </script>
 </body>
 </html>
