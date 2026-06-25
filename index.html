@@ -5,35 +5,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WoodGrow Test</title>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        body { padding: 20px; background: #0a1f0f; color: white; font-family: sans-serif; }
+        button { width: 100%; padding: 20px; margin: 15px 0; font-size: 18px; background: gold; border: none; border-radius: 12px; }
+    </style>
 </head>
-<body style="padding:20px; font-family:sans-serif; background:#000; color:#0f0;">
+<body>
 
-<h2>Тест Supabase</h2>
-<p>ID: <span id="userid">завантаження...</span></p>
-<p>Баланс: <span id="balance">0.0000</span></p>
+<h2>WoodGrow Test</h2>
+<p><strong>ID:</strong> <span id="userid">---</span></p>
+<p><strong>Баланс:</strong> <span id="balance">0.0000</span> USDT</p>
 
-<button onclick="testReward()" style="padding:15px; font-size:18px; margin:10px 0;">+0.0004 USDT (Тест)</button>
-<button onclick="loadBalance()" style="padding:15px; font-size:18px;">Оновити баланс</button>
+<button onclick="testReward()">НАРАХУВАТИ +0.0004 USDT</button>
+<button onclick="loadBalance()">ОНОВИТИ БАЛАНС</button>
+<button onclick="testConnection()">ТЕСТ ПІДКЛЮЧЕННЯ</button>
 
 <script>
     const SUPABASE_URL = "https://ebgfhzizbcxsxpfqusap.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_wSVAHiv6Wc7q6T5GVurACg_wiZSTlpt"; // ← Заміни якщо є інший
+    const SUPABASE_KEY = "sb_publishable_wSVAHiv6Wc7q6T5GVurACg_wiZSTlpt"; // Заміни якщо треба
 
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let userId = "6043278492";
 
-    async function testReward() {
+    async function testConnection() {
+        alert("🔄 Тест підключення...");
         try {
-            const result = await supabase.rpc('reward_user_safe', {
+            const { data, error } = await supabase.from('Users').select('count').limit(1);
+            if (error) alert("Помилка: " + error.message);
+            else alert("✅ Підключення працює!");
+        } catch(e) {
+            alert("Критична помилка: " + e.message);
+        }
+    }
+
+    async function testReward() {
+        alert("Нараховуємо +0.0004...");
+        try {
+            const { data, error } = await supabase.rpc('reward_user_safe', {
                 user_id_param: parseInt(userId),
                 reward_amount: 0.0004
             });
-            
-            alert("Результат: " + JSON.stringify(result));
-            
-            if (result.data !== null) {
-                document.getElementById('balance').innerText = parseFloat(result.data).toFixed(4);
+
+            if (error) {
+                alert("Помилка RPC: " + error.message);
+            } else {
+                alert("✅ Успішно! Новий баланс: " + data);
+                document.getElementById('balance').innerText = parseFloat(data).toFixed(4);
             }
         } catch(e) {
             alert("Помилка: " + e.message);
@@ -42,15 +60,20 @@
 
     async function loadBalance() {
         try {
-            const { data } = await supabase
+            const { data, error } = await supabase
                 .from('Users')
                 .select('balance')
                 .eq('id', userId)
-                .single();
-            
-            document.getElementById('balance').innerText = parseFloat(data?.balance || 0).toFixed(4);
+                .maybeSingle();
+
+            if (error) alert("Помилка завантаження: " + error.message);
+            else {
+                const bal = data ? parseFloat(data.balance) : 0;
+                document.getElementById('balance').innerText = bal.toFixed(4);
+                alert("Баланс оновлено: " + bal.toFixed(4));
+            }
         } catch(e) {
-            alert("Помилка завантаження: " + e.message);
+            alert("Помилка: " + e.message);
         }
     }
 
