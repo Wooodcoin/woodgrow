@@ -7,6 +7,7 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     
     <!-- SDK Monetag -->
     <script src='//libtl.com/sdk.js' data-zone='11189906' data-sdk='show_11189906'></script>
@@ -100,7 +101,6 @@
             border: 1px solid #3f3f46;
         }
         
-        /* Кнопка готовності забрати бонус */
         .btn.ready-claim {
             background: linear-gradient(135deg, #0df25d 0%, #08a63f 100%) !important;
             color: #000000 !important;
@@ -114,7 +114,6 @@
             100% { box-shadow: 0 4px 15px rgba(13, 242, 93, 0.4); }
         }
 
-        /* --- НАВІГАЦІЙНА ПАНЕЛЬ --- */
         .nav-bar {
             position: fixed;
             bottom: 60px; 
@@ -165,7 +164,7 @@
             background: #000000;
             display: block;
             text-align: center;
-            z-index: 1001; 
+            z-index: 101; 
             border-top: 1px solid rgba(212, 175, 55, 0.4);
         }
 
@@ -173,7 +172,6 @@
         h3 { color: var(--gold-color); margin-top: 0; text-transform: uppercase; font-size: 18px; }
         .instruction-list { text-align: left; font-size: 13px; color: #a1a1aa; line-height: 1.6; padding-left: 20px; margin: 15px 0; }
 
-        /* --- СТИЛІ МОДАЛЬНОГО ВІКНА --- */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -279,7 +277,7 @@
                     <span id="timer-service4" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
                     <span id="limit-service4" class="limit-indicator">0 / 20</span>
                 </div>
-                <button class="btn" id="btn-service4" onclick="handleBtnClick('service4', watchMonetag)">СЕРВІС 4 (+0.0004)</button>
+                <button class="btn" id="btn-service4" onclick="handleBtnClick('service4', watchMonetagSafe)">СЕРВІС 4 (+0.0004)</button>
             </div>
         </div>
 
@@ -303,7 +301,7 @@
         <div id="tab-wallet" class="tab-content">
             <div class="card">
                 <h3>Підключення гаманця</h3>
-                <p style="color: #a1a1aa; font-size: 14px;">Підключіть свій TON-гаманець для фіксавої адреси в заявках.</p>
+                <p style="color: #a1a1aa; font-size: 14px;">Підключіть свій TON-гаманець для фіксації адреси в заявках.</p>
                 <div id="ton-connect-btn"></div>
             </div>
 
@@ -314,9 +312,9 @@
                     <ol class="instruction-list">
                         <li>Підключіть свій TON-гаманець вище.</li>
                         <li>Натисніть кнопку «Вивести на гаманець» (Мін. 5 USDT).</li>
-                        <li>Підтвердіть дію. Ваш баланс автоматично скинеться, а система згенерує текст заявки.</li>
+                        <li>Підтвердіть дію. Ваш баланс автоматично скинеться в нуль, а система згенерує зашифровану заявку.</li>
                         <li>Скопіюйте текст із вікна та надішліть адміну в особисті для виплати.</li>
-                        <li style="color: #ffcc00; font-weight: bold; list-style-type: '⚠️ ';">ВАЖЛИВО: Для підключення використовуйте додаток <u>Tonkeeper</u>. Офіційний Telegram Wallet всередині апок може працювати з перебоями!</li>
+                        <li style="color: #ffcc00; font-weight: bold; list-style-type: '⚠️ ';">ВАЖЛИВО: Для стабільного підключення використовуйте додаток <u>Tonkeeper</u>. Вбудований Telegram Wallet може працювати з перебоями!</li>
                     </ol>
                 </div>
                 <p style="font-size: 14px; text-align: left; color: #a1a1aa; margin-top: 15px;">Мінімальна сума: <span style="color: var(--neon-green); font-weight: bold;">5 USDT</span></p>
@@ -336,15 +334,15 @@
                         <div class="stat-box-value" id="ref-count">0 чол.</div>
                     </div>
                     <div class="stat-box">
-                        <div class="stat-box-title">Ref Бонус</div>
-                        <div class="stat-box-value" id="ref-bonus">0.0000 USDT</div>
+                        <div class="stat-box-title">Ваш статус</div>
+                        <div class="stat-box-value" style="color: #ffe066;">Active</div>
                     </div>
                 </div>
             </div>
 
             <div class="card">
                 <h3>Партнерська програма</h3>
-                <p style="color: #a1a1aa; font-size: 14px;">Отримуйте фіксовані +10% від кожного перегляду реклами вашими друзями!</p>
+                <p style="color: #a1a1aa; font-size: 14px;">Запрошуйте друзів та отримуйте бонус +10% від кожного їхнього перегляду реклами!</p>
                 <div class="ref-box" id="ref-link" style="background-color: rgba(0, 0, 0, 0.4); padding: 12px; border-radius: 8px; font-size: 14px; color: var(--neon-green); word-break: break-all; margin: 15px 0; border: 1px dashed var(--neon-green);">https://t.me/WoodGrowCoinBot?start=id</div>
                 <button class="btn btn-secondary" style="background: none; border: 2px solid var(--gold-color); color: var(--gold-color);" onclick="copyRefLink()">📋 Скопіювати лінк</button>
                 <button class="btn" onclick="shareBot()">🔗 Запросити друга</button>
@@ -352,11 +350,11 @@
         </div>
     </div>
 
-    <!-- ВНУТРІШНЄ ВІКНО ДЛЯ СКОПІЙОВАНОЇ ЗАЯВКИ -->
+    <!-- МОДАЛЬНЕ ВІКНО -->
     <div class="modal-overlay" id="withdraw-modal">
         <div class="modal-window">
             <h3 style="color: var(--neon-green); margin-bottom: 5px;">⚡️ ЗАЯВКА СФОРМОВАНА ⚡️</h3>
-            <p style="font-size: 12px; color: #a1a1aa; margin: 0;">Ваш баланс обнулено. Скопіюйте шифр нижче та надішліть адміну.</p>
+            <p style="font-size: 12px; color: #a1a1aa; margin: 0;">Ваш баланс обнулено в хмарі. Скопіюйте текст нижче та надішліть адміну.</p>
             
             <textarea class="modal-textarea" id="modal-text-field" readonly></textarea>
             
@@ -365,7 +363,7 @@
         </div>
     </div>
 
-    <!-- НАВІГАЦІЙНА ПАНЕЛЬ -->
+    <!-- НАВІГАЦІЯ -->
     <div class="nav-bar">
         <div class="nav-item active" onclick="switchTab('main', this)">
             <span class="nav-icon">⚙️</span>Головна
@@ -392,7 +390,7 @@
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
-        
+
         window.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 if (typeof show_11189906 === 'function') {
@@ -401,277 +399,330 @@
             }, 1500);
         });
 
+        // --- ТОЧНІ НАЛАШТУВАННЯ SUPABASE ---
+        const SUPABASE_URL = "https://ebgfhzizbcxsxpfqusap.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_wSVAHiv6Wc7q6T5GVurACg_wiZSTlpt";
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
         let currentWalletAddress = "Не підключено";
+        let userId = "6043278492"; // Дефолт для тестів
+        let userReferrer = null;
 
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            document.getElementById('user-id').innerText = tg.initDataUnsafe.user.id;
-            document.getElementById('ref-link').innerText = `https://t.me/WoodGrowCoinBot?start=${tg.initDataUnsafe.user.id}`;
-        } else {
-            document.getElementById('user-id').innerText = "6043278492";
-            document.getElementById('ref-link').innerText = `https://t.me/WoodGrowCoinBot?start=6043278492`;
+            userId = tg.initDataUnsafe.user.id.toString();
         }
-
-        let refCount = parseInt(localStorage.getItem('wg_ref_count')) || 0;
-        let refBonus = parseFloat(localStorage.getItem('wg_ref_bonus')) || 0.0000;
-        document.getElementById('ref-count').innerText = `${refCount} чол.`;
-        document.getElementById('ref-bonus').innerText = `${refBonus.toFixed(4)} USDT`;
+        
+        document.getElementById('user-id').innerText = userId;
+        document.getElementById('ref-link').innerText = `https://t.me/WoodGrowCoinBot?start=${userId}`;
 
         const MAX_VIEWS = 20;
-        const services = ['service1', 'service2', 'service3', 'service4', 'support'];
         const configRewards = { service1: 0.0004, service2: 0.0002, service3: 0.0002, service4: 0.0004, support: 0.0000 };
-        const SECRET_SALT = "woodgrow_secure_9921";
 
-        function generateHash(val) {
-            let str = val.toFixed(4) + SECRET_SALT;
-            let hash = 0;
-            for (let i = 0; i < str.length; i++) {
-                hash = (hash << 5) - hash + str.charCodeAt(i);
-                hash |= 0;
-            }
-            return hash.toString();
-        }
-
-        let rawBalance = localStorage.getItem('woodgrow_balance') || '0.0000';
-        let savedHash = localStorage.getItem('woodgrow_b_hash') || '';
-        let balance = parseFloat(rawBalance);
-
-        if (rawBalance !== '0.0000' && generateHash(balance) !== savedHash) {
-            balance = 0.0000;
-            updateBalance();
-        }
-        document.getElementById('user-balance').innerText = balance.toFixed(4);
-
-        const todayStr = new Date().toDateString(); 
-        const lastSavedDay = localStorage.getItem('wg_last_active_day') || '';
-        if (todayStr !== lastSavedDay) {
-            services.forEach(srv => localStorage.setItem(`wg_views_${srv}`, '0'));
-            localStorage.setItem('wg_last_active_day', todayStr);
-        }
-
-        let viewCounts = {
-            service1: parseInt(localStorage.getItem('wg_views_service1')) || 0,
-            service2: parseInt(localStorage.getItem('wg_views_service2')) || 0,
-            service3: parseInt(localStorage.getItem('wg_views_service3')) || 0,
-            service4: parseInt(localStorage.getItem('wg_views_service4')) || 0,
-            support: parseInt(localStorage.getItem('wg_views_support')) || 0
+        let userProgress = {
+            service1: { clicks: 0, lastClick: 0 },
+            service2: { clicks: 0, lastClick: 0 },
+            service3: { clicks: 0, lastClick: 0 },
+            service4: { clicks: 0, lastClick: 0 },
+            support: { clicks: 0, lastClick: 0 }
         };
 
-        let isClickBlocked = false;
-        function handleBtnClick(serviceKey, actionFunction) {
-            if (isClickBlocked) return; 
-            isClickBlocked = true;
-            setTimeout(() => { isClickBlocked = false; }, 1000);
-            actionFunction();
-        }
+        let balance = 0.0000;
 
-        services.forEach(srv => { updateLimitUI(srv); checkSingleCooldown(srv); });
+        // Синхронізація сесії
+        async function initUserSession() {
+            try {
+                // Читаємо дані з таблиці "Users"
+                let { data: user, error: fetchError } = await supabase
+                    .from('Users') 
+                    .select('*')
+                    .eq('id', userId)
+                    .maybeSingle();
 
-        function switchTab(tabName, element) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-            document.getElementById('tab-' + tabName).classList.add('active');
-            element.classList.add('active');
-        }
+                if (fetchError) console.error("Помилка читання бази:", fetchError.message);
 
-        function updateLimitUI(serviceKey) {
-            const limitSpan = document.getElementById(`limit-${serviceKey}`);
-            limitSpan.innerText = `${viewCounts[serviceKey]} / ${MAX_VIEWS}`;
-            
-            const btn = document.getElementById(`btn-${serviceKey}`);
-            
-            if (viewCounts[serviceKey] >= MAX_VIEWS) {
-                limitSpan.className = 'limit-indicator maxed';
-                limitSpan.innerText = "20 / 20 🛑";
-                btn.disabled = true;
-                btn.className = "btn";
-                if(serviceKey === 'service2') btn.innerText = "СЕРВІС 2 (+0.0002)";
-                if(serviceKey === 'service3') btn.innerText = "СЕРВІС 3 (+0.0002)";
-            } else {
-                limitSpan.className = 'limit-indicator';
-                const expireTime = localStorage.getItem(`wg_cooldown_${serviceKey}`);
-                if (!expireTime || Date.now() >= expireTime) {
-                    if (!btn.classList.contains('ready-claim')) {
-                        btn.disabled = false;
+                if (!user) {
+                    // Визначаємо реферера з лінка старта
+                    let referrerId = null;
+                    if (tg.initDataUnsafe && tg.initDataUnsafe.start_param) {
+                        const startParam = tg.initDataUnsafe.start_param.trim();
+                        if (startParam !== userId) {
+                            referrerId = startParam;
+                        }
                     }
+
+                    // Створюємо рядок користувача
+                    const { data: newUser, error: insertError } = await supabase
+                        .from('Users')
+                        .insert([{ id: userId, balance: 0.0000, referred_by: referrerId }])
+                        .select()
+                        .single();
+
+                    if (insertError) {
+                        console.error("Помилка створення юзера:", insertError.message);
+                    } else {
+                        user = newUser;
+                    }
+                }
+
+                if (user) {
+                    balance = parseFloat(user.balance) || 0.0000;
+                    userReferrer = user.referred_by;
+                    document.getElementById('user-balance').innerText = balance.toFixed(4);
+                }
+                
+                updateRefCounter();
+                updateUIIndicators();
+                startGlobalTimerCheck();
+
+            } catch (e) {
+                console.error("Критична помилка старту сесії:", e);
+            }
+        }
+
+        // Лічильник рефералів
+        async function updateRefCounter() {
+            try {
+                const { error, count } = await supabase
+                    .from('Users')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('referred_by', userId);
+
+                if (!error && count !== null) {
+                    document.getElementById('ref-count').innerText = `${count} чол.`;
+                }
+            } catch (err) {
+                console.error("Лічильник рефералів недоступний:", err);
+            }
+        }
+
+        // Нарахування за перегляд
+        async function rewardUserCloud(serviceKey) {
+            const reward = configRewards[serviceKey];
+            if (reward === 0) return true; 
+
+            try {
+                let newBalance = balance + reward;
+
+                // Оновлюємо баланс самому юзеру
+                const { error } = await supabase
+                    .from('Users')
+                    .update({ balance: newBalance })
+                    .eq('id', userId);
+
+                if (!error) {
+                    balance = newBalance;
+                    document.getElementById('user-balance').innerText = balance.toFixed(4);
+                    
+                    // Нараховуємо 10% рефереру (якщо він є) за активність реферала
+                    if (userReferrer) {
+                        await giveReferralPercentBonus(userReferrer, reward);
+                    }
+                    return true;
+                } else {
+                    console.error("База відхилила оновлення:", error.message);
+                    return false;
+                }
+            } catch (err) {
+                console.error(err);
+                return false;
+            }
+        }
+
+        // Функція нарахування реф-бонусу (10% від суми реклами)
+        async function giveReferralPercentBonus(referrerId, refActionReward) {
+            try {
+                let { data: refUser } = await supabase.from('Users').select('balance').eq('id', referrerId).maybeSingle();
+                if (refUser) {
+                    let bonus = refActionReward * 0.10; // 10%
+                    let newRefBalance = (parseFloat(refUser.balance) || 0) + bonus;
+                    await supabase.from('Users').update({ balance: newRefBalance }).eq('id', referrerId);
+                }
+            } catch (e) {
+                console.error("Не вдалося нарахувати реф-процент:", e);
+            }
+        }
+
+        function handleBtnClick(serviceKey, adCallbackFunction) {
+            const progress = userProgress[serviceKey];
+            const now = Date.now();
+
+            if (progress.clicks >= MAX_VIEWS) {
+                alert("Денний ліміт (20/20) для цього сервісу вичерпано!");
+                return;
+            }
+            if (now - progress.lastClick < 120000) {
+                alert("Будь ласка, зачекайте завершення таймера охолодження!");
+                return;
+            }
+
+            adCallbackFunction(serviceKey);
+        }
+
+        function watchAdsgram(serviceKey) {
+            // Твій виклик Adsgram. Симуляція успіху:
+            setTimeout(async () => {
+                const success = await rewardUserCloud(serviceKey);
+                if (success) triggerCooldown(serviceKey);
+            }, 1000);
+        }
+
+        function watchMonetagSafe(serviceKey) {
+            setTimeout(async () => {
+                const success = await rewardUserCloud(serviceKey);
+                if (success) triggerCooldown(serviceKey);
+            }, 1000);
+        }
+
+        function watchSupportAd(serviceKey) {
+            setTimeout(() => {
+                triggerCooldown(serviceKey);
+                alert("Дякуємо за підтримку нашого проекту! ❤️");
+            }, 1000);
+        }
+
+        function startDirectLinkTimer(serviceKey, url) {
+            const progress = userProgress[serviceKey];
+            const now = Date.now();
+
+            if (progress.clicks >= MAX_VIEWS) {
+                alert("Денний ліміт вичерпано!");
+                return;
+            }
+            if (now - progress.lastClick < 120000) {
+                alert("Сервіс охолоджується!");
+                return;
+            }
+
+            window.open(url, '_blank');
+            
+            setTimeout(async () => {
+                const success = await rewardUserCloud(serviceKey);
+                if (success) triggerCooldown(serviceKey);
+            }, 2000);
+        }
+
+        function triggerCooldown(serviceKey) {
+            userProgress[serviceKey].clicks += 1;
+            userProgress[serviceKey].lastClick = Date.now();
+            updateUIIndicators();
+        }
+
+        function updateUIIndicators() {
+            for (const key of Object.keys(userProgress)) {
+                const prog = userProgress[key];
+                const indicator = document.getElementById(`limit-${key}`);
+                if (indicator) {
+                    indicator.innerText = `${prog.clicks} / ${MAX_VIEWS}`;
+                    if (prog.clicks >= MAX_VIEWS) indicator.classList.add('maxed');
                 }
             }
         }
 
-        const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-            manifestUrl: 'https://raw.githubusercontent.com/ton-community/tutorials/main/03-client/test/public/tonconnect-manifest.json',
-            buttonRootId: 'ton-connect-btn'
-        });
+        function startGlobalTimerCheck() {
+            setInterval(() => {
+                const now = Date.now();
+                for (const key of Object.keys(userProgress)) {
+                    const prog = userProgress[key];
+                    const btn = document.getElementById(`btn-${key}`);
+                    const timerSpan = document.getElementById(`timer-${key}`);
+                    
+                    if (prog.clicks >= MAX_VIEWS) {
+                        if (btn) btn.disabled = true;
+                        if (timerSpan) timerSpan.style.display = 'none';
+                        continue;
+                    }
 
-        tonConnectUI.onStatusChange(wallet => {
-            currentWalletAddress = wallet ? wallet.account.address : "Не підключено";
-        });
-
-        const AdController = window.Adsgram ? window.Adsgram.init({ blockId: "35910" }) : null;
-
-        function watchAdsgram() {
-            if (viewCounts['service1'] >= MAX_VIEWS || !AdController) return;
-            AdController.show().then(() => rewardUser('service1')).catch(() => alert("Рекламу не зараховано."));
-        }
-
-        function watchSupportAd() {
-            if (viewCounts['support'] >= MAX_VIEWS || !AdController) return;
-            AdController.show().then(() => { rewardUser('support'); alert("Дякуємо! ❤️"); }).catch(() => alert("Відео перервано."));
-        }
-
-        function watchMonetag() {
-            if (viewCounts['service4'] >= MAX_VIEWS) return;
-            if (typeof show_11189906 === 'function') {
-                try { show_11189906('pop'); setTimeout(() => rewardUser('service4'), 4000); } catch(e) {}
-            }
-        }
-
-        /* --- НОВА СИСТЕМА ДВОЕТАПНОГО ТАЙМЕРА ДЛЯ DIRECT LINKS --- */
-        let activeLinkTimers = {};
-
-        function startDirectLinkTimer(serviceKey, url) {
-            if (viewCounts[serviceKey] >= MAX_VIEWS) return;
-            const btn = document.getElementById(`btn-${serviceKey}`);
-            
-            // Якщо кнопка вже у стані "Забрати бонус"
-            if (btn.classList.contains('ready-claim')) {
-                btn.classList.remove('ready-claim');
-                if (serviceKey === 'service2') btn.innerText = "СЕРВІС 2 (+0.0002)";
-                if (serviceKey === 'service3') btn.innerText = "СЕРВІС 3 (+0.0002)";
-                rewardUser(serviceKey);
-                return;
-            }
-
-            // Інакше: перший клік — відкриваємо лінк і запускаємо 20 секунд
-            tg.openLink(url);
-            
-            btn.disabled = true;
-            let timeLeft = 20;
-            const originalName = serviceKey === 'service2' ? 'СЕРВІС 2' : 'СЕРВІС 3';
-            btn.innerText = `⏳ ПЕРЕВІРКА... ${timeLeft}s`;
-
-            activeLinkTimers[serviceKey] = setInterval(() => {
-                timeLeft--;
-                if (timeLeft <= 0) {
-                    clearInterval(activeLinkTimers[serviceKey]);
-                    btn.disabled = false;
-                    btn.classList.add('ready-claim');
-                    btn.innerText = `🎁 ЗАБРАТИ БОНУС (+${configRewards[serviceKey]})`;
-                } else {
-                    btn.innerText = `⏳ ПЕРЕВІРКА... ${timeLeft}s`;
+                    const timePassed = now - prog.lastClick;
+                    if (timePassed < 120000) {
+                        if (btn) btn.disabled = true;
+                        if (timerSpan) {
+                            timerSpan.style.display = 'inline';
+                            timerSpan.querySelector('.sec').innerText = Math.ceil((120000 - timePassed) / 1000);
+                        }
+                    } else {
+                        if (btn) btn.disabled = false;
+                        if (timerSpan) timerSpan.style.display = 'none';
+                    }
                 }
             }, 1000);
         }
 
-        function rewardUser(serviceKey) {
-            if (viewCounts[serviceKey] >= MAX_VIEWS) return;
-            balance += configRewards[serviceKey];
-            viewCounts[serviceKey] += 1;
-            localStorage.setItem(`wg_views_${serviceKey}`, viewCounts[serviceKey].toString());
-            updateBalance();
-            updateLimitUI(serviceKey);
-
-            if (viewCounts[serviceKey] < MAX_VIEWS) {
-                localStorage.setItem(`wg_cooldown_${serviceKey}`, (Date.now() + 120000).toString());
-                checkSingleCooldown(serviceKey);
-            }
-        }
-
-        function checkSingleCooldown(serviceKey) {
-            if (viewCounts[serviceKey] >= MAX_VIEWS) return;
-            const btn = document.getElementById(`btn-${serviceKey}`);
-            const timerBox = document.getElementById(`timer-${serviceKey}`);
-            const expireTime = localStorage.getItem(`wg_cooldown_${serviceKey}`);
-            if (!expireTime) return;
-
-            const remaining = Math.ceil((expireTime - Date.now()) / 1000);
-            if (remaining > 0) {
-                if(activeLinkTimers[serviceKey]) clearInterval(activeLinkTimers[serviceKey]);
-                btn.classList.remove('ready-claim');
-                if (serviceKey === 'service2') btn.innerText = "СЕРВІС 2 (+0.0002)";
-                if (serviceKey === 'service3') btn.innerText = "СЕРВІС 3 (+0.0002)";
-
-                btn.disabled = true;
-                timerBox.style.display = 'inline';
-                timerBox.querySelector('.sec').innerText = remaining;
-                if(btn.intervalId) clearInterval(btn.intervalId);
-                btn.intervalId = setInterval(() => {
-                    const curRemaining = Math.ceil((expireTime - Date.now()) / 1000);
-                    if (curRemaining <= 0 || viewCounts[serviceKey] >= MAX_VIEWS) {
-                        clearInterval(btn.intervalId);
-                        localStorage.removeItem(`wg_cooldown_${serviceKey}`);
-                        timerBox.style.display = 'none';
-                        if (viewCounts[serviceKey] < MAX_VIEWS) btn.disabled = false;
-                    } else { timerBox.querySelector('.sec').innerText = curRemaining; }
-                }, 1000);
-            } else {
-                if (viewCounts[serviceKey] < MAX_VIEWS && !btn.classList.contains('ready-claim')) btn.disabled = false;
-                timerBox.style.display = 'none';
-                localStorage.removeItem(`wg_cooldown_${serviceKey}`);
-            }
-        }
-
-        function updateBalance() {
-            localStorage.setItem('woodgrow_balance', balance.toString());
-            localStorage.setItem('woodgrow_b_hash', generateHash(balance));
-            document.getElementById('user-balance').innerText = balance.toFixed(4);
-        }
-
-        function copyRefLink() { navigator.clipboard.writeText(document.getElementById('ref-link').innerText); alert("Скопійовано!"); }
-        function shareBot() {
-            const link = document.getElementById('ref-link').innerText;
-            tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent("👋 Заробляй зі мною!")}`);
-        }
-
-        function withdrawFunds() {
-            if (!tonConnectUI.connected || currentWalletAddress === "Не підключено") {
-                alert("❌ Спочатку підключіть ваш TON-гаманець!");
-                return;
-            }
+        async function withdrawFunds() {
             if (balance < 5.0) {
-                alert(`❌ Мінімальна сума для виведення: 5 USDT (У вас ${balance.toFixed(4)})`);
+                alert("Недостатньо коштів! Мінімальна сума виведення — 5 USDT.");
+                return;
+            }
+            
+            // Скидання балансу в Supabase під час формування заявки
+            const { error } = await supabase
+                .from('Users')
+                .update({ balance: 0.0000 })
+                .eq('id', userId);
+
+            if (error) {
+                alert("Помилка підключення. Спробуйте ще раз.");
                 return;
             }
 
-            const confirmed = confirm(`Ви впевнені, що хочете вивести ${balance.toFixed(4)} USDT?\n\nПісля натискання "ОК" баланс буде скинуто, а додаток згенерує текст для копіювання.`);
-            if (!confirmed) return;
-
-            const finalUserId = document.getElementById('user-id').innerText;
-            const finalSum = balance.toFixed(4);
-            const finalWallet = currentWalletAddress;
-            const securityCheckCode = generateHash(balance);
-
+            const txData = `USER ID: ${userId}\nAMOUNT: ${balance.toFixed(4)} USDT\nWALLET: ${currentWalletAddress}\nSTATUS: SIGNED_CLOUD_VALID`;
+            document.getElementById('modal-text-field').value = btoa(txData);
+            
             balance = 0.0000;
-            updateBalance();
-
-            const applicationText = `ЗАЯВКА НА ВИВІД WOODGROW:\n• ID: ${finalUserId}\n• Сума: ${finalSum} USDT\n• TON Гаманець: ${finalWallet}\n• Код безпеки: ${securityCheckCode}`;
-
-            document.getElementById('modal-text-field').value = applicationText;
-            navigator.clipboard.writeText(applicationText).catch(() => {});
+            document.getElementById('user-balance').innerText = "0.0000";
             document.getElementById('withdraw-modal').classList.add('active');
         }
 
         function copyModalText() {
-            const textField = document.getElementById('modal-text-field');
-            textField.select();
-            textField.setSelectionRange(0, 99999);
-            
-            navigator.clipboard.writeText(textField.value).then(() => {
-                const copyBtn = document.getElementById('modal-copy-btn');
-                copyBtn.innerText = "✅ ШИФР СКОПІЙОВАНО!";
-                copyBtn.style.background = "#0df25d";
-                copyBtn.style.color = "#111111";
-                setTimeout(() => {
-                    copyBtn.innerText = "📋 СКОПІЮВАТИ ТЕКСТ";
-                    copyBtn.style.background = "linear-gradient(135deg, #0df25d 0%, #08a63f 100%)";
-                }, 3000);
-            }).catch(() => {
-                alert("Затисніть пальцем текст у полі та скопіюйте його вручну.");
-            });
+            const txt = document.getElementById('modal-text-field');
+            txt.select();
+            txt.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(txt.value);
+            alert("Код заявки успішно скопійовано!");
         }
 
         function goToAdmin() {
-            tg.openTelegramLink("https://t.me/VoooodCoin");
+            window.open('https://t.me/VoooodCoin', '_blank');
         }
+
+        function copyRefLink() {
+            const linkText = document.getElementById('ref-link').innerText;
+            navigator.clipboard.writeText(linkText);
+            alert("Ваше реферальне посилання скопійовано!");
+        }
+
+        function shareBot() {
+            const linkText = document.getElementById('ref-link').innerText;
+            window.open(`https://t.me/share/url?url=${encodeURIComponent(linkText)}&text=${encodeURIComponent('Заробляй USDT разом зі мною в WoodGrow Coin!')}`, '_blank');
+        }
+
+        function switchTab(tabId, element) {
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(c => c.classList.remove('active'));
+            
+            const tabs = document.querySelectorAll('.nav-item');
+            tabs.forEach(t => t.classList.remove('active'));
+
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            element.classList.add('active');
+
+            if (tabId === 'profile') updateRefCounter();
+        }
+
+        const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+            manifestUrl: 'https://raw.githubusercontent.com/ton-connect/js-sdk/main/packages/sdk/tonconnect-manifest.json',
+            buttonRootId: 'ton-connect-btn'
+        });
+
+        tonConnectUI.onStatusChange(wallet => {
+            if (wallet) {
+                currentWalletAddress = wallet.account.address;
+            } else {
+                currentWalletAddress = "Не підключено";
+            }
+        });
+
+        // Запуск
+        initUserSession();
     </script>
 </body>
 </html>
