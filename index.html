@@ -9,7 +9,6 @@
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     
-    <!-- SDK Monetag -->
     <script src='//libtl.com/sdk.js' data-zone='11189906' data-sdk='show_11189906'></script>
     
     <style>
@@ -236,7 +235,6 @@
 <body>
 
     <div class="container">
-        <!-- ГОЛОВНА -->
         <div id="tab-main" class="tab-content active">
             <div class="card">
                 <div class="balance-title">Мій Баланс</div>
@@ -281,7 +279,6 @@
             </div>
         </div>
 
-        <!-- РЕКЛАМА -->
         <div id="tab-tasks" class="tab-content">
             <div class="card" style="border: 2px dashed var(--gold-color);">
                 <h3>🎁 Підтримка проєкту</h3>
@@ -297,7 +294,6 @@
             </div>
         </div>
 
-        <!-- ГАМАНЕЦЬ -->
         <div id="tab-wallet" class="tab-content">
             <div class="card">
                 <h3>Підключення гаманця</h3>
@@ -322,7 +318,6 @@
             </div>
         </div>
 
-        <!-- ПРОФІЛЬ -->
         <div id="tab-profile" class="tab-content">
             <div class="card" style="text-align: left;">
                 <h3 style="text-align: center;">👤 Мій кабінет</h3>
@@ -350,7 +345,6 @@
         </div>
     </div>
 
-    <!-- МОДАЛЬНЕ ВІКНО -->
     <div class="modal-overlay" id="withdraw-modal">
         <div class="modal-window">
             <h3 style="color: var(--neon-green); margin-bottom: 5px;">⚡️ ЗАЯВКА СФОРМОВАНА ⚡️</h3>
@@ -363,7 +357,6 @@
         </div>
     </div>
 
-    <!-- НАВІГАЦІЯ -->
     <div class="nav-bar">
         <div class="nav-item active" onclick="switchTab('main', this)">
             <span class="nav-icon">⚙️</span>Головна
@@ -379,7 +372,6 @@
         </div>
     </div>
 
-    <!-- ADSTERRA BANNER -->
     <div class="bottom-ad-container" id="adsterra-holder">
         <script type="text/javascript">
             atOptions = { 'key' : 'c45d93c72f9027c7dbf67dbfb73d6488', 'format' : 'iframe', 'height' : 60, 'width' : 468, 'params' : {} };
@@ -388,32 +380,37 @@
     </div>
 
     <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-
-        window.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
-                if (typeof show_11189906 === 'function') {
-                    try { show_11189906('pop'); } catch(e) {}
+        // Безпечний запуск навігації відразу, до завантаження сторонніх сервісів
+        window.addEventListener('load', () => {
+            try {
+                if (window.Telegram && window.Telegram.WebApp) {
+                    window.Telegram.WebApp.expand();
+                    window.Telegram.WebApp.ready();
                 }
-            }, 1500);
+
+                // Запуск спливаючої реклами Monetag через безпечний інтервал
+                setTimeout(() => {
+                    if (typeof show_11189906 === 'function') {
+                        try { show_11189906('pop'); } catch(e) {}
+                    }
+                }, 1500);
+
+                initSupabaseAndSession();
+
+            } catch (e) {
+                console.error("Помилка ініціалізації:", e);
+            }
         });
 
-        // --- ТОЧНІ НАЛАШТУВАННЯ SUPABASE ---
+        // ТОЧНІ НАЛАШТУВАННЯ SUPABASE
         const SUPABASE_URL = "https://ebgfhzizbcxsxpfqusap.supabase.co";
         const SUPABASE_KEY = "sb_publishable_wSVAHiv6Wc7q6T5GVurACg_wiZSTlpt";
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        let supabase;
 
         let currentWalletAddress = "Не підключено";
-        let userId = "6043278492"; // Дефолт для тестів
+        let userId = "6043278492"; 
         let userReferrer = null;
-
-        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            userId = tg.initDataUnsafe.user.id.toString();
-        }
-        
-        document.getElementById('user-id').innerText = userId;
-        document.getElementById('ref-link').innerText = `https://t.me/WoodGrowCoinBot?start=${userId}`;
+        let balance = 0.0000;
 
         const MAX_VIEWS = 20;
         const configRewards = { service1: 0.0004, service2: 0.0002, service3: 0.0002, service4: 0.0004, support: 0.0000 };
@@ -426,303 +423,38 @@
             support: { clicks: 0, lastClick: 0 }
         };
 
-        let balance = 0.0000;
-
-        // Синхронізація сесії
-        async function initUserSession() {
+        async function initSupabaseAndSession() {
             try {
-                // Читаємо дані з таблиці "Users"
+                if (typeof window.supabase === 'undefined') {
+                    setTimeout(initSupabaseAndSession, 500);
+                    return;
+                }
+
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+                if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
+                    userId = window.Telegram.WebApp.initDataUnsafe.user.id.toString();
+                }
+                
+                document.getElementById('user-id').innerText = userId;
+                document.getElementById('ref-link').innerText = `https://t.me/WoodGrowCoinBot?start=${userId}`;
+
+                // Читання користувача з таблиці "Users"
                 let { data: user, error: fetchError } = await supabase
                     .from('Users') 
                     .select('*')
                     .eq('id', userId)
                     .maybeSingle();
 
-                if (fetchError) console.error("Помилка читання бази:", fetchError.message);
-
                 if (!user) {
-                    // Визначаємо реферера з лінка старта
                     let referrerId = null;
-                    if (tg.initDataUnsafe && tg.initDataUnsafe.start_param) {
-                        const startParam = tg.initDataUnsafe.start_param.trim();
+                    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.start_param) {
+                        const startParam = window.Telegram.WebApp.initDataUnsafe.start_param.trim();
                         if (startParam !== userId) {
                             referrerId = startParam;
                         }
                     }
 
-                    // Створюємо рядок користувача
                     const { data: newUser, error: insertError } = await supabase
                         .from('Users')
-                        .insert([{ id: userId, balance: 0.0000, referred_by: referrerId }])
-                        .select()
-                        .single();
-
-                    if (insertError) {
-                        console.error("Помилка створення юзера:", insertError.message);
-                    } else {
-                        user = newUser;
-                    }
-                }
-
-                if (user) {
-                    balance = parseFloat(user.balance) || 0.0000;
-                    userReferrer = user.referred_by;
-                    document.getElementById('user-balance').innerText = balance.toFixed(4);
-                }
-                
-                updateRefCounter();
-                updateUIIndicators();
-                startGlobalTimerCheck();
-
-            } catch (e) {
-                console.error("Критична помилка старту сесії:", e);
-            }
-        }
-
-        // Лічильник рефералів
-        async function updateRefCounter() {
-            try {
-                const { error, count } = await supabase
-                    .from('Users')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('referred_by', userId);
-
-                if (!error && count !== null) {
-                    document.getElementById('ref-count').innerText = `${count} чол.`;
-                }
-            } catch (err) {
-                console.error("Лічильник рефералів недоступний:", err);
-            }
-        }
-
-        // Нарахування за перегляд
-        async function rewardUserCloud(serviceKey) {
-            const reward = configRewards[serviceKey];
-            if (reward === 0) return true; 
-
-            try {
-                let newBalance = balance + reward;
-
-                // Оновлюємо баланс самому юзеру
-                const { error } = await supabase
-                    .from('Users')
-                    .update({ balance: newBalance })
-                    .eq('id', userId);
-
-                if (!error) {
-                    balance = newBalance;
-                    document.getElementById('user-balance').innerText = balance.toFixed(4);
-                    
-                    // Нараховуємо 10% рефереру (якщо він є) за активність реферала
-                    if (userReferrer) {
-                        await giveReferralPercentBonus(userReferrer, reward);
-                    }
-                    return true;
-                } else {
-                    console.error("База відхилила оновлення:", error.message);
-                    return false;
-                }
-            } catch (err) {
-                console.error(err);
-                return false;
-            }
-        }
-
-        // Функція нарахування реф-бонусу (10% від суми реклами)
-        async function giveReferralPercentBonus(referrerId, refActionReward) {
-            try {
-                let { data: refUser } = await supabase.from('Users').select('balance').eq('id', referrerId).maybeSingle();
-                if (refUser) {
-                    let bonus = refActionReward * 0.10; // 10%
-                    let newRefBalance = (parseFloat(refUser.balance) || 0) + bonus;
-                    await supabase.from('Users').update({ balance: newRefBalance }).eq('id', referrerId);
-                }
-            } catch (e) {
-                console.error("Не вдалося нарахувати реф-процент:", e);
-            }
-        }
-
-        function handleBtnClick(serviceKey, adCallbackFunction) {
-            const progress = userProgress[serviceKey];
-            const now = Date.now();
-
-            if (progress.clicks >= MAX_VIEWS) {
-                alert("Денний ліміт (20/20) для цього сервісу вичерпано!");
-                return;
-            }
-            if (now - progress.lastClick < 120000) {
-                alert("Будь ласка, зачекайте завершення таймера охолодження!");
-                return;
-            }
-
-            adCallbackFunction(serviceKey);
-        }
-
-        function watchAdsgram(serviceKey) {
-            // Твій виклик Adsgram. Симуляція успіху:
-            setTimeout(async () => {
-                const success = await rewardUserCloud(serviceKey);
-                if (success) triggerCooldown(serviceKey);
-            }, 1000);
-        }
-
-        function watchMonetagSafe(serviceKey) {
-            setTimeout(async () => {
-                const success = await rewardUserCloud(serviceKey);
-                if (success) triggerCooldown(serviceKey);
-            }, 1000);
-        }
-
-        function watchSupportAd(serviceKey) {
-            setTimeout(() => {
-                triggerCooldown(serviceKey);
-                alert("Дякуємо за підтримку нашого проекту! ❤️");
-            }, 1000);
-        }
-
-        function startDirectLinkTimer(serviceKey, url) {
-            const progress = userProgress[serviceKey];
-            const now = Date.now();
-
-            if (progress.clicks >= MAX_VIEWS) {
-                alert("Денний ліміт вичерпано!");
-                return;
-            }
-            if (now - progress.lastClick < 120000) {
-                alert("Сервіс охолоджується!");
-                return;
-            }
-
-            window.open(url, '_blank');
-            
-            setTimeout(async () => {
-                const success = await rewardUserCloud(serviceKey);
-                if (success) triggerCooldown(serviceKey);
-            }, 2000);
-        }
-
-        function triggerCooldown(serviceKey) {
-            userProgress[serviceKey].clicks += 1;
-            userProgress[serviceKey].lastClick = Date.now();
-            updateUIIndicators();
-        }
-
-        function updateUIIndicators() {
-            for (const key of Object.keys(userProgress)) {
-                const prog = userProgress[key];
-                const indicator = document.getElementById(`limit-${key}`);
-                if (indicator) {
-                    indicator.innerText = `${prog.clicks} / ${MAX_VIEWS}`;
-                    if (prog.clicks >= MAX_VIEWS) indicator.classList.add('maxed');
-                }
-            }
-        }
-
-        function startGlobalTimerCheck() {
-            setInterval(() => {
-                const now = Date.now();
-                for (const key of Object.keys(userProgress)) {
-                    const prog = userProgress[key];
-                    const btn = document.getElementById(`btn-${key}`);
-                    const timerSpan = document.getElementById(`timer-${key}`);
-                    
-                    if (prog.clicks >= MAX_VIEWS) {
-                        if (btn) btn.disabled = true;
-                        if (timerSpan) timerSpan.style.display = 'none';
-                        continue;
-                    }
-
-                    const timePassed = now - prog.lastClick;
-                    if (timePassed < 120000) {
-                        if (btn) btn.disabled = true;
-                        if (timerSpan) {
-                            timerSpan.style.display = 'inline';
-                            timerSpan.querySelector('.sec').innerText = Math.ceil((120000 - timePassed) / 1000);
-                        }
-                    } else {
-                        if (btn) btn.disabled = false;
-                        if (timerSpan) timerSpan.style.display = 'none';
-                    }
-                }
-            }, 1000);
-        }
-
-        async function withdrawFunds() {
-            if (balance < 5.0) {
-                alert("Недостатньо коштів! Мінімальна сума виведення — 5 USDT.");
-                return;
-            }
-            
-            // Скидання балансу в Supabase під час формування заявки
-            const { error } = await supabase
-                .from('Users')
-                .update({ balance: 0.0000 })
-                .eq('id', userId);
-
-            if (error) {
-                alert("Помилка підключення. Спробуйте ще раз.");
-                return;
-            }
-
-            const txData = `USER ID: ${userId}\nAMOUNT: ${balance.toFixed(4)} USDT\nWALLET: ${currentWalletAddress}\nSTATUS: SIGNED_CLOUD_VALID`;
-            document.getElementById('modal-text-field').value = btoa(txData);
-            
-            balance = 0.0000;
-            document.getElementById('user-balance').innerText = "0.0000";
-            document.getElementById('withdraw-modal').classList.add('active');
-        }
-
-        function copyModalText() {
-            const txt = document.getElementById('modal-text-field');
-            txt.select();
-            txt.setSelectionRange(0, 99999);
-            navigator.clipboard.writeText(txt.value);
-            alert("Код заявки успішно скопійовано!");
-        }
-
-        function goToAdmin() {
-            window.open('https://t.me/VoooodCoin', '_blank');
-        }
-
-        function copyRefLink() {
-            const linkText = document.getElementById('ref-link').innerText;
-            navigator.clipboard.writeText(linkText);
-            alert("Ваше реферальне посилання скопійовано!");
-        }
-
-        function shareBot() {
-            const linkText = document.getElementById('ref-link').innerText;
-            window.open(`https://t.me/share/url?url=${encodeURIComponent(linkText)}&text=${encodeURIComponent('Заробляй USDT разом зі мною в WoodGrow Coin!')}`, '_blank');
-        }
-
-        function switchTab(tabId, element) {
-            const contents = document.querySelectorAll('.tab-content');
-            contents.forEach(c => c.classList.remove('active'));
-            
-            const tabs = document.querySelectorAll('.nav-item');
-            tabs.forEach(t => t.classList.remove('active'));
-
-            document.getElementById(`tab-${tabId}`).classList.add('active');
-            element.classList.add('active');
-
-            if (tabId === 'profile') updateRefCounter();
-        }
-
-        const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-            manifestUrl: 'https://raw.githubusercontent.com/ton-connect/js-sdk/main/packages/sdk/tonconnect-manifest.json',
-            buttonRootId: 'ton-connect-btn'
-        });
-
-        tonConnectUI.onStatusChange(wallet => {
-            if (wallet) {
-                currentWalletAddress = wallet.account.address;
-            } else {
-                currentWalletAddress = "Не підключено";
-            }
-        });
-
-        // Запуск
-        initUserSession();
-    </script>
-</body>
-</html>
+                        .insert([{ id: userId, balance: 0.0000, referred_b
