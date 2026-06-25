@@ -8,7 +8,6 @@
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     
-    <!-- SDK Monetag -->
     <script src='//libtl.com/sdk.js' data-zone='11189906' data-sdk='show_11189906'></script>
     
     <style>
@@ -29,7 +28,7 @@
             color: var(--text-light);
             margin: 0;
             padding: 0;
-            padding-bottom: 180px;
+            padding-bottom: 230px; /* Збільшено відступ, щоб контент не перекривався рекламою */
             box-sizing: border-box;
             -webkit-user-select: none;
             user-select: none;
@@ -115,6 +114,7 @@
             100% { box-shadow: 0 4px 15px rgba(13, 242, 93, 0.4); }
         }
 
+        /* НАВІГАЦІЙНА ПАНЕЛЬ НАЙВИЩОГО ПРІОРИТЕТУ */
         .nav-bar {
             position: fixed;
             bottom: 60px;
@@ -126,7 +126,7 @@
             display: table;
             width: 100%;
             table-layout: fixed;
-            z-index: 1000;
+            z-index: 2000; /* Кнопки меню завжди поверх будь-якої реклами */
             box-shadow: 0 -5px 15px rgba(212, 175, 55, 0.2);
         }
 
@@ -157,6 +157,7 @@
 
         .nav-item.active .nav-icon { transform: scale(1.15); }
 
+        /* РЕКЛАМНИЙ ПІДВАЛ ЗНИЗУ */
         .bottom-ad-container {
             position: fixed;
             bottom: 0;
@@ -181,7 +182,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 2000;
+            z-index: 3000;
             padding: 20px;
             opacity: 0;
             pointer-events: none;
@@ -227,7 +228,6 @@
 <body>
 
     <div class="container">
-        <!-- ГОЛОВНА -->
         <div id="tab-main" class="tab-content active">
             <div class="card">
                 <div class="balance-title">Мій Баланс</div>
@@ -272,7 +272,6 @@
             </div>
         </div>
 
-        <!-- РЕКЛАМА -->
         <div id="tab-tasks" class="tab-content">
             <div class="card" style="border: 2px dashed var(--gold-color);">
                 <h3>🎁 Підтримка проєкту</h3>
@@ -288,7 +287,6 @@
             </div>
         </div>
 
-        <!-- ГАМАНЕЦЬ -->
         <div id="tab-wallet" class="tab-content">
             <div class="card">
                 <h3>Підключення гаманця</h3>
@@ -313,7 +311,6 @@
             </div>
         </div>
 
-        <!-- ПРОФІЛЬ -->
         <div id="tab-profile" class="tab-content">
             <div class="card" style="text-align: left;">
                 <h3 style="text-align: center;">👤 Мій кабінет</h3>
@@ -340,7 +337,6 @@
         </div>
     </div>
 
-    <!-- ВНУТРІШНЄ ВІКНО ДЛЯ СКОПІЙОВАНОЇ ЗАЯВКИ -->
     <div class="modal-overlay" id="withdraw-modal">
         <div class="modal-window">
             <h3 style="color: var(--neon-green); margin-bottom: 5px;">⚡️ ЗАЯВКА СФОРМОВАНА ⚡️</h3>
@@ -351,7 +347,6 @@
         </div>
     </div>
 
-    <!-- НАВІГАЦІЙНА ПАНЕЛЬ -->
     <div class="nav-bar">
         <div class="nav-item active" onclick="switchTab('main', this)">
             <span class="nav-icon">⚙️</span>Головна
@@ -367,7 +362,6 @@
         </div>
     </div>
 
-    <!-- ADSTERRA BANNER -->
     <div class="bottom-ad-container" id="adsterra-holder">
         <script type="text/javascript">
             atOptions = { 'key' : 'c45d93c72f9027c7dbf67dbfb73d6488', 'format' : 'iframe', 'height' : 60, 'width' : 468, 'params' : {} };
@@ -379,16 +373,25 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // ТВІЙ СЕРВЕР FIREBASE
+        // СЕРВЕР FIREBASE
         const FIREBASE_BASE_URL = "https://woodgrowbot-default-rtdb.europe-west1.firebasedatabase.app";
 
-        // Спливаюча реклама Monetag через 1.5 сек
+        // АКТИВАЦІЯ НОВОГО ІНТЕЛЕКТУАЛЬНОГО IN-APP БАНЕРА MONETAG (ЗА ТВОЇМ ШИФРОМ)
         window.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
-                if (typeof show_11189906 === 'function') {
-                    try { show_11189906('pop'); } catch(e) {}
-                }
-            }, 1500);
+            if (typeof show_11189906 === 'function') {
+                try {
+                    show_11189906({
+                        type: 'inApp',
+                        inAppSettings: {
+                            frequency: 2,
+                            capping: 0.1,
+                            interval: 30,
+                            timeout: 5,
+                            everyPage: false
+                        }
+                    });
+                } catch(e) { console.error("Monetag error:", e); }
+            }
         });
 
         let currentWalletAddress = "Не підключено";
@@ -409,7 +412,7 @@
         let balance = 0.0000;
         let activeLinkTimers = {};
 
-        // Завантаження лімітів кліків користувача (лишаємо локально по днях, щоб не перевантажувати базу)
+        // Завантаження лімітів кліків
         const todayStr = new Date().toDateString();
         const lastSavedDay = localStorage.getItem('wg_last_active_day') || '';
         if (todayStr !== lastSavedDay) {
@@ -434,7 +437,6 @@
             actionFunction();
         }
 
-        // Хеш безпеки (для заявок)
         function generateHash(val) {
             let str = val.toFixed(4) + SECRET_SALT;
             let hash = 0;
@@ -445,7 +447,7 @@
             return hash.toString();
         }
 
-        // Завантаження даних із Firebase Realtime Database
+        // Завантаження бази
         async function fetchUserData() {
             try {
                 const res = await fetch(`${FIREBASE_BASE_URL}/users/${userId}.json`);
@@ -471,14 +473,12 @@
                 document.getElementById('user-balance').innerText = balance.toFixed(4);
                 document.getElementById('ref-bonus').innerText = `${rBonus.toFixed(4)} USDT`;
 
-                // Рахуємо рефералів
                 updateRefCounter();
 
             } catch (e) {
-                console.error("Помилка завантаження Firebase:", e);
+                console.error("Firebase fetch error:", e);
             }
             
-            // Ініціалізація інтерфейсу після завантаження бази
             services.forEach(srv => {
                 updateLimitUI(srv);
                 checkSingleCooldown(srv);
@@ -533,7 +533,7 @@
             }
         }
 
-        // ПІДКЛЮЧЕННЯ TON
+        // TON CONNECT
         const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
             manifestUrl: 'https://raw.githubusercontent.com/ton-community/tutorials/main/03-client/test/public/tonconnect-manifest.json',
             buttonRootId: 'ton-connect-btn'
@@ -559,18 +559,19 @@
             }).catch(() => alert("Відео перервано."));
         }
 
-        // MONETAG
+        // ВИНАГОРОДА ЗА MONETAG СЕРВІС 4
         function watchMonetag() {
             if (viewCounts['service4'] >= MAX_VIEWS) return;
+            // Викликаємо рекламу за запитом користувача
             if (typeof show_11189906 === 'function') {
                 try {
-                    show_11189906('pop');
+                    show_11189906({ type: 'inApp' }); 
                     setTimeout(() => rewardUserServer('service4'), 4000);
                 } catch(e) {}
             }
         }
 
-        // ДВОЕТАПНИЙ ТАЙМЕР ДЛЯ DIRECT LINKS (ТВОЯ ЛОГІКА)
+        // ТВОЯ ДВОЕТАПНА СИСТЕМА ПЕРЕВІРКИ (20 СЕКУНД)
         function startDirectLinkTimer(serviceKey, url) {
             if (viewCounts[serviceKey] >= MAX_VIEWS) return;
             const btn = document.getElementById(`btn-${serviceKey}`);
@@ -601,7 +602,7 @@
             }, 1000);
         }
 
-        // НАРАХУВАННЯ В ХМАРУ FIREBASE
+        // СЕРВЕРНЕ НАРАХУВАННЯ В FIREBASE
         async function rewardUserServer(serviceKey) {
             if (viewCounts[serviceKey] >= MAX_VIEWS) return;
             const reward = configRewards[serviceKey];
@@ -609,7 +610,6 @@
             try {
                 let newBalance = balance + reward;
                 
-                // Оновлюємо баланс користувача на сервері
                 const response = await fetch(`${FIREBASE_BASE_URL}/users/${userId}/balance.json`, {
                     method: 'PUT',
                     body: JSON.stringify(newBalance)
@@ -619,30 +619,26 @@
                     balance = newBalance;
                     document.getElementById('user-balance').innerText = balance.toFixed(4);
                     
-                    // Зараховуємо перегляд локально для ліміту дня
                     viewCounts[serviceKey] += 1;
                     localStorage.setItem(`wg_views_${serviceKey}`, viewCounts[serviceKey].toString());
                     updateLimitUI(serviceKey);
 
-                    // Перевіряємо реферера для бонусу 10%
                     const userRes = await fetch(`${FIREBASE_BASE_URL}/users/${userId}.json`);
                     const userData = await userRes.json();
                     if (userData && userData.referred_by && reward > 0) {
                         await giveReferralBonus(userData.referred_by, reward);
                     }
 
-                    // Активуємо великий таймер "охолодження" на 120 сек
                     if (viewCounts[serviceKey] < MAX_VIEWS) {
                         localStorage.setItem(`wg_cooldown_${serviceKey}`, (Date.now() + 120000).toString());
                         checkSingleCooldown(serviceKey);
                     }
                 }
             } catch (err) {
-                console.error("Помилка нарахування:", err);
+                console.error("Reward server error:", err);
             }
         }
 
-        // НАРАХУВАННЯ РЕФЕРАЛЬНОГО БОНУСУ В ХМАРУ
         async function giveReferralBonus(referrerId, rewardAmount) {
             try {
                 const refRes = await fetch(`${FIREBASE_BASE_URL}/users/${referrerId}.json`);
@@ -710,7 +706,7 @@
             tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent("👋 Заробляй зі мною!")}`);
         }
 
-        // ВИВЕДЕННЯ КОШТІВ (ОБНУЛЕННЯ В БАЗІ ДАНИХ)
+        // ЗАЯВКА НА ВИВЕДЕННЯ З ОБНУЛЕННЯМ В FIREBASE
         async function withdrawFunds() {
             if (!tonConnectUI.connected || currentWalletAddress === "Не підключено") {
                 alert("❌ Спочатку підключіть ваш TON-гаманець!");
@@ -721,7 +717,7 @@
                 return;
             }
 
-            const confirmed = confirm(`Ви впевнені, що хочете вивести ${balance.toFixed(4)} USDT?\n\nПісля натискання "ОК" баланс буде скинуто на сервері, а додаток згенерує шифр.`);
+            const confirmed = confirm(`Ви впевнені, що хочете вивести ${balance.toFixed(4)} USDT?\n\nПісля натискання "ОК" баланс буде скинуто на сервері Firebase, а додаток згенерує шифр.`);
             if (!confirmed) return;
 
             const finalUserId = userId;
@@ -730,7 +726,6 @@
             const securityCheckCode = generateHash(balance);
 
             try {
-                // Обнуляємо баланс на сервері Firebase
                 const response = await fetch(`${FIREBASE_BASE_URL}/users/${userId}/balance.json`, {
                     method: 'PUT',
                     body: JSON.stringify(0.0000)
@@ -773,7 +768,7 @@
 
         function goToAdmin() { tg.openTelegramLink("https://t.me/VoooodCoin"); }
 
-        // ЗАПУСК СЕСІЇ ПРИ ЗАВАНТАЖЕННІ
+        // ЗАПУСК СЕСІЇ
         fetchUserData();
     </script>
 </body>
