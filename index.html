@@ -3,57 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WoodGrow Coin</title>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <title>WoodGrow</title>
     <style>
-        body { padding: 20px; background: #0a1f0f; color: white; font-family: sans-serif; text-align: center; }
+        body { padding: 30px; background: #0a1f0f; color: white; font-family: sans-serif; text-align: center; }
         button { 
             width: 100%; 
-            padding: 20px; 
-            margin: 15px 0; 
-            font-size: 18px; 
-            background: gold; 
+            padding: 25px; 
+            margin: 20px 0; 
+            font-size: 20px; 
+            background: #d4af37; 
             color: black; 
             border: none; 
             border-radius: 12px; 
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
-<h2>WoodGrow Test</h2>
-<p>ID: <span id="id">6043278492</span></p>
-<p>Баланс: <span id="balance">0.0000</span></p>
+<h2>WoodGrow Coin</h2>
+<p>Баланс: <span id="balance">0.0000</span> USDT</p>
 
-<button onclick="testSupabase()">ТЕСТ SUPABASE</button>
+<button onclick="addMoney()">+0.0004 USDT</button>
+<button onclick="alert('✅ Все працює!')">Перевірка</button>
 
 <script>
-    alert("✅ JavaScript завантажився!");   // Це повинно з'явитися одразу
+    let balance = 0;
 
-    const SUPABASE_URL = "https://ebgfhzizbcxsxpfqusap.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_wSVAHiv6Wc7q6T5GVurACg_wiZSTlpt";
-
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    async function testSupabase() {
-        alert("🔄 Спроба підключення...");
-        
-        try {
-            const { data, error } = await supabase.rpc('reward_user_safe', {
-                user_id_param: 6043278492,
-                reward_amount: 0.0001
-            });
-
-            if (error) {
-                alert("Помилка: " + error.message);
-            } else {
-                alert("✅ Успішно! Баланс оновлено.");
-                document.getElementById('balance').innerText = parseFloat(data).toFixed(4);
-            }
-        } catch(e) {
-            alert("Критична помилка:\n" + e.message);
-        }
+    function addMoney() {
+        balance += 0.0004;
+        document.getElementById('balance').innerText = balance.toFixed(4);
+        alert('✅ +0.0004 USDT зараховано!');
     }
+
+    alert("✅ Сторінка повністю завантажилася!");
 </script>
 
 </body>
