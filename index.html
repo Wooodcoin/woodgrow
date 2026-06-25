@@ -12,70 +12,48 @@
             padding: 20px; 
             margin: 15px 0; 
             font-size: 18px; 
-            background: #d4af37; 
+            background: gold; 
             color: black; 
             border: none; 
             border-radius: 12px; 
-            font-weight: bold;
         }
-        .balance { font-size: 32px; font-weight: bold; margin: 20px 0; }
     </style>
 </head>
 <body>
 
-<h2>WoodGrow Coin</h2>
-<div class="balance">Баланс: <span id="balance">0.0000</span> USDT</div>
+<h2>WoodGrow Test</h2>
+<p>ID: <span id="id">6043278492</span></p>
+<p>Баланс: <span id="balance">0.0000</span></p>
 
-<button onclick="reward(0.0004)">+0.0004 USDT (Сервіс 1)</button>
-<button onclick="reward(0.0004)">+0.0004 USDT (Сервіс 4)</button>
-<button onclick="loadBalance()">Оновити баланс</button>
+<button onclick="testSupabase()">ТЕСТ SUPABASE</button>
 
 <script>
+    alert("✅ JavaScript завантажився!");   // Це повинно з'явитися одразу
+
     const SUPABASE_URL = "https://ebgfhzizbcxsxpfqusap.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_wSVAHiv6Wc7q6T5GVurACg_wiZSTlpt"; // Заміни якщо є інший ключ
+    const SUPABASE_KEY = "sb_publishable_wSVAHiv6Wc7q6T5GVurACg_wiZSTlpt";
 
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    let userId = "6043278492"; // Для тестів
-
-    async function reward(amount) {
+    async function testSupabase() {
+        alert("🔄 Спроба підключення...");
+        
         try {
             const { data, error } = await supabase.rpc('reward_user_safe', {
-                user_id_param: parseInt(userId),
-                reward_amount: amount
+                user_id_param: 6043278492,
+                reward_amount: 0.0001
             });
 
             if (error) {
                 alert("Помилка: " + error.message);
             } else {
-                alert("✅ + " + amount + " USDT зараховано!");
+                alert("✅ Успішно! Баланс оновлено.");
                 document.getElementById('balance').innerText = parseFloat(data).toFixed(4);
             }
         } catch(e) {
-            alert("Критична помилка: " + e.message);
+            alert("Критична помилка:\n" + e.message);
         }
     }
-
-    async function loadBalance() {
-        try {
-            const { data, error } = await supabase
-                .from('Users')
-                .select('balance')
-                .eq('id', userId)
-                .maybeSingle();
-
-            if (error) alert("Помилка завантаження: " + error.message);
-            else {
-                const bal = data ? parseFloat(data.balance || 0) : 0;
-                document.getElementById('balance').innerText = bal.toFixed(4);
-            }
-        } catch(e) {
-            alert("Помилка: " + e.message);
-        }
-    }
-
-    // Автозапуск
-    loadBalance();
 </script>
 
 </body>
