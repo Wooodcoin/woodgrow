@@ -8,6 +8,7 @@
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     
+    <!-- SDK Monetag -->
     <script src='//libtl.com/sdk.js' data-zone='11189906' data-sdk='show_11189906'></script>
     
     <style>
@@ -28,7 +29,7 @@
             color: var(--text-light);
             margin: 0;
             padding: 0;
-            padding-bottom: 230px; /* Збільшено відступ, щоб контент не перекривався рекламою */
+            padding-bottom: 100px; /* Оптимальний відступ під навігацію */
             box-sizing: border-box;
             -webkit-user-select: none;
             user-select: none;
@@ -114,10 +115,9 @@
             100% { box-shadow: 0 4px 15px rgba(13, 242, 93, 0.4); }
         }
 
-        /* НАВІГАЦІЙНА ПАНЕЛЬ НАЙВИЩОГО ПРІОРИТЕТУ */
         .nav-bar {
             position: fixed;
-            bottom: 60px;
+            bottom: 0;
             left: 0;
             right: 0;
             height: 65px;
@@ -126,7 +126,7 @@
             display: table;
             width: 100%;
             table-layout: fixed;
-            z-index: 2000; /* Кнопки меню завжди поверх будь-якої реклами */
+            z-index: 2000;
             box-shadow: 0 -5px 15px rgba(212, 175, 55, 0.2);
         }
 
@@ -156,20 +156,6 @@
         }
 
         .nav-item.active .nav-icon { transform: scale(1.15); }
-
-        /* РЕКЛАМНИЙ ПІДВАЛ ЗНИЗУ */
-        .bottom-ad-container {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 60px;
-            background: #000000;
-            display: block;
-            text-align: center;
-            z-index: 1001;
-            border-top: 1px solid rgba(212, 175, 55, 0.4);
-        }
 
         #ton-connect-btn { display: flex; justify-content: center; margin: 20px 0; }
         h3 { color: var(--gold-color); margin-top: 0; text-transform: uppercase; font-size: 18px; }
@@ -228,6 +214,7 @@
 <body>
 
     <div class="container">
+        <!-- ГОЛОВНА -->
         <div id="tab-main" class="tab-content active">
             <div class="card">
                 <div class="balance-title">Мій Баланс</div>
@@ -272,6 +259,7 @@
             </div>
         </div>
 
+        <!-- РЕКЛАМА -->
         <div id="tab-tasks" class="tab-content">
             <div class="card" style="border: 2px dashed var(--gold-color);">
                 <h3>🎁 Підтримка проєкту</h3>
@@ -287,6 +275,7 @@
             </div>
         </div>
 
+        <!-- ГАМАНЕЦЬ -->
         <div id="tab-wallet" class="tab-content">
             <div class="card">
                 <h3>Підключення гаманця</h3>
@@ -311,6 +300,7 @@
             </div>
         </div>
 
+        <!-- ПРОФІЛЬ -->
         <div id="tab-profile" class="tab-content">
             <div class="card" style="text-align: left;">
                 <h3 style="text-align: center;">👤 Мій кабінет</h3>
@@ -337,6 +327,7 @@
         </div>
     </div>
 
+    <!-- ВНУТРІШНЄ ВІКНО ДЛЯ СКОПІЙОВАНОЇ ЗАЯВКИ -->
     <div class="modal-overlay" id="withdraw-modal">
         <div class="modal-window">
             <h3 style="color: var(--neon-green); margin-bottom: 5px;">⚡️ ЗАЯВКА СФОРМОВАНА ⚡️</h3>
@@ -347,6 +338,7 @@
         </div>
     </div>
 
+    <!-- НАВІГАЦІЙНА ПАНЕЛЬ -->
     <div class="nav-bar">
         <div class="nav-item active" onclick="switchTab('main', this)">
             <span class="nav-icon">⚙️</span>Головна
@@ -362,37 +354,11 @@
         </div>
     </div>
 
-    <div class="bottom-ad-container" id="adsterra-holder">
-        <script type="text/javascript">
-            atOptions = { 'key' : 'c45d93c72f9027c7dbf67dbfb73d6488', 'format' : 'iframe', 'height' : 60, 'width' : 468, 'params' : {} };
-        </script>
-        <script type="text/javascript" src="//www.highperformanceformat.com/c45d93c72f9027c7dbf67dbfb73d6488/invoke.js"></script>
-    </div>
-
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // СЕРВЕР FIREBASE
         const FIREBASE_BASE_URL = "https://woodgrowbot-default-rtdb.europe-west1.firebasedatabase.app";
-
-        // АКТИВАЦІЯ НОВОГО ІНТЕЛЕКТУАЛЬНОГО IN-APP БАНЕРА MONETAG (ЗА ТВОЇМ ШИФРОМ)
-        window.addEventListener('DOMContentLoaded', () => {
-            if (typeof show_11189906 === 'function') {
-                try {
-                    show_11189906({
-                        type: 'inApp',
-                        inAppSettings: {
-                            frequency: 2,
-                            capping: 0.1,
-                            interval: 30,
-                            timeout: 5,
-                            everyPage: false
-                        }
-                    });
-                } catch(e) { console.error("Monetag error:", e); }
-            }
-        });
 
         let currentWalletAddress = "Не підключено";
         let userId = "6043278492";
@@ -412,7 +378,6 @@
         let balance = 0.0000;
         let activeLinkTimers = {};
 
-        // Завантаження лімітів кліків
         const todayStr = new Date().toDateString();
         const lastSavedDay = localStorage.getItem('wg_last_active_day') || '';
         if (todayStr !== lastSavedDay) {
@@ -447,7 +412,6 @@
             return hash.toString();
         }
 
-        // Завантаження бази
         async function fetchUserData() {
             try {
                 const res = await fetch(`${FIREBASE_BASE_URL}/users/${userId}.json`);
@@ -465,6 +429,14 @@
                         method: 'PUT',
                         body: JSON.stringify(user)
                     });
+
+                    // Безпечний запис зв'язку для лічильника рефералів
+                    if (referrerId) {
+                        await fetch(`${FIREBASE_BASE_URL}/referrals/${referrerId}/${userId}.json`, {
+                            method: 'PUT',
+                            body: JSON.stringify(true)
+                        });
+                    }
                 }
 
                 balance = parseFloat(user.balance) || 0.0000;
@@ -485,18 +457,19 @@
             });
         }
 
+        // Оптимізований підрахунок рефералів з індивідуальної гілки
         async function updateRefCounter() {
             try {
-                const res = await fetch(`${FIREBASE_BASE_URL}/users.json`);
-                const allUsers = await res.json();
+                const res = await fetch(`${FIREBASE_BASE_URL}/referrals/${userId}.json`);
+                const refData = await res.json();
                 let count = 0;
-                if (allUsers) {
-                    for (let key in allUsers) {
-                        if (allUsers[key].referred_by === userId) count++;
-                    }
+                if (refData) {
+                    count = Object.keys(refData).length;
                 }
                 document.getElementById('ref-count').innerText = `${count} чол.`;
-            } catch (err) {}
+            } catch (err) {
+                console.error("Error updating ref counter:", err);
+            }
         }
 
         function switchTab(tabName, element) {
@@ -543,7 +516,7 @@
             currentWalletAddress = wallet ? wallet.account.address : "Не підключено";
         });
 
-        // ADSGRAM
+        // ADSGRAM (СЕРВІС 1 і ПІДТРИМКА)
         const AdController = window.Adsgram ? window.Adsgram.init({ blockId: "35910" }) : null;
 
         function watchAdsgram() {
@@ -559,19 +532,27 @@
             }).catch(() => alert("Відео перервано."));
         }
 
-        // ВИНАГОРОДА ЗА MONETAG СЕРВІС 4
+        // КЕРОВАНА РЕКЛАМА MONETAG (СЕРВІС 4)
         function watchMonetag() {
             if (viewCounts['service4'] >= MAX_VIEWS) return;
-            // Викликаємо рекламу за запитом користувача
+            
             if (typeof show_11189906 === 'function') {
                 try {
-                    show_11189906({ type: 'inApp' }); 
-                    setTimeout(() => rewardUserServer('service4'), 4000);
-                } catch(e) {}
+                    // Викликаємо Rewarded Interstitial за новим кодом
+                    show_11189906().then(() => {
+                        rewardUserServer('service4');
+                    }).catch((err) => {
+                        console.error("Monetag reward close or error", err);
+                    });
+                } catch(e) {
+                    alert("Помилка запуску реклами Monetag.");
+                }
+            } else {
+                alert("Рекламний модуль ще завантажується. Спробуйте через мить.");
             }
         }
 
-        // ТВОЯ ДВОЕТАПНА СИСТЕМА ПЕРЕВІРКИ (20 СЕКУНД)
+        // ДВОЕТАПНА СИСТЕМА ПЕРЕВІРКИ ДЛЯ DIRECT LINKS (СЕРВІС 2 ТА 3)
         function startDirectLinkTimer(serviceKey, url) {
             if (viewCounts[serviceKey] >= MAX_VIEWS) return;
             const btn = document.getElementById(`btn-${serviceKey}`);
@@ -602,7 +583,7 @@
             }, 1000);
         }
 
-        // СЕРВЕРНЕ НАРАХУВАННЯ В FIREBASE
+        // НАРАХУВАННЯ БАЛАНСУ В FIREBASE
         async function rewardUserServer(serviceKey) {
             if (viewCounts[serviceKey] >= MAX_VIEWS) return;
             const reward = configRewards[serviceKey];
@@ -706,7 +687,7 @@
             tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent("👋 Заробляй зі мною!")}`);
         }
 
-        // ЗАЯВКА НА ВИВЕДЕННЯ З ОБНУЛЕННЯМ В FIREBASE
+        // ЗАЯВКА НА ВИВЕДЕННЯ КОШТІВ
         async function withdrawFunds() {
             if (!tonConnectUI.connected || currentWalletAddress === "Не підключено") {
                 alert("❌ Спочатку підключіть ваш TON-гаманець!");
@@ -768,7 +749,7 @@
 
         function goToAdmin() { tg.openTelegramLink("https://t.me/VoooodCoin"); }
 
-        // ЗАПУСК СЕСІЇ
+        // ЗАПУСК ДОДАТКА
         fetchUserData();
     </script>
 </body>
