@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WoodGrow</title>
+    <title>WoodGrow Coin</title>
     <style>
         body { padding: 30px; background: #0a1f0f; color: white; font-family: sans-serif; text-align: center; }
         button { 
             width: 100%; 
             padding: 25px; 
-            margin: 20px 0; 
+            margin: 15px 0; 
             font-size: 20px; 
             background: #d4af37; 
             color: black; 
@@ -24,8 +24,7 @@
 <h2>WoodGrow Coin</h2>
 <p>Баланс: <span id="balance">0.0000</span> USDT</p>
 
-<button onclick="addMoney()">+0.0004 USDT</button>
-<button onclick="alert('✅ Все працює!')">Перевірка</button>
+<button onclick="addMoney()">+0.0004 USDT (Тест)</button>
 
 <script>
     let balance = 0;
@@ -33,10 +32,10 @@
     function addMoney() {
         balance += 0.0004;
         document.getElementById('balance').innerText = balance.toFixed(4);
-        alert('✅ +0.0004 USDT зараховано!');
+        alert('✅ +0.0004 USDT зараховано на баланс!');
     }
 
-    alert("✅ Сторінка повністю завантажилася!");
+    alert("✅ Бот завантажився успішно!");
 </script>
 
 </body>
