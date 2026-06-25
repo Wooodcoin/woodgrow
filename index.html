@@ -9,8 +9,6 @@
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     
-    <script src='//libtl.com/sdk.js' data-zone='11189906' data-sdk='show_11189906'></script>
-    
     <style>
         :root {
             --bg-main: #0a1f0f; 
@@ -21,440 +19,87 @@
             --text-light: #ffffff;
             --card-bg: rgba(212, 175, 55, 0.15);
         }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-main);
-            background-image: radial-gradient(circle at 50% 30%, rgba(13, 242, 93, 0.15), transparent 70%);
-            color: var(--text-light);
-            margin: 0;
-            padding: 0;
-            padding-bottom: 180px; 
-            box-sizing: border-box;
-            -webkit-user-select: none;
-            user-select: none;
-        }
-
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-main); color: var(--text-light); margin: 0; padding-bottom: 180px; }
         .container { padding: 20px; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-
-        .card {
-            background: var(--card-bg);
-            border: 2px solid var(--gold-color);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
-            text-align: center;
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.3), inset 0 0 10px rgba(13, 242, 93, 0.2);
-            backdrop-filter: blur(10px);
-        }
-
-        .balance-title {
-            font-size: 14px;
-            color: var(--neon-green);
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            font-weight: bold;
-        }
-
-        .balance-value {
-            font-size: 38px;
-            font-weight: 900;
-            margin: 10px 0;
-            color: #ffffff;
-        }
-
-        .service-meta {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            color: #a1a1aa;
-            margin-top: 15px;
-            padding: 0 5px;
-        }
-        .limit-indicator { font-weight: bold; color: var(--neon-green); }
-        .limit-indicator.maxed { color: #ff4444; }
-        .cooldown-timer { color: #ff4444; font-weight: bold; display: none; }
-
-        .btn {
-            display: block;
-            width: 100%;
-            background: var(--gold-gradient);
-            color: var(--text-dark);
-            border: none;
-            border-radius: 14px;
-            padding: 16px;
-            font-size: 16px;
-            font-weight: 800;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            margin-top: 6px;
-            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
-            text-transform: uppercase;
-        }
-        .btn:disabled {
-            background: #27272a;
-            color: #71717a;
-            box-shadow: none;
-            border: 1px solid #3f3f46;
-        }
-        
-        .btn.ready-claim {
-            background: linear-gradient(135deg, #0df25d 0%, #08a63f 100%) !important;
-            color: #000000 !important;
-            box-shadow: 0 4px 20px rgba(13, 242, 93, 0.5) !important;
-            animation: pulseGlow 1.5s infinite;
-        }
-
-        @keyframes pulseGlow {
-            0% { box-shadow: 0 4px 15px rgba(13, 242, 93, 0.4); }
-            50% { box-shadow: 0 4px 25px rgba(13, 242, 93, 0.8); }
-            100% { box-shadow: 0 4px 15px rgba(13, 242, 93, 0.4); }
-        }
-
-        .nav-bar {
-            position: fixed;
-            bottom: 60px; 
-            left: 0;
-            right: 0;
-            height: 65px;
-            background: linear-gradient(180deg, #141416 0%, #000000 100%);
-            border-top: 2px solid var(--gold-color);
-            display: table;
-            width: 100%;
-            table-layout: fixed;
-            z-index: 1000;
-            box-shadow: 0 -5px 15px rgba(212, 175, 55, 0.2);
-        }
-
-        .nav-item {
-            display: table-cell;
-            text-align: center;
-            vertical-align: middle;
-            color: #71717a;
-            font-size: 11px;
-            text-transform: uppercase;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            cursor: pointer;
-            transition: color 0.2s ease;
-        }
-        .nav-item.active { 
-            color: var(--neon-green); 
-            text-shadow: 0 0 8px rgba(13, 242, 93, 0.6);
-        }
-        .nav-icon { 
-            font-size: 20px; 
-            margin-bottom: 2px; 
-            display: block; 
-            transition: transform 0.2s ease;
-        }
-        .nav-item.active .nav-icon {
-            transform: scale(1.15);
-        }
-
-        .bottom-ad-container {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 60px;
-            background: #000000;
-            display: block;
-            text-align: center;
-            z-index: 101; 
-            border-top: 1px solid rgba(212, 175, 55, 0.4);
-        }
-
-        #ton-connect-btn { display: flex; justify-content: center; margin: 20px 0; }
-        h3 { color: var(--gold-color); margin-top: 0; text-transform: uppercase; font-size: 18px; }
-        .instruction-list { text-align: left; font-size: 13px; color: #a1a1aa; line-height: 1.6; padding-left: 20px; margin: 15px 0; }
-
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.9);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-            padding: 20px;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-        .modal-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        .modal-window {
-            background: #0d0d11;
-            border: 2px solid var(--neon-green);
-            border-radius: 20px;
-            padding: 20px;
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 0 35px rgba(13, 242, 93, 0.4);
-        }
-        .modal-textarea {
-            width: 100%;
-            height: 130px;
-            background: #141418;
-            color: var(--neon-green);
-            border: 1px solid rgba(13, 242, 93, 0.5);
-            border-radius: 10px;
-            padding: 10px;
-            box-sizing: border-box;
-            font-family: monospace;
-            font-size: 12px;
-            resize: none;
-            margin: 15px 0;
-            -webkit-user-select: text;
-            user-select: text;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        .stat-box {
-            background: rgba(255,255,255,0.05);
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            text-align: center;
-        }
-        .stat-box-title { font-size: 11px; color: #a1a1aa; text-transform: uppercase; }
-        .stat-box-value { font-size: 16px; font-weight: bold; color: var(--neon-green); margin-top: 5px; }
+        .card { background: var(--card-bg); border: 2px solid var(--gold-color); border-radius: 16px; padding: 20px; margin-bottom: 20px; text-align: center; }
+        .balance-value { font-size: 38px; font-weight: 900; margin: 10px 0; }
+        .btn { width: 100%; background: var(--gold-gradient); color: var(--text-dark); border: none; border-radius: 14px; padding: 16px; font-size: 16px; font-weight: 800; margin-top: 10px; }
+        .btn:disabled { background: #27272a; color: #71717a; }
+        .nav-bar { position: fixed; bottom: 60px; left: 0; right: 0; height: 65px; background: #141416; border-top: 2px solid var(--gold-color); display: flex; z-index: 1000; }
+        .nav-item { flex: 1; text-align: center; padding: 10px 5px; color: #71717a; font-size: 11px; cursor: pointer; }
+        .nav-item.active { color: var(--neon-green); }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div id="tab-main" class="tab-content active">
-            <div class="card">
-                <div class="balance-title">Мій Баланс</div>
-                <div class="balance-value"><span id="user-balance">0.0000</span> USDT</div>
-                <p style="color: var(--neon-green); font-size: 13px; font-weight: bold; margin-bottom: 0;">⚡️ ОБЕРІТЬ ПЛАТФОРМУ ДЛЯ ЗАРОБІТКУ:</p>
-            </div>
-            
-            <div style="margin-bottom: 15px;">
-                <div class="service-meta">
-                    <span>Сервіс 1 (Adsgram Video)</span>
-                    <span id="timer-service1" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
-                    <span id="limit-service1" class="limit-indicator">0 / 20</span>
-                </div>
-                <button class="btn" id="btn-service1" onclick="handleBtnClick('service1', watchAdsgram)">СЕРВІС 1 (+0.0004)</button>
-            </div>
-
-            <div style="margin-bottom: 15px;">
-                <div class="service-meta">
-                    <span>Сервіс 2 (Adsterra Link)</span>
-                    <span id="timer-service2" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
-                    <span id="limit-service2" class="limit-indicator">0 / 20</span>
-                </div>
-                <button class="btn" id="btn-service2" onclick="startDirectLinkTimer('service2', 'https://www.effectivecpmnetwork.com/gbzuytbhy?key=8595ffd9c4e7bfcd3fbacb124a4b0c74')">СЕРВІС 2 (+0.0002)</button>
-            </div>
-
-            <div style="margin-bottom: 15px;">
-                <div class="service-meta">
-                    <span>Сервіс 3 (HilltopAds Link)</span>
-                    <span id="timer-service3" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
-                    <span id="limit-service3" class="limit-indicator">0 / 20</span>
-                </div>
-                <button class="btn" id="btn-service3" onclick="startDirectLinkTimer('service3', 'https://affectionatestorage.com/gQiXSO')">СЕРВІС 3 (+0.0002)</button>
-            </div>
-
-            <div style="margin-bottom: 15px;">
-                <div class="service-meta">
-                    <span>Сервіс 4 (Monetag SDK)</span>
-                    <span id="timer-service4" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
-                    <span id="limit-service4" class="limit-indicator">0 / 20</span>
-                </div>
-                <button class="btn" id="btn-service4" onclick="handleBtnClick('service4', watchMonetagSafe)">СЕРВІС 4 (+0.0004)</button>
-            </div>
+<div class="container">
+    <div id="tab-main" class="tab-content active">
+        <div class="card">
+            <div class="balance-title">Мій Баланс</div>
+            <div class="balance-value"><span id="user-balance">0.0000</span> USDT</div>
         </div>
 
-        <div id="tab-tasks" class="tab-content">
-            <div class="card" style="border: 2px dashed var(--gold-color);">
-                <h3>🎁 Підтримка проєкту</h3>
-                <p style="color: #a1a1aa; font-size: 13px; margin-bottom: 15px;">
-                    Допоможіть проєкту розвиватися! Цей перегляд добровільний, він сильно допомагає адміну формувати резерв виплат для користувачів.
-                </p>
-                <div class="service-meta" style="margin-top: 0; margin-bottom: 5px;">
-                    <span>Добровільне відео</span>
-                    <span id="timer-support" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
-                    <span id="limit-support" class="limit-indicator">0 / 20</span>
-                </div>
-                <button class="btn" id="btn-support" style="background: var(--gold-gradient);" onclick="handleBtnClick('support', watchSupportAd)">🍿 Підтримати WoodGrow (+0 USDT)</button>
-            </div>
-        </div>
-
-        <div id="tab-wallet" class="tab-content">
-            <div class="card">
-                <h3>Підключення гаманця</h3>
-                <p style="color: #a1a1aa; font-size: 14px;">Підключіть свій TON-гаманець для фіксації адреси в заявках.</p>
-                <div id="ton-connect-btn"></div>
-            </div>
-
-            <div class="card">
-                <h3>Виведення коштів</h3>
-                <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 10px; border: 1px solid rgba(212,175,55,0.3);">
-                    <h4 style="margin: 0; font-size: 14px; color: var(--gold-color); text-align: left;">💡 Інструкція з виведення коштів:</h4>
-                    <ol class="instruction-list">
-                        <li>Підключіть свій TON-гаманець вище.</li>
-                        <li>Натисніть кнопку «Вивести на гаманець» (Мін. 5 USDT).</li>
-                        <li>Підтвердіть дію. Ваш баланс автоматично скинеться в нуль, а система згенерує зашифровану заявку.</li>
-                        <li>Скопіюйте текст із вікна та надішліть адміну в особисті для виплати.</li>
-                        <li style="color: #ffcc00; font-weight: bold; list-style-type: '⚠️ ';">ВАЖЛИВО: Для стабільного підключення використовуйте додаток <u>Tonkeeper</u>. Вбудований Telegram Wallet може працювати з перебоями!</li>
-                    </ol>
-                </div>
-                <p style="font-size: 14px; text-align: left; color: #a1a1aa; margin-top: 15px;">Мінімальна сума: <span style="color: var(--neon-green); font-weight: bold;">5 USDT</span></p>
-                <button class="btn" onclick="withdrawFunds()">💸 Вивести на гаманець</button>
-            </div>
-        </div>
-
-        <div id="tab-profile" class="tab-content">
-            <div class="card" style="text-align: left;">
-                <h3 style="text-align: center;">👤 Мій кабінет</h3>
-                <p><strong>Ваш Telegram ID:</strong> <span id="user-id" style="color: var(--neon-green);">Завантаження...</span></p>
-                
-                <div class="stats-grid">
-                    <div class="stat-box">
-                        <div class="stat-box-title">Реферали</div>
-                        <div class="stat-box-value" id="ref-count">0 чол.</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-box-title">Ваш статус</div>
-                        <div class="stat-box-value" style="color: #ffe066;">Active</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <h3>Партнерська програма</h3>
-                <p style="color: #a1a1aa; font-size: 14px;">Запрошуйте друзів та отримуйте бонус +10% від кожного їхнього перегляду реклами!</p>
-                <div class="ref-box" id="ref-link" style="background-color: rgba(0, 0, 0, 0.4); padding: 12px; border-radius: 8px; font-size: 14px; color: var(--neon-green); word-break: break-all; margin: 15px 0; border: 1px dashed var(--neon-green);">https://t.me/WoodGrowCoinBot?start=id</div>
-                <button class="btn btn-secondary" style="background: none; border: 2px solid var(--gold-color); color: var(--gold-color);" onclick="copyRefLink()">📋 Скопіювати лінк</button>
-                <button class="btn" onclick="shareBot()">🔗 Запросити друга</button>
-            </div>
-        </div>
+        <button class="btn" id="btn-service1" onclick="handleService(1)">СЕРВІС 1 (+0.0004)</button>
+        <button class="btn" id="btn-service4" onclick="handleService(4)">СЕРВІС 4 (+0.0004)</button>
     </div>
+</div>
 
-    <div class="modal-overlay" id="withdraw-modal">
-        <div class="modal-window">
-            <h3 style="color: var(--neon-green); margin-bottom: 5px;">⚡️ ЗАЯВКА СФОРМОВАНА ⚡️</h3>
-            <p style="font-size: 12px; color: #a1a1aa; margin: 0;">Ваш баланс обнулено в хмарі. Скопіюйте текст нижче та надішліть адміну.</p>
-            
-            <textarea class="modal-textarea" id="modal-text-field" readonly></textarea>
-            
-            <button class="btn" id="modal-copy-btn" style="background: linear-gradient(135deg, #0df25d 0%, #08a63f 100%); color: #000;" onclick="copyModalText()">📋 СКОПІЮВАТИ ТЕКСТ</button>
-            <button class="btn" style="background: none; border: 2px solid #ffffff; color: #ffffff; margin-top: 10px;" onclick="goToAdmin()">✈️ НАПИСАТИ АДМІНУ (@VoooodCoin)</button>
-        </div>
-    </div>
+<script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
 
-    <div class="nav-bar">
-        <div class="nav-item active" onclick="switchTab('main', this)">
-            <span class="nav-icon">⚙️</span>Головна
-        </div>
-        <div class="nav-item" onclick="switchTab('tasks', this)">
-            <span class="nav-icon">⚡️</span>Реклама
-        </div>
-        <div class="nav-item" onclick="switchTab('wallet', this)">
-            <span class="nav-icon">💼</span>Гаманець
-        </div>
-        <div class="nav-item" onclick="switchTab('profile', this)">
-            <span class="nav-icon">🖥️</span>Кабінет
-        </div>
-    </div>
+    const SUPABASE_URL = "https://ebgfhzizbcxsxpfqusap.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_wSVAHiv6Wc7q6T5GVurACg_wiZSTlpt"; // ← ЗМІНИ НА СВІЙ СПРАВЖНІЙ ANON KEY !!!
+    
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    <div class="bottom-ad-container" id="adsterra-holder">
-        <script type="text/javascript">
-            atOptions = { 'key' : 'c45d93c72f9027c7dbf67dbfb73d6488', 'format' : 'iframe', 'height' : 60, 'width' : 468, 'params' : {} };
-        </script>
-        <script type="text/javascript" src="//www.highperformanceformat.com/c45d93c72f9027c7dbf67dbfb73d6488/invoke.js"></script>
-    </div>
+    let userId = tg.initDataUnsafe?.user?.id?.toString() || "6043278492";
+    let balance = 0.0000;
 
-    <script>
-        // Безпечний запуск навігації відразу, до завантаження сторонніх сервісів
-        window.addEventListener('load', () => {
-            try {
-                if (window.Telegram && window.Telegram.WebApp) {
-                    window.Telegram.WebApp.expand();
-                    window.Telegram.WebApp.ready();
-                }
+    async function initUser() {
+        try {
+            const { data, error } = await supabase
+                .from('Users')
+                .select('balance')
+                .eq('id', userId)
+                .maybeSingle();
 
-                // Запуск спливаючої реклами Monetag через безпечний інтервал
-                setTimeout(() => {
-                    if (typeof show_11189906 === 'function') {
-                        try { show_11189906('pop'); } catch(e) {}
-                    }
-                }, 1500);
+            if (data) balance = parseFloat(data.balance) || 0;
+            document.getElementById('user-balance').innerText = balance.toFixed(4);
+        } catch(e) {
+            console.error(e);
+        }
+    }
 
-                initSupabaseAndSession();
+    async function rewardUser(reward) {
+        try {
+            const { data, error } = await supabase.rpc('reward_user_safe', {
+                user_id_param: parseInt(userId),
+                reward_amount: reward
+            });
 
-            } catch (e) {
-                console.error("Помилка ініціалізації:", e);
+            if (data !== null) {
+                balance = parseFloat(data);
+                document.getElementById('user-balance').innerText = balance.toFixed(4);
+                alert(`+${reward} USDT зараховано!`);
+            } else {
+                alert("Помилка нарахування");
             }
-        });
+        } catch(e) {
+            console.error(e);
+            alert("Помилка з'єднання з базою");
+        }
+    }
 
-        // ТОЧНІ НАЛАШТУВАННЯ SUPABASE
-        const SUPABASE_URL = "https://ebgfhzizbcxsxpfqusap.supabase.co";
-        const SUPABASE_KEY = "sb_publishable_wSVAHiv6Wc7q6T5GVurACg_wiZSTlpt";
-        let supabase;
+    function handleService(service) {
+        const reward = service === 1 || service === 4 ? 0.0004 : 0.0002;
+        rewardUser(reward);
+    }
 
-        let currentWalletAddress = "Не підключено";
-        let userId = "6043278492"; 
-        let userReferrer = null;
-        let balance = 0.0000;
-
-        const MAX_VIEWS = 20;
-        const configRewards = { service1: 0.0004, service2: 0.0002, service3: 0.0002, service4: 0.0004, support: 0.0000 };
-
-        let userProgress = {
-            service1: { clicks: 0, lastClick: 0 },
-            service2: { clicks: 0, lastClick: 0 },
-            service3: { clicks: 0, lastClick: 0 },
-            service4: { clicks: 0, lastClick: 0 },
-            support: { clicks: 0, lastClick: 0 }
-        };
-
-        async function initSupabaseAndSession() {
-            try {
-                if (typeof window.supabase === 'undefined') {
-                    setTimeout(initSupabaseAndSession, 500);
-                    return;
-                }
-
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-                if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
-                    userId = window.Telegram.WebApp.initDataUnsafe.user.id.toString();
-                }
-                
-                document.getElementById('user-id').innerText = userId;
-                document.getElementById('ref-link').innerText = `https://t.me/WoodGrowCoinBot?start=${userId}`;
-
-                // Читання користувача з таблиці "Users"
-                let { data: user, error: fetchError } = await supabase
-                    .from('Users') 
-                    .select('*')
-                    .eq('id', userId)
-                    .maybeSingle();
-
-                if (!user) {
-                    let referrerId = null;
-                    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.start_param) {
-                        const startParam = window.Telegram.WebApp.initDataUnsafe.start_param.trim();
-                        if (startParam !== userId) {
-                            referrerId = startParam;
-                        }
-                    }
-
-                    const { data: newUser, error: insertError } = await supabase
-                        .from('Users')
-                        .insert([{ id: userId, balance: 0.0000, referred_b
+    // Ініціалізація
+    initUser();
+</script>
+</body>
+</html>
