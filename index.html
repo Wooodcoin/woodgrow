@@ -8,11 +8,12 @@
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     
+    <!-- SDK Monetag -->
     <script src='//libtl.com/sdk.js' data-zone='11189906' data-sdk='show_11189906'></script>
     
     <style>
         :root {
-            --bg-main: #0a1f0f; 
+            --bg-main: #0a1f0f;
             --neon-green: #0df25d;
             --gold-gradient: linear-gradient(135deg, #ffe066 0%, #d4af37 50%, #aa7c11 100%);
             --gold-color: #d4af37;
@@ -28,7 +29,7 @@
             color: var(--text-light);
             margin: 0;
             padding: 0;
-            padding-bottom: 180px; 
+            padding-bottom: 180px;
             box-sizing: border-box;
             -webkit-user-select: none;
             user-select: none;
@@ -72,6 +73,7 @@
             margin-top: 15px;
             padding: 0 5px;
         }
+
         .limit-indicator { font-weight: bold; color: var(--neon-green); }
         .limit-indicator.maxed { color: #ff4444; }
         .cooldown-timer { color: #ff4444; font-weight: bold; display: none; }
@@ -92,6 +94,7 @@
             box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
             text-transform: uppercase;
         }
+
         .btn:disabled {
             background: #27272a;
             color: #71717a;
@@ -99,9 +102,22 @@
             border: 1px solid #3f3f46;
         }
 
+        .btn.ready-claim {
+            background: linear-gradient(135deg, #0df25d 0%, #08a63f 100%) !important;
+            color: #000000 !important;
+            box-shadow: 0 4px 20px rgba(13, 242, 93, 0.5) !important;
+            animation: pulseGlow 1.5s infinite;
+        }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 4px 15px rgba(13, 242, 93, 0.4); }
+            50% { box-shadow: 0 4px 25px rgba(13, 242, 93, 0.8); }
+            100% { box-shadow: 0 4px 15px rgba(13, 242, 93, 0.4); }
+        }
+
         .nav-bar {
             position: fixed;
-            bottom: 60px; 
+            bottom: 60px;
             left: 0;
             right: 0;
             height: 65px;
@@ -124,16 +140,22 @@
             font-weight: 700;
             letter-spacing: 0.5px;
             cursor: pointer;
+            transition: color 0.2s ease;
         }
-        .nav-item.active { 
-            color: var(--neon-green); 
+
+        .nav-item.active {
+            color: var(--neon-green);
             text-shadow: 0 0 8px rgba(13, 242, 93, 0.6);
         }
-        .nav-icon { 
-            font-size: 20px; 
-            margin-bottom: 2px; 
-            display: block; 
+
+        .nav-icon {
+            font-size: 20px;
+            margin-bottom: 2px;
+            display: block;
+            transition: transform 0.2s ease;
         }
+
+        .nav-item.active .nav-icon { transform: scale(1.15); }
 
         .bottom-ad-container {
             position: fixed;
@@ -144,7 +166,7 @@
             background: #000000;
             display: block;
             text-align: center;
-            z-index: 101; 
+            z-index: 1001;
             border-top: 1px solid rgba(212, 175, 55, 0.4);
         }
 
@@ -165,10 +187,9 @@
             pointer-events: none;
             transition: opacity 0.3s ease;
         }
-        .modal-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
+
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+
         .modal-window {
             background: #0d0d11;
             border: 2px solid var(--neon-green);
@@ -179,6 +200,7 @@
             text-align: center;
             box-shadow: 0 0 35px rgba(13, 242, 93, 0.4);
         }
+
         .modal-textarea {
             width: 100%;
             height: 130px;
@@ -195,20 +217,9 @@
             -webkit-user-select: text;
             user-select: text;
         }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        .stat-box {
-            background: rgba(255,255,255,0.05);
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            text-align: center;
-        }
+
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .stat-box { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; border: 1px solid rgba(212, 175, 55, 0.2); text-align: center; }
         .stat-box-title { font-size: 11px; color: #a1a1aa; text-transform: uppercase; }
         .stat-box-value { font-size: 16px; font-weight: bold; color: var(--neon-green); margin-top: 5px; }
     </style>
@@ -216,6 +227,7 @@
 <body>
 
     <div class="container">
+        <!-- ГОЛОВНА -->
         <div id="tab-main" class="tab-content active">
             <div class="card">
                 <div class="balance-title">Мій Баланс</div>
@@ -256,15 +268,16 @@
                     <span id="timer-service4" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
                     <span id="limit-service4" class="limit-indicator">0 / 20</span>
                 </div>
-                <button class="btn" id="btn-service4" onclick="handleBtnClick('service4', watchMonetagSafe)">СЕРВІС 4 (+0.0004)</button>
+                <button class="btn" id="btn-service4" onclick="handleBtnClick('service4', watchMonetag)">СЕРВІС 4 (+0.0004)</button>
             </div>
         </div>
 
+        <!-- РЕКЛАМА -->
         <div id="tab-tasks" class="tab-content">
             <div class="card" style="border: 2px dashed var(--gold-color);">
                 <h3>🎁 Підтримка проєкту</h3>
                 <p style="color: #a1a1aa; font-size: 13px; margin-bottom: 15px;">
-                    Допоможіть проєкту розвиватися! Цей перегляд добровільний, він сильно допомагає адміну формувати резерв виплат.
+                    Допоможіть проєкту розвиватися! Цей перегляд добровільний, він сильно допомагає адміну формувати резерв виплат для користувачів.
                 </p>
                 <div class="service-meta" style="margin-top: 0; margin-bottom: 5px;">
                     <span>Добровільне відео</span>
@@ -275,10 +288,11 @@
             </div>
         </div>
 
+        <!-- ГАМАНЕЦЬ -->
         <div id="tab-wallet" class="tab-content">
             <div class="card">
                 <h3>Підключення гаманця</h3>
-                <p style="color: #a1a1aa; font-size: 14px;">Підключіть свій TON-гаманець для фіксації адреси в заявках.</p>
+                <p style="color: #a1a1aa; font-size: 14px;">Підключіть свій TON-гаманець для фіксавої адреси в заявках.</p>
                 <div id="ton-connect-btn"></div>
             </div>
 
@@ -289,8 +303,9 @@
                     <ol class="instruction-list">
                         <li>Підключіть свій TON-гаманець вище.</li>
                         <li>Натисніть кнопку «Вивести на гаманець» (Мін. 5 USDT).</li>
-                        <li>Підтвердіть дію. Ваш баланс автоматично скинеться в нуль.</li>
+                        <li>Підтвердіть дію. Ваш баланс автоматично скинеться, а система згенерує текст заявки.</li>
                         <li>Скопіюйте текст із вікна та надішліть адміну в особисті для виплати.</li>
+                        <li style="color: #ffcc00; font-weight: bold; list-style-type: '⚠️ ';">ВАЖЛИВО: Для підключення використовуйте додаток <u>Tonkeeper</u>. Офіційний Telegram Wallet всередині апок може працювати з перебоями!</li>
                     </ol>
                 </div>
                 <p style="font-size: 14px; text-align: left; color: #a1a1aa; margin-top: 15px;">Мінімальна сума: <span style="color: var(--neon-green); font-weight: bold;">5 USDT</span></p>
@@ -298,26 +313,26 @@
             </div>
         </div>
 
+        <!-- ПРОФІЛЬ -->
         <div id="tab-profile" class="tab-content">
             <div class="card" style="text-align: left;">
                 <h3 style="text-align: center;">👤 Мій кабінет</h3>
                 <p><strong>Ваш Telegram ID:</strong> <span id="user-id" style="color: var(--neon-green);">Завантаження...</span></p>
-                
                 <div class="stats-grid">
                     <div class="stat-box">
                         <div class="stat-box-title">Реферали</div>
                         <div class="stat-box-value" id="ref-count">0 чол.</div>
                     </div>
                     <div class="stat-box">
-                        <div class="stat-box-title">Ваш статус</div>
-                        <div class="stat-box-value" style="color: #ffe066;">Active</div>
+                        <div class="stat-box-title">Ref Бонус</div>
+                        <div class="stat-box-value" id="ref-bonus">0.0000 USDT</div>
                     </div>
                 </div>
             </div>
 
             <div class="card">
                 <h3>Партнерська програма</h3>
-                <p style="color: #a1a1aa; font-size: 14px;">Запрошуйте друзів та отримуйте бонус +10% від кожного їхнього перегляду реклами!</p>
+                <p style="color: #a1a1aa; font-size: 14px;">Отримуйте фіксовані +10% від кожного перегляду реклами вашими друзями!</p>
                 <div class="ref-box" id="ref-link" style="background-color: rgba(0, 0, 0, 0.4); padding: 12px; border-radius: 8px; font-size: 14px; color: var(--neon-green); word-break: break-all; margin: 15px 0; border: 1px dashed var(--neon-green);">https://t.me/WoodGrowCoinBot?start=id</div>
                 <button class="btn btn-secondary" style="background: none; border: 2px solid var(--gold-color); color: var(--gold-color);" onclick="copyRefLink()">📋 Скопіювати лінк</button>
                 <button class="btn" onclick="shareBot()">🔗 Запросити друга</button>
@@ -325,18 +340,18 @@
         </div>
     </div>
 
+    <!-- ВНУТРІШНЄ ВІКНО ДЛЯ СКОПІЙОВАНОЇ ЗАЯВКИ -->
     <div class="modal-overlay" id="withdraw-modal">
         <div class="modal-window">
             <h3 style="color: var(--neon-green); margin-bottom: 5px;">⚡️ ЗАЯВКА СФОРМОВАНА ⚡️</h3>
-            <p style="font-size: 12px; color: #a1a1aa; margin: 0;">Ваш баланс обнулено в хмарі. Скопіюйте текст нижче та надішліть адміну.</p>
-            
+            <p style="font-size: 12px; color: #a1a1aa; margin: 0;">Ваш баланс обнулено. Скопіюйте шифр нижче та надішліть адміну.</p>
             <textarea class="modal-textarea" id="modal-text-field" readonly></textarea>
-            
             <button class="btn" id="modal-copy-btn" style="background: linear-gradient(135deg, #0df25d 0%, #08a63f 100%); color: #000;" onclick="copyModalText()">📋 СКОПІЮВАТИ ТЕКСТ</button>
             <button class="btn" style="background: none; border: 2px solid #ffffff; color: #ffffff; margin-top: 10px;" onclick="goToAdmin()">✈️ НАПИСАТИ АДМІНУ (@VoooodCoin)</button>
         </div>
     </div>
 
+    <!-- НАВІГАЦІЙНА ПАНЕЛЬ -->
     <div class="nav-bar">
         <div class="nav-item active" onclick="switchTab('main', this)">
             <span class="nav-icon">⚙️</span>Головна
@@ -352,6 +367,7 @@
         </div>
     </div>
 
+    <!-- ADSTERRA BANNER -->
     <div class="bottom-ad-container" id="adsterra-holder">
         <script type="text/javascript">
             atOptions = { 'key' : 'c45d93c72f9027c7dbf67dbfb73d6488', 'format' : 'iframe', 'height' : 60, 'width' : 468, 'params' : {} };
@@ -361,31 +377,22 @@
 
     <script>
         const tg = window.Telegram.WebApp;
-        
-        // Ініціалізація інтерфейсу відразу
-        try {
-            tg.expand();
-            tg.ready();
-        } catch(e) {}
+        tg.expand();
 
-        // ТВОЄ НОВЕ ПОСИЛАННЯ НА FIREBASE REALTIME DATABASE
+        // ТВІЙ СЕРВЕР FIREBASE
         const FIREBASE_BASE_URL = "https://woodgrowbot-default-rtdb.europe-west1.firebasedatabase.app";
 
+        // Спливаюча реклама Monetag через 1.5 сек
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                if (typeof show_11189906 === 'function') {
+                    try { show_11189906('pop'); } catch(e) {}
+                }
+            }, 1500);
+        });
+
         let currentWalletAddress = "Не підключено";
-        let userId = "6043278492"; 
-        let userReferrer = null;
-        let balance = 0.0000;
-
-        const MAX_VIEWS = 20;
-        const configRewards = { service1: 0.0004, service2: 0.0002, service3: 0.0002, service4: 0.0004, support: 0.0000 };
-
-        let userProgress = {
-            service1: { clicks: 0, lastClick: 0 },
-            service2: { clicks: 0, lastClick: 0 },
-            service3: { clicks: 0, lastClick: 0 },
-            service4: { clicks: 0, lastClick: 0 },
-            support: { clicks: 0, lastClick: 0 }
-        };
+        let userId = "6043278492";
 
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             userId = tg.initDataUnsafe.user.id.toString();
@@ -394,21 +401,51 @@
         document.getElementById('user-id').innerText = userId;
         document.getElementById('ref-link').innerText = `https://t.me/WoodGrowCoinBot?start=${userId}`;
 
-        // Швидка функція перемикання вкладок
-        function switchTab(tabId, element) {
-            const contents = document.querySelectorAll('.tab-content');
-            contents.forEach(c => c.classList.remove('active'));
-            
-            const tabs = document.querySelectorAll('.nav-item');
-            tabs.forEach(t => t.classList.remove('active'));
+        const MAX_VIEWS = 20;
+        const services = ['service1', 'service2', 'service3', 'service4', 'support'];
+        const configRewards = { service1: 0.0004, service2: 0.0002, service3: 0.0002, service4: 0.0004, support: 0.0000 };
+        const SECRET_SALT = "woodgrow_secure_9921";
 
-            document.getElementById(`tab-${tabId}`).classList.add('active');
-            element.classList.add('active');
+        let balance = 0.0000;
+        let activeLinkTimers = {};
 
-            if (tabId === 'profile') updateRefCounter();
+        // Завантаження лімітів кліків користувача (лишаємо локально по днях, щоб не перевантажувати базу)
+        const todayStr = new Date().toDateString();
+        const lastSavedDay = localStorage.getItem('wg_last_active_day') || '';
+        if (todayStr !== lastSavedDay) {
+            services.forEach(srv => localStorage.setItem(`wg_views_${srv}`, '0'));
+            localStorage.setItem('wg_last_active_day', todayStr);
         }
 
-        // Прямі REST API запити до Firebase без важких бібліотек
+        let viewCounts = {
+            service1: parseInt(localStorage.getItem('wg_views_service1')) || 0,
+            service2: parseInt(localStorage.getItem('wg_views_service2')) || 0,
+            service3: parseInt(localStorage.getItem('wg_views_service3')) || 0,
+            service4: parseInt(localStorage.getItem('wg_views_service4')) || 0,
+            support: parseInt(localStorage.getItem('wg_views_support')) || 0
+        };
+
+        let isClickBlocked = false;
+
+        function handleBtnClick(serviceKey, actionFunction) {
+            if (isClickBlocked) return;
+            isClickBlocked = true;
+            setTimeout(() => { isClickBlocked = false; }, 1000);
+            actionFunction();
+        }
+
+        // Хеш безпеки (для заявок)
+        function generateHash(val) {
+            let str = val.toFixed(4) + SECRET_SALT;
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = (hash << 5) - hash + str.charCodeAt(i);
+                hash |= 0;
+            }
+            return hash.toString();
+        }
+
+        // Завантаження даних із Firebase Realtime Database
         async function fetchUserData() {
             try {
                 const res = await fetch(`${FIREBASE_BASE_URL}/users/${userId}.json`);
@@ -421,34 +458,31 @@
                         if (startParam !== userId) referrerId = startParam;
                     }
 
-                    user = { id: userId, balance: 0.0000, referred_by: referrerId };
+                    user = { id: userId, balance: 0.0000, referred_by: referrerId, ref_bonus: 0.0000 };
                     await fetch(`${FIREBASE_BASE_URL}/users/${userId}.json`, {
                         method: 'PUT',
                         body: JSON.stringify(user)
                     });
                 }
 
-                if (user) {
-                    balance = parseFloat(user.balance) || 0.0000;
-                    userReferrer = user.referred_by;
-                    document.getElementById('user-balance').innerText = balance.toFixed(4);
-                }
-
-                updateRefCounter();
-                updateUIIndicators();
-                startGlobalTimerCheck();
-                initTonConnect();
+                balance = parseFloat(user.balance) || 0.0000;
+                let rBonus = parseFloat(user.ref_bonus) || 0.0000;
                 
-                // Спроба автоматично запустити спливаючу рекламу Monetag
-                setTimeout(() => {
-                    if (typeof show_11189906 === 'function') {
-                        try { show_11189906('pop'); } catch(e) {}
-                    }
-                }, 1500);
+                document.getElementById('user-balance').innerText = balance.toFixed(4);
+                document.getElementById('ref-bonus').innerText = `${rBonus.toFixed(4)} USDT`;
+
+                // Рахуємо рефералів
+                updateRefCounter();
 
             } catch (e) {
-                console.error("Помилка завантаження сесії Firebase:", e);
+                console.error("Помилка завантаження Firebase:", e);
             }
+            
+            // Ініціалізація інтерфейсу після завантаження бази
+            services.forEach(srv => {
+                updateLimitUI(srv);
+                checkSingleCooldown(srv);
+            });
         }
 
         async function updateRefCounter() {
@@ -465,201 +499,281 @@
             } catch (err) {}
         }
 
-        async function rewardUserCloud(serviceKey) {
+        function switchTab(tabName, element) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            document.getElementById('tab-' + tabName).classList.add('active');
+            element.classList.add('active');
+            if (tabName === 'profile') updateRefCounter();
+        }
+
+        function updateLimitUI(serviceKey) {
+            const limitSpan = document.getElementById(`limit-${serviceKey}`);
+            if (!limitSpan) return;
+            
+            limitSpan.innerText = `${viewCounts[serviceKey]} / ${MAX_VIEWS}`;
+            const btn = document.getElementById(`btn-${serviceKey}`);
+            if (!btn) return;
+
+            if (viewCounts[serviceKey] >= MAX_VIEWS) {
+                limitSpan.className = 'limit-indicator maxed';
+                limitSpan.innerText = "20 / 20 🛑";
+                btn.disabled = true;
+                btn.className = "btn";
+                if(serviceKey === 'service2') btn.innerText = "СЕРВІС 2 (+0.0002)";
+                if(serviceKey === 'service3') btn.innerText = "СЕРВІС 3 (+0.0002)";
+            } else {
+                limitSpan.className = 'limit-indicator';
+                const expireTime = localStorage.getItem(`wg_cooldown_${serviceKey}`);
+                if (!expireTime || Date.now() >= expireTime) {
+                    if (!btn.classList.contains('ready-claim')) {
+                        btn.disabled = false;
+                    }
+                }
+            }
+        }
+
+        // ПІДКЛЮЧЕННЯ TON
+        const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+            manifestUrl: 'https://raw.githubusercontent.com/ton-community/tutorials/main/03-client/test/public/tonconnect-manifest.json',
+            buttonRootId: 'ton-connect-btn'
+        });
+
+        tonConnectUI.onStatusChange(wallet => {
+            currentWalletAddress = wallet ? wallet.account.address : "Не підключено";
+        });
+
+        // ADSGRAM
+        const AdController = window.Adsgram ? window.Adsgram.init({ blockId: "35910" }) : null;
+
+        function watchAdsgram() {
+            if (viewCounts['service1'] >= MAX_VIEWS || !AdController) return;
+            AdController.show().then(() => rewardUserServer('service1')).catch(() => alert("Рекламу не зараховано."));
+        }
+
+        function watchSupportAd() {
+            if (viewCounts['support'] >= MAX_VIEWS || !AdController) return;
+            AdController.show().then(() => {
+                rewardUserServer('support');
+                alert("Дякуємо! ❤️");
+            }).catch(() => alert("Відео перервано."));
+        }
+
+        // MONETAG
+        function watchMonetag() {
+            if (viewCounts['service4'] >= MAX_VIEWS) return;
+            if (typeof show_11189906 === 'function') {
+                try {
+                    show_11189906('pop');
+                    setTimeout(() => rewardUserServer('service4'), 4000);
+                } catch(e) {}
+            }
+        }
+
+        // ДВОЕТАПНИЙ ТАЙМЕР ДЛЯ DIRECT LINKS (ТВОЯ ЛОГІКА)
+        function startDirectLinkTimer(serviceKey, url) {
+            if (viewCounts[serviceKey] >= MAX_VIEWS) return;
+            const btn = document.getElementById(`btn-${serviceKey}`);
+
+            if (btn.classList.contains('ready-claim')) {
+                btn.classList.remove('ready-claim');
+                if (serviceKey === 'service2') btn.innerText = "СЕРВІС 2 (+0.0002)";
+                if (serviceKey === 'service3') btn.innerText = "СЕРВІС 3 (+0.0002)";
+                rewardUserServer(serviceKey);
+                return;
+            }
+
+            tg.openLink(url);
+            btn.disabled = true;
+            let timeLeft = 20;
+            btn.innerText = `⏳ ПЕРЕВІРКА... ${timeLeft}s`;
+
+            activeLinkTimers[serviceKey] = setInterval(() => {
+                timeLeft--;
+                if (timeLeft <= 0) {
+                    clearInterval(activeLinkTimers[serviceKey]);
+                    btn.disabled = false;
+                    btn.classList.add('ready-claim');
+                    btn.innerText = `🎁 ЗАБРАТИ БОНУС (+${configRewards[serviceKey]})`;
+                } else {
+                    btn.innerText = `⏳ ПЕРЕВІРКА... ${timeLeft}s`;
+                }
+            }, 1000);
+        }
+
+        // НАРАХУВАННЯ В ХМАРУ FIREBASE
+        async function rewardUserServer(serviceKey) {
+            if (viewCounts[serviceKey] >= MAX_VIEWS) return;
             const reward = configRewards[serviceKey];
-            if (reward === 0) return true; 
 
             try {
                 let newBalance = balance + reward;
-                const res = await fetch(`${FIREBASE_BASE_URL}/users/${userId}/balance.json`, {
+                
+                // Оновлюємо баланс користувача на сервері
+                const response = await fetch(`${FIREBASE_BASE_URL}/users/${userId}/balance.json`, {
                     method: 'PUT',
                     body: JSON.stringify(newBalance)
                 });
 
-                if (res.ok) {
+                if (response.ok) {
                     balance = newBalance;
                     document.getElementById('user-balance').innerText = balance.toFixed(4);
-                    if (userReferrer) {
-                        await giveReferralPercentBonus(userReferrer, reward);
+                    
+                    // Зараховуємо перегляд локально для ліміту дня
+                    viewCounts[serviceKey] += 1;
+                    localStorage.setItem(`wg_views_${serviceKey}`, viewCounts[serviceKey].toString());
+                    updateLimitUI(serviceKey);
+
+                    // Перевіряємо реферера для бонусу 10%
+                    const userRes = await fetch(`${FIREBASE_BASE_URL}/users/${userId}.json`);
+                    const userData = await userRes.json();
+                    if (userData && userData.referred_by && reward > 0) {
+                        await giveReferralBonus(userData.referred_by, reward);
                     }
-                    return true;
+
+                    // Активуємо великий таймер "охолодження" на 120 сек
+                    if (viewCounts[serviceKey] < MAX_VIEWS) {
+                        localStorage.setItem(`wg_cooldown_${serviceKey}`, (Date.now() + 120000).toString());
+                        checkSingleCooldown(serviceKey);
+                    }
                 }
-                return false;
             } catch (err) {
-                return false;
+                console.error("Помилка нарахування:", err);
             }
         }
 
-        async function giveReferralPercentBonus(referrerId, refActionReward) {
+        // НАРАХУВАННЯ РЕФЕРАЛЬНОГО БОНУСУ В ХМАРУ
+        async function giveReferralBonus(referrerId, rewardAmount) {
             try {
-                const res = await fetch(`${FIREBASE_BASE_URL}/users/${referrerId}.json`);
-                let refUser = await res.json();
-                if (refUser) {
-                    let bonus = refActionReward * 0.10;
-                    let newRefBalance = (parseFloat(refUser.balance) || 0) + bonus;
+                const refRes = await fetch(`${FIREBASE_BASE_URL}/users/${referrerId}.json`);
+                const referrerData = await refRes.json();
+                if (referrerData) {
+                    let bonus = rewardAmount * 0.10;
+                    let newRefBalance = (parseFloat(referrerData.balance) || 0) + bonus;
+                    let newRefBonusTotal = (parseFloat(referrerData.ref_bonus) || 0) + bonus;
+
                     await fetch(`${FIREBASE_BASE_URL}/users/${referrerId}/balance.json`, {
                         method: 'PUT',
                         body: JSON.stringify(newRefBalance)
                     });
+                    await fetch(`${FIREBASE_BASE_URL}/users/${referrerId}/ref_bonus.json`, {
+                        method: 'PUT',
+                        body: JSON.stringify(newRefBonusTotal)
+                    });
                 }
-            } catch (e) {}
-        }
-
-        function handleBtnClick(serviceKey, adCallbackFunction) {
-            const progress = userProgress[serviceKey];
-            const now = Date.now();
-
-            if (progress.clicks >= MAX_VIEWS) {
-                alert("Денний ліміт (20/20) вичерпано!");
-                return;
-            }
-            if (now - progress.lastClick < 120000) {
-                alert("Зачекайте завершення таймера!");
-                return;
-            }
-            adCallbackFunction(serviceKey);
-        }
-
-        function watchAdsgram(serviceKey) {
-            setTimeout(async () => {
-                const success = await rewardUserCloud(serviceKey);
-                if (success) triggerCooldown(serviceKey);
-            }, 1000);
-        }
-
-        function watchMonetagSafe(serviceKey) {
-            setTimeout(async () => {
-                const success = await rewardUserCloud(serviceKey);
-                if (success) triggerCooldown(serviceKey);
-            }, 1000);
-        }
-
-        function watchSupportAd(serviceKey) {
-            setTimeout(() => {
-                triggerCooldown(serviceKey);
-                alert("Дякуємо за підтримку! ❤️");
-            }, 1000);
-        }
-
-        function startDirectLinkTimer(serviceKey, url) {
-            const progress = userProgress[serviceKey];
-            const now = Date.now();
-
-            if (progress.clicks >= MAX_VIEWS || (now - progress.lastClick < 120000)) {
-                alert("Сервіс недоступний або охолоджується!");
-                return;
-            }
-
-            window.open(url, '_blank');
-            setTimeout(async () => {
-                const success = await rewardUserCloud(serviceKey);
-                if (success) triggerCooldown(serviceKey);
-            }, 2000);
-        }
-
-        function triggerCooldown(serviceKey) {
-            userProgress[serviceKey].clicks += 1;
-            userProgress[serviceKey].lastClick = Date.now();
-            updateUIIndicators();
-        }
-
-        function updateUIIndicators() {
-            for (const key of Object.keys(userProgress)) {
-                const prog = userProgress[key];
-                const indicator = document.getElementById(`limit-${key}`);
-                if (indicator) {
-                    indicator.innerText = `${prog.clicks} / ${MAX_VIEWS}`;
-                    if (prog.clicks >= MAX_VIEWS) indicator.classList.add('maxed');
-                }
-            }
-        }
-
-        function startGlobalTimerCheck() {
-            setInterval(() => {
-                const now = Date.now();
-                for (const key of Object.keys(userProgress)) {
-                    const prog = userProgress[key];
-                    const btn = document.getElementById(`btn-${key}`);
-                    const timerSpan = document.getElementById(`timer-${key}`);
-                    
-                    if (prog.clicks >= MAX_VIEWS) {
-                        if (btn) btn.disabled = true;
-                        if (timerSpan) timerSpan.style.display = 'none';
-                        continue;
-                    }
-
-                    const timePassed = now - prog.lastClick;
-                    if (timePassed < 120000) {
-                        if (btn) btn.disabled = true;
-                        if (timerSpan) {
-                            timerSpan.style.display = 'inline';
-                            timerSpan.querySelector('.sec').innerText = Math.ceil((120000 - timePassed) / 1000);
-                        }
-                    } else {
-                        if (btn) btn.disabled = false;
-                        if (timerSpan) {
-                            timerSpan.style.display = 'none';
-                        }
-                    }
-                }
-            }, 1000);
-        }
-
-        async function withdrawFunds() {
-            if (balance < 5.0) {
-                alert("Мінімальна сума виведення — 5 USDT.");
-                return;
-            }
-            
-            const res = await fetch(`${FIREBASE_BASE_URL}/users/${userId}/balance.json`, {
-                method: 'PUT',
-                body: JSON.stringify(0.0000)
-            });
-
-            if (!res.ok) {
-                alert("Помилка підключення до сервера.");
-                return;
-            }
-
-            const txData = `USER ID: ${userId}\nAMOUNT: ${balance.toFixed(4)} USDT\nWALLET: ${currentWalletAddress}\nSTATUS: SIGNED_CLOUD_VALID`;
-            document.getElementById('modal-text-field').value = btoa(txData);
-            
-            balance = 0.0000;
-            document.getElementById('user-balance').innerText = "0.0000";
-            document.getElementById('withdraw-modal').classList.add('active');
-        }
-
-        function copyModalText() {
-            const txt = document.getElementById('modal-text-field');
-            txt.select();
-            navigator.clipboard.writeText(txt.value);
-            alert("Код заявки скопійовано!");
-        }
-
-        function goToAdmin() { window.open('https://t.me/VoooodCoin', '_blank'); }
-        function copyRefLink() {
-            navigator.clipboard.writeText(document.getElementById('ref-link').innerText);
-            alert("Посилання скопійовано!");
-        }
-        function shareBot() {
-            const linkText = document.getElementById('ref-link').innerText;
-            window.open(`https://t.me/share/url?url=${encodeURIComponent(linkText)}&text=Заробляй USDT!`, '_blank');
-        }
-
-        function initTonConnect() {
-            try {
-                const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-                    manifestUrl: 'https://raw.githubusercontent.com/ton-connect/js-sdk/main/packages/sdk/tonconnect-manifest.json',
-                    buttonRootId: 'ton-connect-btn'
-                });
-
-                tonConnectUI.onStatusChange(wallet => {
-                    currentWalletAddress = wallet ? wallet.account.address : "Не підключено";
-                });
             } catch(e) {}
         }
 
-        // Запуск сесії
+        function checkSingleCooldown(serviceKey) {
+            if (viewCounts[serviceKey] >= MAX_VIEWS) return;
+            const btn = document.getElementById(`btn-${serviceKey}`);
+            const timerBox = document.getElementById(`timer-${serviceKey}`);
+            const expireTime = localStorage.getItem(`wg_cooldown_${serviceKey}`);
+            if (!expireTime || !btn || !timerBox) return;
+
+            const remaining = Math.ceil((expireTime - Date.now()) / 1000);
+            if (remaining > 0) {
+                if(activeLinkTimers[serviceKey]) clearInterval(activeLinkTimers[serviceKey]);
+                btn.classList.remove('ready-claim');
+                if (serviceKey === 'service2') btn.innerText = "СЕРВІС 2 (+0.0002)";
+                if (serviceKey === 'service3') btn.innerText = "СЕРВІС 3 (+0.0002)";
+                btn.disabled = true;
+                timerBox.style.display = 'inline';
+                timerBox.querySelector('.sec').innerText = remaining;
+
+                if(btn.intervalId) clearInterval(btn.intervalId);
+                btn.intervalId = setInterval(() => {
+                    const curRemaining = Math.ceil((expireTime - Date.now()) / 1000);
+                    if (curRemaining <= 0 || viewCounts[serviceKey] >= MAX_VIEWS) {
+                        clearInterval(btn.intervalId);
+                        localStorage.removeItem(`wg_cooldown_${serviceKey}`);
+                        timerBox.style.display = 'none';
+                        if (viewCounts[serviceKey] < MAX_VIEWS) btn.disabled = false;
+                    } else {
+                        timerBox.querySelector('.sec').innerText = curRemaining;
+                    }
+                }, 1000);
+            } else {
+                if (viewCounts[serviceKey] < MAX_VIEWS && !btn.classList.contains('ready-claim')) btn.disabled = false;
+                timerBox.style.display = 'none';
+                localStorage.removeItem(`wg_cooldown_${serviceKey}`);
+            }
+        }
+
+        function copyRefLink() {
+            navigator.clipboard.writeText(document.getElementById('ref-link').innerText);
+            alert("Скопійовано!");
+        }
+
+        function shareBot() {
+            const link = document.getElementById('ref-link').innerText;
+            tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent("👋 Заробляй зі мною!")}`);
+        }
+
+        // ВИВЕДЕННЯ КОШТІВ (ОБНУЛЕННЯ В БАЗІ ДАНИХ)
+        async function withdrawFunds() {
+            if (!tonConnectUI.connected || currentWalletAddress === "Не підключено") {
+                alert("❌ Спочатку підключіть ваш TON-гаманець!");
+                return;
+            }
+            if (balance < 5.0) {
+                alert(`❌ Мінімальна сума для виведення: 5 USDT (У вас ${balance.toFixed(4)})`);
+                return;
+            }
+
+            const confirmed = confirm(`Ви впевнені, що хочете вивести ${balance.toFixed(4)} USDT?\n\nПісля натискання "ОК" баланс буде скинуто на сервері, а додаток згенерує шифр.`);
+            if (!confirmed) return;
+
+            const finalUserId = userId;
+            const finalSum = balance.toFixed(4);
+            const finalWallet = currentWalletAddress;
+            const securityCheckCode = generateHash(balance);
+
+            try {
+                // Обнуляємо баланс на сервері Firebase
+                const response = await fetch(`${FIREBASE_BASE_URL}/users/${userId}/balance.json`, {
+                    method: 'PUT',
+                    body: JSON.stringify(0.0000)
+                });
+
+                if (response.ok) {
+                    balance = 0.0000;
+                    document.getElementById('user-balance').innerText = "0.0000";
+
+                    const applicationText = `ЗАЯВКА НА ВИВІД WOODGROW:\n• ID: ${finalUserId}\n• Сума: ${finalSum} USDT\n• TON Гаманець: ${finalWallet}\n• Код безпеки: ${securityCheckCode}`;
+                    document.getElementById('modal-text-field').value = applicationText;
+                    
+                    navigator.clipboard.writeText(applicationText).catch(() => {});
+                    document.getElementById('withdraw-modal').classList.add('active');
+                } else {
+                    alert("Помилка зв'язку з сервером бази даних.");
+                }
+            } catch (err) {
+                alert("Не вдалося виконати запит на виведення.");
+            }
+        }
+
+        function copyModalText() {
+            const textField = document.getElementById('modal-text-field');
+            textField.select();
+            textField.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(textField.value).then(() => {
+                const copyBtn = document.getElementById('modal-copy-btn');
+                copyBtn.innerText = "✅ ШИФР СКОПІЙОВАНО!";
+                copyBtn.style.background = "#0df25d";
+                copyBtn.style.color = "#111111";
+                setTimeout(() => {
+                    copyBtn.innerText = "📋 СКОПІЮВАТИ ТЕКСТ";
+                    copyBtn.style.background = "linear-gradient(135deg, #0df25d 0%, #08a63f 100%)";
+                }, 3000);
+            }).catch(() => {
+                alert("Затисніть пальцем текст у полі та скопіюйте його вручну.");
+            });
+        }
+
+        function goToAdmin() { tg.openTelegramLink("https://t.me/VoooodCoin"); }
+
+        // ЗАПУСК СЕСІЇ ПРИ ЗАВАНТАЖЕННІ
         fetchUserData();
     </script>
 </body>
