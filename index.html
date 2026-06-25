@@ -3,30 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WoodGrow Test</title>
+    <title>WoodGrow Coin</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
-        body { padding: 30px; background: #0a1f0f; color: white; font-family: sans-serif; text-align: center; }
+        body { padding: 20px; background: #0a1f0f; color: white; font-family: sans-serif; text-align: center; }
         button { 
             width: 100%; 
-            padding: 25px; 
+            padding: 20px; 
             margin: 15px 0; 
             font-size: 18px; 
-            background: gold; 
+            background: #d4af37; 
             color: black; 
             border: none; 
             border-radius: 12px; 
             font-weight: bold;
         }
+        .balance { font-size: 32px; font-weight: bold; margin: 20px 0; }
     </style>
 </head>
 <body>
 
-<h2>Тест JavaScript</h2>
-<p>Якщо кнопки працюють — JavaScript OK</p>
+<h2>WoodGrow Coin</h2>
+<div class="balance">Баланс: <span id="balance">0.0000</span> USDT</div>
 
-<button onclick="alert('✅ Кнопка 1 працює!')">Кнопка 1</button>
-<button onclick="alert('✅ Кнопка 2 працює!')">Кнопка 2</button>
-<button onclick="alert('✅ Кнопка 3 працює!')">Кнопка 3</button>
+<button onclick="reward(0.0004)">+0.0004 USDT (Сервіс 1)</button>
+<button onclick="reward(0.0004)">+0.0004 USDT (Сервіс 4)</button>
+<button onclick="loadBalance()">Оновити баланс</button>
+
+<script>
+    const SUPABASE_URL = "https://ebgfhzizbcxsxpfqusap.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_wSVAHiv6Wc7q6T5GVurACg_wiZSTlpt"; // Заміни якщо є інший ключ
+
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let userId = "6043278492"; // Для тестів
+
+    async function reward(amount) {
+        try {
+            const { data, error } = await supabase.rpc('reward_user_safe', {
+                user_id_param: parseInt(userId),
+                reward_amount: amount
+            });
+
+            if (error) {
+                alert("Помилка: " + error.message);
+            } else {
+                alert("✅ + " + amount + " USDT зараховано!");
+                document.getElementById('balance').innerText = parseFloat(data).toFixed(4);
+            }
+        } catch(e) {
+            alert("Критична помилка: " + e.message);
+        }
+    }
+
+    async function loadBalance() {
+        try {
+            const { data, error } = await supabase
+                .from('Users')
+                .select('balance')
+                .eq('id', userId)
+                .maybeSingle();
+
+            if (error) alert("Помилка завантаження: " + error.message);
+            else {
+                const bal = data ? parseFloat(data.balance || 0) : 0;
+                document.getElementById('balance').innerText = bal.toFixed(4);
+            }
+        } catch(e) {
+            alert("Помилка: " + e.message);
+        }
+    }
+
+    // Автозапуск
+    loadBalance();
+</script>
 
 </body>
 </html>
