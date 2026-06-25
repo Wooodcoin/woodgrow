@@ -4,83 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WoodGrow Test</title>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
-        body { padding: 20px; background: #0a1f0f; color: white; font-family: sans-serif; }
-        button { width: 100%; padding: 20px; margin: 15px 0; font-size: 18px; background: gold; border: none; border-radius: 12px; }
+        body { padding: 30px; background: #0a1f0f; color: white; font-family: sans-serif; text-align: center; }
+        button { 
+            width: 100%; 
+            padding: 25px; 
+            margin: 15px 0; 
+            font-size: 18px; 
+            background: gold; 
+            color: black; 
+            border: none; 
+            border-radius: 12px; 
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
-<h2>WoodGrow Test</h2>
-<p><strong>ID:</strong> <span id="userid">---</span></p>
-<p><strong>Баланс:</strong> <span id="balance">0.0000</span> USDT</p>
+<h2>Тест JavaScript</h2>
+<p>Якщо кнопки працюють — JavaScript OK</p>
 
-<button onclick="testReward()">НАРАХУВАТИ +0.0004 USDT</button>
-<button onclick="loadBalance()">ОНОВИТИ БАЛАНС</button>
-<button onclick="testConnection()">ТЕСТ ПІДКЛЮЧЕННЯ</button>
-
-<script>
-    const SUPABASE_URL = "https://ebgfhzizbcxsxpfqusap.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_wSVAHiv6Wc7q6T5GVurACg_wiZSTlpt"; // Заміни якщо треба
-
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    let userId = "6043278492";
-
-    async function testConnection() {
-        alert("🔄 Тест підключення...");
-        try {
-            const { data, error } = await supabase.from('Users').select('count').limit(1);
-            if (error) alert("Помилка: " + error.message);
-            else alert("✅ Підключення працює!");
-        } catch(e) {
-            alert("Критична помилка: " + e.message);
-        }
-    }
-
-    async function testReward() {
-        alert("Нараховуємо +0.0004...");
-        try {
-            const { data, error } = await supabase.rpc('reward_user_safe', {
-                user_id_param: parseInt(userId),
-                reward_amount: 0.0004
-            });
-
-            if (error) {
-                alert("Помилка RPC: " + error.message);
-            } else {
-                alert("✅ Успішно! Новий баланс: " + data);
-                document.getElementById('balance').innerText = parseFloat(data).toFixed(4);
-            }
-        } catch(e) {
-            alert("Помилка: " + e.message);
-        }
-    }
-
-    async function loadBalance() {
-        try {
-            const { data, error } = await supabase
-                .from('Users')
-                .select('balance')
-                .eq('id', userId)
-                .maybeSingle();
-
-            if (error) alert("Помилка завантаження: " + error.message);
-            else {
-                const bal = data ? parseFloat(data.balance) : 0;
-                document.getElementById('balance').innerText = bal.toFixed(4);
-                alert("Баланс оновлено: " + bal.toFixed(4));
-            }
-        } catch(e) {
-            alert("Помилка: " + e.message);
-        }
-    }
-
-    // Автозапуск
-    document.getElementById('userid').innerText = userId;
-    loadBalance();
-</script>
+<button onclick="alert('✅ Кнопка 1 працює!')">Кнопка 1</button>
+<button onclick="alert('✅ Кнопка 2 працює!')">Кнопка 2</button>
+<button onclick="alert('✅ Кнопка 3 працює!')">Кнопка 3</button>
 
 </body>
 </html>
