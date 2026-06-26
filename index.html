@@ -183,7 +183,6 @@
 
         .nav-item.active .nav-icon { transform: scale(1.15); }
 
-        /* ОНОВЛЕНИЙ КЛІКАБЕЛЬНИЙ КОНТЕЙНЕР ДЛЯ МОНЕТАГ */
         .passive-banner-container {
             position: fixed;
             bottom: 0;
@@ -459,6 +458,7 @@
         }
 
         const MAX_VIEWS = 20;
+        const PASSIVE_MAX_VIEWS = 10; // Правка 3: Максимум 10 ліміт для пасивного банера
         const services = ['service1', 'service2', 'service3', 'service4', 'support'];
         const configRewards = { service1: 0.0004, service2: 0.0002, service3: 0.0002, service4: 0.0004, support: 0.0000 };
         const SECRET_SALT = "woodgrow_secure_9921";
@@ -519,7 +519,7 @@
                 copy_code_btn: "📋 СКОПІЮВАТИ ТЕКСТ",
                 code_copied_success: "✅ ШИФР СКОПІЙОВАНО!",
                 manual_copy: "Затисніть пальцем текст у полі та скопіюйте його вручну.",
-                passive_banner_text: "🎁 КЛІК ДЛЯ БОНУСУ (+0.0001 USDT) 🚀"
+                passive_banner_text: "🎁 КЛІК ДЛЯ БОНУСУ (+0.00001 USDT) 🚀"
             },
             en: {
                 balance_title: "My Balance",
@@ -572,7 +572,7 @@
                 copy_code_btn: "📋 COPY TEXT",
                 code_copied_success: "✅ CIPHER COPIED!",
                 manual_copy: "Press and hold text in the field and copy it manually.",
-                passive_banner_text: "🎁 CLICK FOR BONUS (+0.0001 USDT) 🚀"
+                passive_banner_text: "🎁 CLICK FOR BONUS (+0.00001 USDT) 🚀"
             },
             ru: {
                 balance_title: "Мой Баланс",
@@ -601,8 +601,8 @@
                 copy_link: "📋 Скопировать линк",
                 invite_friend: "🔗 Пригласить друга",
                 modal_success_title: "⚡️ ЗАЯВКА СФОРМИРОВАНА ⚡️",
-                modal_success_desc: "Ваш баланс обнулен. Скопируйте шифр ниже и отправьте админу.",
-                modal_write_admin: "✈️ НАПИСАТЬ АДМИНУ (@VoooodCoin)",
+                modal_success_desc: "Ваш баланс обнулено. Скопируйте шифр ниже и отправьте админу.",
+                modal_write_admin: "✈️ НАПИСАТИ АДМІНУ (@VoooodCoin)",
                 nav_main: "⚙️Главная",
                 nav_tasks: "⚡️Реклама",
                 nav_wallet: "💼Кошелек",
@@ -625,7 +625,7 @@
                 copy_code_btn: "📋 СКОПИРОВАТЬ ТЕКСТ",
                 code_copied_success: "✅ ШИФР СКОПИРОВАН!",
                 manual_copy: "Зажмите пальцем текст в поле и скопируйте его вручную.",
-                passive_banner_text: "🎁 КЛИК ДЛЯ БОНУСУ (+0.0001 USDT) 🚀"
+                passive_banner_text: "🎁 КЛІК ДЛЯ БОНУСУ (+0.00001 USDT) 🚀"
             }
         };
 
@@ -716,6 +716,8 @@
         const lastSavedDay = localStorage.getItem('wg_last_active_day') || '';
         if (todayStr !== lastSavedDay) {
             services.forEach(srv => localStorage.setItem(`wg_views_${srv}`, '0'));
+            localStorage.setItem('wg_views_passive', '0'); 
+            localStorage.removeItem('wg_cooldown_passive'); 
             localStorage.setItem('wg_last_active_day', todayStr);
             viewCounts = { service1: 0, service2: 0, service3: 0, service4: 0, support: 0 };
         }
@@ -846,7 +848,7 @@
             currentWalletAddress = wallet ? wallet.account.address : notConn;
         });
 
-        // ADSGRAM (ЗАЛИШАЄМО СТАБІЛЬНИЙ БЛОК 35910 ДЛЯ КНОПОК)
+        // ADSGRAM
         const AdController = window.Adsgram ? window.Adsgram.init({ blockId: "35910" }) : null;
 
         function watchAdsgram() {
@@ -862,11 +864,32 @@
             }).catch(() => alert(translations[currentLang].video_interrupted));
         }
 
-        // НОВА ФУНКЦІЯ ДЛЯ КЛІКАБЕЛЬНОГО БАНЕРА MONETAG (ЗАМІСТЬ ПРОБЛЕМНОГО ADSGRAM)
+        // ЗАХИЩЕНА ФУНКЦІЯ ДЛЯ БАНЕРА (ЗАХИСТ ВІД АВТОКЛІКЕРІВ)
+        let isPassiveBannerBlocked = false;
+
         function triggerPassiveMonetag() {
+            // Правка 3: Обмеження ліміту (макс 10 на день)
+            let passiveViews = parseInt(localStorage.getItem('wg_views_passive')) || 0;
+            if (passiveViews >= PASSIVE_MAX_VIEWS) {
+                alert(currentLang === 'uk' ? "❌ Ліміт бонусів на сьогодні вичерпано!" : "❌ Bonus limit for today reached!");
+                return;
+            }
+
+            // Правка 1: Кулдаун на 20 хвилин (1200000 мілісекунд)
+            const expireTime = localStorage.getItem('wg_cooldown_passive');
+            if (expireTime && Date.now() < expireTime) {
+                const remainingMin = Math.ceil((expireTime - Date.now()) / 60000);
+                alert(currentLang === 'uk' ? `⏳ Зачекайте ще ${remainingMin} хв перед наступним бонусом!` : `⏳ Wait ${remainingMin} min for the next bonus!`);
+                return;
+            }
+
+            // Правка 2: Захист від швидкого спаму зменшено до 1 секунди (1000 мс)
+            if (isPassiveBannerBlocked) return;
+            isPassiveBannerBlocked = true;
+            setTimeout(() => { isPassiveBannerBlocked = false; }, 1000); 
+
             if (typeof show_11189906 === 'function') {
                 show_11189906().then(() => {
-                    // Користувач подивився рекламу, додаємо мікро-бонус на сервер
                     rewardPassiveBonus();
                 }).catch((err) => {
                     console.error("Monetag closed or skipped:", err);
@@ -874,21 +897,59 @@
             }
         }
 
-        // Мікро-нарахування за клік на банер
+        // Мікро-нарахування за клік на банер + запис обмежень
         async function rewardPassiveBonus() {
             try {
-                let newBalance = balance + 0.0001;
+                // Правка 4: Винагорода зменшена ще на один нуль (тепер +0.00001)
+                let newBalance = balance + 0.00001; 
                 const response = await fetch(`${FIREBASE_BASE_URL}/users/${userId}/balance.json`, {
                     method: 'PUT',
                     body: JSON.stringify(newBalance)
                 });
+                
                 if (response.ok) {
                     balance = newBalance;
                     document.getElementById('user-balance').innerText = balance.toFixed(4);
+                    
+                    let passiveViews = (parseInt(localStorage.getItem('wg_views_passive')) || 0) + 1;
+                    localStorage.setItem('wg_views_passive', passiveViews.toString());
+
+                    // Правка 1: Встановлюємо затримку на 20 хвилин (20 * 60 * 1000 = 1 200 000 мс)
+                    localStorage.setItem('wg_cooldown_passive', (Date.now() + 1200000).toString());
+                    
+                    startPassiveBannerVisualTimer();
                 }
             } catch (err) {
                 console.error("Passive reward error:", err);
             }
+        }
+
+        // Візуальний таймер для нижнього банера
+        function startPassiveBannerVisualTimer() {
+            const bannerText = document.getElementById('txt-passive-banner-banner');
+            if (!bannerText) return;
+
+            let interval = setInterval(() => {
+                const expireTime = localStorage.getItem('wg_cooldown_passive');
+                if (!expireTime) {
+                    clearInterval(interval);
+                    bannerText.innerText = translations[currentLang].passive_banner_text;
+                    return;
+                }
+                
+                const remaining = Math.ceil((expireTime - Date.now()) / 1000);
+                if (remaining <= 0) {
+                    clearInterval(interval);
+                    localStorage.removeItem('wg_cooldown_passive');
+                    bannerText.innerText = translations[currentLang].passive_banner_text;
+                } else {
+                    // Показує хвилини та секунди для зручності при великому кулдауні (20 хв)
+                    const m = Math.floor(remaining / 60);
+                    const s = remaining % 60;
+                    const formatS = s < 10 ? '0' + s : s;
+                    bannerText.innerText = currentLang === 'uk' ? `⏳ ОХОЛОДЖЕННЯ БОНУСУ (${m}:${formatS})` : `⏳ BONUS COOLDOWN (${m}:${formatS})`;
+                }
+            }, 1000);
         }
 
         // MONETAG ДЛЯ SERVICE 4
@@ -1109,6 +1170,13 @@
         }
 
         function goToAdmin() { tg.openTelegramLink("https://t.me/VoooodCoin"); }
+
+        // Запуск візуального таймера при перезавантаженні, якщо кулдаун активний
+        setTimeout(() => {
+            if (localStorage.getItem('wg_cooldown_passive')) {
+                startPassiveBannerVisualTimer();
+            }
+        }, 1000);
 
         initLanguage();
         fetchUserData();
