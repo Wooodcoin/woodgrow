@@ -8,7 +8,6 @@
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     
-    <!-- SDK Monetag -->
     <script src='//libtl.com/sdk.js' data-zone='11189906' data-sdk='show_11189906'></script>
     
     <style>
@@ -282,11 +281,9 @@
 </head>
 <body>
 
-    <!-- КНОПКА ПЛАНЕТИ В ПРАВОМУ ВЕРХНЬОМУ КУТКУ -->
     <div class="lang-top-btn" onclick="openLangModal()">🌐</div>
 
     <div class="container">
-        <!-- ГОЛОВНА -->
         <div id="tab-main" class="tab-content active">
             <div class="card">
                 <div class="balance-title" id="txt-balance-title">Мій Баланс</div>
@@ -331,12 +328,11 @@
             </div>
         </div>
 
-        <!-- РЕКЛАМА -->
         <div id="tab-tasks" class="tab-content">
             <div class="card" style="border: 2px dashed var(--gold-color);">
                 <h3 id="txt-support-title">🎁 Підтримка проєкту</h3>
                 <p style="color: #a1a1aa; font-size: 13px; margin-bottom: 15px;" id="txt-support-desc">
-                    Допоможіть проєкту розвиватися! Цей перегляд добровільний, він сильно допомагає адміну формувати резерв виплат для користувачів.
+                    Допоможіть проєкту розвиватися! Цей перегляд добровільний, він сильно допомагає адміну формивати резерв виплат для користувачів.
                 </p>
                 <div class="service-meta" style="margin-top: 0; margin-bottom: 5px;">
                     <span id="txt-support-meta">Dobrovilne video</span>
@@ -347,7 +343,6 @@
             </div>
         </div>
 
-        <!-- ГАМАНЕЦЬ -->
         <div id="tab-wallet" class="tab-content">
             <div class="card">
                 <h3 id="txt-wallet-connect-title">Підключення гаманця</h3>
@@ -372,7 +367,6 @@
             </div>
         </div>
 
-        <!-- ПРОФІЛЬ -->
         <div id="tab-profile" class="tab-content">
             <div class="card" style="text-align: left;">
                 <h3 style="text-align: center;" id="txt-cabinet-title">👤 Мій кабінет</h3>
@@ -399,7 +393,6 @@
         </div>
     </div>
 
-    <!-- МОДАЛЬНЕ ВІКНО ВИБОРУ МОВИ -->
     <div class="modal-overlay" id="lang-modal">
         <div class="modal-window" style="border-color: var(--gold-color); box-shadow: 0 0 25px rgba(212, 175, 55, 0.4);">
             <h3 style="margin-bottom: 20px;">🌐 Choose Language / Мова</h3>
@@ -410,7 +403,6 @@
         </div>
     </div>
 
-    <!-- ВНУТРІШНЄ ВІКНО ДЛЯ СКОПІЙОВАНОЇ ЗАЯВКИ -->
     <div class="modal-overlay" id="withdraw-modal">
         <div class="modal-window">
             <h3 style="color: var(--neon-green); margin-bottom: 5px;" id="txt-modal-success-title">⚡️ ЗАЯВКА СФОРМОВАНА ⚡️</h3>
@@ -421,7 +413,6 @@
         </div>
     </div>
 
-    <!-- НАВІГАЦІЙНА ПАНЕЛЬ (ПІДНЯТА) -->
     <div class="nav-bar">
         <div class="nav-item active" onclick="switchTab('main', this)" id="nav-btn-main">
             <span class="nav-icon">⚙️</span>Головна
@@ -437,7 +428,6 @@
         </div>
     </div>
 
-    <!-- ПАСИВНИЙ РЕКЛАМНИЙ БАНЕР -->
     <div class="passive-banner-container">
         <div id="banner-passive-adsgram"></div>
     </div>
@@ -866,7 +856,7 @@
         function initPassiveBanner() {
             if (window.Adsgram) {
                 window.Adsgram.init({ 
-                    blockId: "36297", 
+                    blockId: "task-36297", 
                     renderTo: "banner-passive-adsgram",
                     type: "Native" 
                 }).show().catch((err) => {
@@ -1018,6 +1008,7 @@
             }
         }
 
+        // КОПІЮВАННЯ ПОСИЛАННЯ В ПРОВІДНИКУ
         function copyRefLink() {
             navigator.clipboard.writeText(document.getElementById('ref-link').innerText);
             alert(translations[currentLang].copied);
