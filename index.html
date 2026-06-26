@@ -8,7 +8,6 @@
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     
-    <!-- SDK Monetag -->
     <script src='//libtl.com/sdk.js' data-zone='11189906' data-sdk='show_11189906'></script>
     
     <style>
@@ -29,7 +28,8 @@
             color: var(--text-light);
             margin: 0;
             padding: 0;
-            padding-bottom: 100px;
+            /* Збільшуємо відступ знизу, бо тепер там і меню, і банер (65px + 75px + запас) */
+            padding-bottom: 170px;
             box-sizing: border-box;
             -webkit-user-select: none;
             user-select: none;
@@ -115,9 +115,10 @@
             100% { box-shadow: 0 4px 15px rgba(13, 242, 93, 0.4); }
         }
 
+        /* НАВІГАЦІЯ: піднята над банером (bottom: 75px) */
         .nav-bar {
             position: fixed;
-            bottom: 0;
+            bottom: 75px;
             left: 0;
             right: 0;
             height: 65px;
@@ -156,6 +157,21 @@
         }
 
         .nav-item.active .nav-icon { transform: scale(1.15); }
+
+        /* КОНТЕЙНЕР ПАСИВНОГО БАНЕРА: на самому дні (bottom: 0) */
+        .passive-banner-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 75px;
+            background: #000000;
+            border-top: 1px solid rgba(13, 242, 93, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2500;
+        }
 
         #ton-connect-btn { display: flex; justify-content: center; margin: 20px 0; }
         h3 { color: var(--gold-color); margin-top: 0; text-transform: uppercase; font-size: 18px; }
@@ -214,7 +230,6 @@
 <body>
 
     <div class="container">
-        <!-- ГОЛОВНА -->
         <div id="tab-main" class="tab-content active">
             <div class="card">
                 <div class="balance-title">Мій Баланс</div>
@@ -259,7 +274,6 @@
             </div>
         </div>
 
-        <!-- РЕКЛАМА -->
         <div id="tab-tasks" class="tab-content">
             <div class="card" style="border: 2px dashed var(--gold-color);">
                 <h3>🎁 Підтримка проєкту</h3>
@@ -275,7 +289,6 @@
             </div>
         </div>
 
-        <!-- ГАМАНЕЦЬ -->
         <div id="tab-wallet" class="tab-content">
             <div class="card">
                 <h3>Підключення гаманця</h3>
@@ -300,7 +313,6 @@
             </div>
         </div>
 
-        <!-- ПРОФІЛЬ -->
         <div id="tab-profile" class="tab-content">
             <div class="card" style="text-align: left;">
                 <h3 style="text-align: center;">👤 Мій кабінет</h3>
@@ -327,7 +339,6 @@
         </div>
     </div>
 
-    <!-- ВНУТРІШНЄ ВІКНО ДЛЯ СКОПІЙОВАНОЇ ЗАЯВКИ -->
     <div class="modal-overlay" id="withdraw-modal">
         <div class="modal-window">
             <h3 style="color: var(--neon-green); margin-bottom: 5px;">⚡️ ЗАЯВКА СФОРМОВАНА ⚡️</h3>
@@ -338,7 +349,6 @@
         </div>
     </div>
 
-    <!-- НАВІГАЦІЙНА ПАНЕЛЬ -->
     <div class="nav-bar">
         <div class="nav-item active" onclick="switchTab('main', this)">
             <span class="nav-icon">⚙️</span>Головна
@@ -354,24 +364,25 @@
         </div>
     </div>
 
+    <div class="passive-banner-container">
+        <div id="banner-passive-adsgram"></div>
+    </div>
+
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
         const FIREBASE_BASE_URL = "https://woodgrowbot-default-rtdb.europe-west1.firebasedatabase.app";
-        
-        // Твоє Short Name з BotFather
         const APP_SHORT_NAME = "Grow"; 
 
         let currentWalletAddress = "Не підключено";
-        let userId = "6043278492"; // Дефолтний ID для тестів
+        let userId = "6043278492"; 
 
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             userId = tg.initDataUnsafe.user.id.toString();
         }
         
         document.getElementById('user-id').innerText = userId;
-        // Реферальний лінк під Mini App Direct Link
         document.getElementById('ref-link').innerText = `https://t.me/WoodGrowCoinBot/${APP_SHORT_NAME}?startapp=${userId}`;
 
         const MAX_VIEWS = 20;
@@ -418,14 +429,11 @@
 
         async function fetchUserData() {
             try {
-                // Запит до таблиці users (з маленької літери)
                 const res = await fetch(`${FIREBASE_BASE_URL}/users/${userId}.json`);
                 let user = await res.json();
 
                 if (!user) {
                     let referrerId = null;
-                    
-                    // Зчитуємо правильний параметр startapp з Telegram
                     if (tg.initDataUnsafe && tg.initDataUnsafe.start_param) {
                         const startParam = tg.initDataUnsafe.start_param.toString().trim();
                         if (startParam && startParam !== userId) {
@@ -435,13 +443,11 @@
 
                     user = { id: userId, balance: 0.0000, referred_by: referrerId, ref_bonus: 0.0000 };
                     
-                    // Запис нового юзера в таблицю users з малої літери
                     await fetch(`${FIREBASE_BASE_URL}/users/${userId}.json`, {
                         method: 'PUT',
                         body: JSON.stringify(user)
                     });
 
-                    // Запис у реферальну таблицю
                     if (referrerId) {
                         await fetch(`${FIREBASE_BASE_URL}/referrals/${referrerId}/${userId}.json`, {
                             method: 'PUT',
@@ -526,7 +532,7 @@
             currentWalletAddress = wallet ? wallet.account.address : "Не підключено";
         });
 
-        // ADSGRAM
+        // ADSGRAM (ВІДЕО З НАГОРОДОЮ)
         const AdController = window.Adsgram ? window.Adsgram.init({ blockId: "35910" }) : null;
 
         function watchAdsgram() {
@@ -542,10 +548,22 @@
             }).catch(() => alert("Відео перервано."));
         }
 
+        // ІНІЦІАЛІЗАЦІЯ ПАСИВНОГО БАНЕРА ADSGRAM (Task-36297)
+        function initPassiveBanner() {
+            if (window.Adsgram) {
+                window.Adsgram.init({ 
+                    blockId: "36297", 
+                    renderTo: "banner-passive-adsgram",
+                    type: "Native" 
+                }).show().catch((err) => {
+                    console.error("Пасивний банер не завантажився або порожній:", err);
+                });
+            }
+        }
+
         // MONETAG
         function watchMonetag() {
             if (viewCounts['service4'] >= MAX_VIEWS) return;
-            
             if (typeof show_11189906 === 'function') {
                 try {
                     show_11189906().then(() => {
@@ -561,7 +579,7 @@
             }
         }
 
-        // DIRECT LINKS TIMER (СЕРВІС 2 ТА 3)
+        // DIRECT LINKS TIMER
         function startDirectLinkTimer(serviceKey, url) {
             if (viewCounts[serviceKey] >= MAX_VIEWS) return;
             const btn = document.getElementById(`btn-${serviceKey}`);
@@ -599,8 +617,6 @@
 
             try {
                 let newBalance = balance + reward;
-                
-                // Запит до таблиці users з маленької літери
                 const response = await fetch(`${FIREBASE_BASE_URL}/users/${userId}/balance.json`, {
                     method: 'PUT',
                     body: JSON.stringify(newBalance)
@@ -614,7 +630,6 @@
                     localStorage.setItem(`wg_views_${serviceKey}`, viewCounts[serviceKey].toString());
                     updateLimitUI(serviceKey);
 
-                    // Зчитування реферера з маленької літери users
                     const userRes = await fetch(`${FIREBASE_BASE_URL}/users/${userId}.json`);
                     const userData = await userRes.json();
                     if (userData && userData.referred_by && reward > 0) {
@@ -633,7 +648,6 @@
 
         async function giveReferralBonus(referrerId, rewardAmount) {
             try {
-                // Зчитування даних реферера з маленької літери users
                 const refRes = await fetch(`${FIREBASE_BASE_URL}/users/${referrerId}.json`);
                 const referrerData = await refRes.json();
                 if (referrerData) {
@@ -641,7 +655,6 @@
                     let newRefBalance = (parseFloat(referrerData.balance) || 0) + bonus;
                     let newRefBonusTotal = (parseFloat(referrerData.ref_bonus) || 0) + bonus;
 
-                    // Оновлення полів реферера з маленької літери users
                     await fetch(`${FIREBASE_BASE_URL}/users/${referrerId}/balance.json`, {
                         method: 'PUT',
                         body: JSON.stringify(newRefBalance)
@@ -702,7 +715,6 @@
             tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent("👋 Заробляй зі мною в WoodGrow!")}`);
         }
 
-        // ЗАЯВКА НА ВИВЕДЕННЯ
         async function withdrawFunds() {
             if (!tonConnectUI.connected || currentWalletAddress === "Не підключено") {
                 alert("❌ Спочатку підключіть ваш TON-гаманець!");
@@ -722,7 +734,6 @@
             const securityCheckCode = generateHash(balance);
 
             try {
-                // Оновлення балансу з маленької літери users
                 const response = await fetch(`${FIREBASE_BASE_URL}/users/${userId}/balance.json`, {
                     method: 'PUT',
                     body: JSON.stringify(0.0000)
@@ -767,6 +778,8 @@
 
         // ЗАПУСК ДОДАТКА
         fetchUserData();
+        // Запуск пасивного рек-блоку
+        initPassiveBanner();
     </script>
 </body>
 </html>
