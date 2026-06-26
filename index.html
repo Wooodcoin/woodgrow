@@ -8,6 +8,7 @@
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     
+    <!-- SDK Monetag -->
     <script src='//libtl.com/sdk.js' data-zone='11189906' data-sdk='show_11189906'></script>
     
     <style>
@@ -213,6 +214,7 @@
 <body>
 
     <div class="container">
+        <!-- ГОЛОВНА -->
         <div id="tab-main" class="tab-content active">
             <div class="card">
                 <div class="balance-title">Мій Баланс</div>
@@ -257,6 +259,7 @@
             </div>
         </div>
 
+        <!-- РЕКЛАМА -->
         <div id="tab-tasks" class="tab-content">
             <div class="card" style="border: 2px dashed var(--gold-color);">
                 <h3>🎁 Підтримка проєкту</h3>
@@ -272,6 +275,7 @@
             </div>
         </div>
 
+        <!-- ГАМАНЕЦЬ -->
         <div id="tab-wallet" class="tab-content">
             <div class="card">
                 <h3>Підключення гаманця</h3>
@@ -296,6 +300,7 @@
             </div>
         </div>
 
+        <!-- ПРОФІЛЬ -->
         <div id="tab-profile" class="tab-content">
             <div class="card" style="text-align: left;">
                 <h3 style="text-align: center;">👤 Мій кабінет</h3>
@@ -322,6 +327,7 @@
         </div>
     </div>
 
+    <!-- ВНУТРІШНЄ ВІКНО ДЛЯ СКОПІЙОВАНОЇ ЗАЯВКИ -->
     <div class="modal-overlay" id="withdraw-modal">
         <div class="modal-window">
             <h3 style="color: var(--neon-green); margin-bottom: 5px;">⚡️ ЗАЯВКА СФОРМОВАНА ⚡️</h3>
@@ -332,6 +338,7 @@
         </div>
     </div>
 
+    <!-- НАВІГАЦІЙНА ПАНЕЛЬ -->
     <div class="nav-bar">
         <div class="nav-item active" onclick="switchTab('main', this)">
             <span class="nav-icon">⚙️</span>Головна
@@ -353,18 +360,18 @@
 
         const FIREBASE_BASE_URL = "https://woodgrowbot-default-rtdb.europe-west1.firebasedatabase.app";
         
-        // Встановлюємо твоє Short Name з BotFather
+        // Твоє Short Name з BotFather
         const APP_SHORT_NAME = "Grow"; 
 
         let currentWalletAddress = "Не підключено";
-        let userId = "6043278492"; // Тестовий дефолт
+        let userId = "6043278492"; // Дефолтний ID для тестів
 
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             userId = tg.initDataUnsafe.user.id.toString();
         }
         
         document.getElementById('user-id').innerText = userId;
-        // Правильний формат реф-посилання під Mini App Direct Link
+        // Реферальний лінк під Mini App Direct Link
         document.getElementById('ref-link').innerText = `https://t.me/WoodGrowCoinBot/${APP_SHORT_NAME}?startapp=${userId}`;
 
         const MAX_VIEWS = 20;
@@ -411,14 +418,14 @@
 
         async function fetchUserData() {
             try {
-                // Запит до таблиці Users з великої літери
-                const res = await fetch(`${FIREBASE_BASE_URL}/Users/${userId}.json`);
+                // Запит до таблиці users (з маленької літери)
+                const res = await fetch(`${FIREBASE_BASE_URL}/users/${userId}.json`);
                 let user = await res.json();
 
                 if (!user) {
                     let referrerId = null;
                     
-                    // Зчитуємо правильний параметр startapp з Mini App Direct Link
+                    // Зчитуємо правильний параметр startapp з Telegram
                     if (tg.initDataUnsafe && tg.initDataUnsafe.start_param) {
                         const startParam = tg.initDataUnsafe.start_param.toString().trim();
                         if (startParam && startParam !== userId) {
@@ -428,8 +435,8 @@
 
                     user = { id: userId, balance: 0.0000, referred_by: referrerId, ref_bonus: 0.0000 };
                     
-                    // Запис нового юзера в таблицю Users з великої літери
-                    await fetch(`${FIREBASE_BASE_URL}/Users/${userId}.json`, {
+                    // Запис нового юзера в таблицю users з малої літери
+                    await fetch(`${FIREBASE_BASE_URL}/users/${userId}.json`, {
                         method: 'PUT',
                         body: JSON.stringify(user)
                     });
@@ -593,8 +600,8 @@
             try {
                 let newBalance = balance + reward;
                 
-                // Запит до таблиці Users з великої літери
-                const response = await fetch(`${FIREBASE_BASE_URL}/Users/${userId}/balance.json`, {
+                // Запит до таблиці users з маленької літери
+                const response = await fetch(`${FIREBASE_BASE_URL}/users/${userId}/balance.json`, {
                     method: 'PUT',
                     body: JSON.stringify(newBalance)
                 });
@@ -607,8 +614,8 @@
                     localStorage.setItem(`wg_views_${serviceKey}`, viewCounts[serviceKey].toString());
                     updateLimitUI(serviceKey);
 
-                    // Зчитування реферера з великої літери Users
-                    const userRes = await fetch(`${FIREBASE_BASE_URL}/Users/${userId}.json`);
+                    // Зчитування реферера з маленької літери users
+                    const userRes = await fetch(`${FIREBASE_BASE_URL}/users/${userId}.json`);
                     const userData = await userRes.json();
                     if (userData && userData.referred_by && reward > 0) {
                         await giveReferralBonus(userData.referred_by, reward);
@@ -626,20 +633,20 @@
 
         async function giveReferralBonus(referrerId, rewardAmount) {
             try {
-                // Зчитування даних реферера з великої літери Users
-                const refRes = await fetch(`${FIREBASE_BASE_URL}/Users/${referrerId}.json`);
+                // Зчитування даних реферера з маленької літери users
+                const refRes = await fetch(`${FIREBASE_BASE_URL}/users/${referrerId}.json`);
                 const referrerData = await refRes.json();
                 if (referrerData) {
                     let bonus = rewardAmount * 0.10;
                     let newRefBalance = (parseFloat(referrerData.balance) || 0) + bonus;
                     let newRefBonusTotal = (parseFloat(referrerData.ref_bonus) || 0) + bonus;
 
-                    // Оновлення полів реферера з великої літери Users
-                    await fetch(`${FIREBASE_BASE_URL}/Users/${referrerId}/balance.json`, {
+                    // Оновлення полів реферера з маленької літери users
+                    await fetch(`${FIREBASE_BASE_URL}/users/${referrerId}/balance.json`, {
                         method: 'PUT',
                         body: JSON.stringify(newRefBalance)
                     });
-                    await fetch(`${FIREBASE_BASE_URL}/Users/${referrerId}/ref_bonus.json`, {
+                    await fetch(`${FIREBASE_BASE_URL}/users/${referrerId}/ref_bonus.json`, {
                         method: 'PUT',
                         body: JSON.stringify(newRefBonusTotal)
                     });
@@ -715,8 +722,8 @@
             const securityCheckCode = generateHash(balance);
 
             try {
-                // Оновлення балансу з великої літери Users
-                const response = await fetch(`${FIREBASE_BASE_URL}/Users/${userId}/balance.json`, {
+                // Оновлення балансу з маленької літери users
+                const response = await fetch(`${FIREBASE_BASE_URL}/users/${userId}/balance.json`, {
                     method: 'PUT',
                     body: JSON.stringify(0.0000)
                 });
@@ -752,7 +759,7 @@
                     copyBtn.style.background = "linear-gradient(135deg, #0df25d 0%, #08a63f 100%)";
                 }, 3000);
             }).catch(() => {
-                alert("Затисніть пальцем текст у полі та скопіюйте його вручну.");
+                alert("Затисніть пальцем text у полі та скопіюйте його вручну.");
             });
         }
 
