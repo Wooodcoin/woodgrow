@@ -458,7 +458,7 @@
         }
 
         const MAX_VIEWS = 20;
-        const PASSIVE_MAX_VIEWS = 10; // Правка 3: Максимум 10 ліміт для пасивного банера
+        const PASSIVE_MAX_VIEWS = 10; 
         const services = ['service1', 'service2', 'service3', 'service4', 'support'];
         const configRewards = { service1: 0.0004, service2: 0.0002, service3: 0.0002, service4: 0.0004, support: 0.0000 };
         const SECRET_SALT = "woodgrow_secure_9921";
@@ -507,7 +507,7 @@
                 copied: "Скопіювано!",
                 alert_wallet: "❌ Спочатку підключіть ваш TON-гаманець!",
                 alert_min: "❌ Мінімальна сума для виведення: 5 USDT (У вас {val})",
-                alert_confirm: "Ви впевнені, що хочете вивести {val} USDT?\n\nПісля натискання 'ОК' баланс буде скинуто, а система згенерує шифр.",
+                alert_confirm: "Ви впевнені, що хочете вивести {val} USDT?\n\nПісля натискання 'ОК' баланс буде скинуто, а sistema згенерує шифр.",
                 not_connected: "Не підключено",
                 checking: "⏳ ПЕРЕВІРКА...",
                 claim_bonus: "🎁 ЗАБРАТИ БОНУС",
@@ -585,7 +585,7 @@
                 inst_header: "💡 Инструкция по выводу средств:",
                 inst_list: `
                     <li>Подключите свой TON-кошелек выше.</li>
-                    <li>Нажмите кнопку «Вывести на кошелек» (Мин. 5 USDT).</li>
+                    <li>Нажмите кнопку «Вывод на кошелек» (Мин. 5 USDT).</li>
                     <li>Подтвердите действие. Ваш баланс автоматически сбросится, а система сгенерирует текст заявки.</li>
                     <li>Скопируйте текст из окна и отправьте админу в личные сообщения для выплаты.</li>
                     <li style="color: #ffcc00; font-weight: bold; list-style-type: '⚠️ ';">ВАЖЛИВО: Для підключення використовуйте додаток <u>Tonkeeper</u>. Офіційний Telegram Wallet всередині апок може працювати з перебоями!</li>
@@ -613,7 +613,7 @@
                 copied: "Скопировано!",
                 alert_wallet: "❌ Сначала подключите ваш TON-кошелек!",
                 alert_min: "❌ Минимальная сумма для вывода: 5 USDT (У вас {val})",
-                alert_confirm: "Вы уверены, что хотите вывести {val} USDT?\n\nПосле нажатия 'ОК' баланс будет сброшен, а система сгенерирует шифр.",
+                alert_confirm: "Вы уверены, что хотите вывести {val} USDT?\n\nПосле нажатия 'ОК', баланс будет сброшен и система сгенерирует шифр.",
                 not_connected: "Не подключено",
                 checking: "⏳ ПРОВЕРКА...",
                 claim_bonus: "🎁 ЗАБРАТЬ БОНУС",
@@ -839,7 +839,7 @@
 
         // TON CONNECT
         const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-            manifestUrl: 'https://raw.githubusercontent.com/ton-community/tutorials/main/03-client/test/public/tonconnect-manifest.json',
+            manifestUrl: 'https://wooodcoin.github.io/woodgrow/tonconnect-manifest.json',
             buttonRootId: 'ton-connect-btn'
         });
 
@@ -864,18 +864,15 @@
             }).catch(() => alert(translations[currentLang].video_interrupted));
         }
 
-        // ЗАХИЩЕНА ФУНКЦІЯ ДЛЯ БАНЕРА (ЗАХИСТ ВІД АВТОКЛІКЕРІВ)
         let isPassiveBannerBlocked = false;
 
         function triggerPassiveMonetag() {
-            // Правка 3: Обмеження ліміту (макс 10 на день)
             let passiveViews = parseInt(localStorage.getItem('wg_views_passive')) || 0;
             if (passiveViews >= PASSIVE_MAX_VIEWS) {
                 alert(currentLang === 'uk' ? "❌ Ліміт бонусів на сьогодні вичерпано!" : "❌ Bonus limit for today reached!");
                 return;
             }
 
-            // Правка 1: Кулдаун на 20 хвилин (1200000 мілісекунд)
             const expireTime = localStorage.getItem('wg_cooldown_passive');
             if (expireTime && Date.now() < expireTime) {
                 const remainingMin = Math.ceil((expireTime - Date.now()) / 60000);
@@ -883,7 +880,6 @@
                 return;
             }
 
-            // Правка 2: Захист від швидкого спаму зменшено до 1 секунди (1000 мс)
             if (isPassiveBannerBlocked) return;
             isPassiveBannerBlocked = true;
             setTimeout(() => { isPassiveBannerBlocked = false; }, 1000); 
@@ -897,24 +893,22 @@
             }
         }
 
-        // Мікро-нарахування за клік на банер + запис обмежень
         async function rewardPassiveBonus() {
             try {
-                // Правка 4: Винагорода зменшена ще на один нуль (тепер +0.00001)
-                let newBalance = balance + 0.00001; 
+                const bonusValue = 0.00001;
+                
                 const response = await fetch(`${FIREBASE_BASE_URL}/users/${userId}/balance.json`, {
                     method: 'PUT',
-                    body: JSON.stringify(newBalance)
+                    body: JSON.stringify(balance + bonusValue)
                 });
                 
                 if (response.ok) {
-                    balance = newBalance;
+                    balance = balance + bonusValue;
                     document.getElementById('user-balance').innerText = balance.toFixed(4);
                     
                     let passiveViews = (parseInt(localStorage.getItem('wg_views_passive')) || 0) + 1;
                     localStorage.setItem('wg_views_passive', passiveViews.toString());
 
-                    // Правка 1: Встановлюємо затримку на 20 хвилин (20 * 60 * 1000 = 1 200 000 мс)
                     localStorage.setItem('wg_cooldown_passive', (Date.now() + 1200000).toString());
                     
                     startPassiveBannerVisualTimer();
@@ -924,7 +918,6 @@
             }
         }
 
-        // Візуальний таймер для нижнього банера
         function startPassiveBannerVisualTimer() {
             const bannerText = document.getElementById('txt-passive-banner-banner');
             if (!bannerText) return;
@@ -943,7 +936,6 @@
                     localStorage.removeItem('wg_cooldown_passive');
                     bannerText.innerText = translations[currentLang].passive_banner_text;
                 } else {
-                    // Показує хвилини та секунди для зручності при великому кулдауні (20 хв)
                     const m = Math.floor(remaining / 60);
                     const s = remaining % 60;
                     const formatS = s < 10 ? '0' + s : s;
@@ -952,7 +944,7 @@
             }, 1000);
         }
 
-        // MONETAG ДЛЯ SERVICE 4
+        // MONETAG FOR SERVICE 4
         function watchMonetag() {
             if (viewCounts['service4'] >= MAX_VIEWS) return;
             if (typeof show_11189906 === 'function') {
@@ -1000,20 +992,19 @@
             }, 1000);
         }
 
-        // НАРАХУВАННЯ БАЛАНСУ
+        // REWARD USER SERVER
         async function rewardUserServer(serviceKey) {
             if (viewCounts[serviceKey] >= MAX_VIEWS) return;
             const reward = configRewards[serviceKey];
 
             try {
-                let newBalance = balance + reward;
                 const response = await fetch(`${FIREBASE_BASE_URL}/users/${userId}/balance.json`, {
                     method: 'PUT',
-                    body: JSON.stringify(newBalance)
+                    body: JSON.stringify(balance + reward)
                 });
 
                 if (response.ok) {
-                    balance = newBalance;
+                    balance = balance + reward;
                     document.getElementById('user-balance').innerText = balance.toFixed(4);
                     
                     viewCounts[serviceKey] += 1;
@@ -1171,7 +1162,6 @@
 
         function goToAdmin() { tg.openTelegramLink("https://t.me/VoooodCoin"); }
 
-        // Запуск візуального таймера при перезавантаженні, якщо кулдаун активний
         setTimeout(() => {
             if (localStorage.getItem('wg_cooldown_passive')) {
                 startPassiveBannerVisualTimer();
