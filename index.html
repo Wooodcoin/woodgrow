@@ -8,6 +8,7 @@
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     
+    <!-- SDK Monetag -->
     <script src='//libtl.com/sdk.js' data-zone='11189906' data-sdk='show_11189906'></script>
     
     <style>
@@ -28,11 +29,39 @@
             color: var(--text-light);
             margin: 0;
             padding: 0;
-            /* Збільшуємо відступ знизу, бо тепер там і меню, і банер (65px + 75px + запас) */
+            /* Відступ зверху для кнопки мови та знизу для меню + банера */
+            padding-top: 65px;
             padding-bottom: 170px;
             box-sizing: border-box;
             -webkit-user-select: none;
             user-select: none;
+        }
+
+        /* КНОПКА ПЕРЕМИКАННЯ МОВИ ЗВЕРХУ */
+        .lang-top-btn {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1.5px solid var(--gold-color);
+            color: var(--text-light);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 2800;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .lang-top-btn:active {
+            border-color: var(--neon-green);
+            box-shadow: 0 0 12px var(--neon-green);
+            transform: scale(0.95);
         }
 
         .container { padding: 20px; }
@@ -158,7 +187,7 @@
 
         .nav-item.active .nav-icon { transform: scale(1.15); }
 
-        /* КОНТЕЙНЕР ПАСИВНОГО БАНЕРА: на самому дні (bottom: 0) */
+        /* КОНТЕЙНЕР ПАСИВНОГО БАНЕРА */
         .passive-banner-container {
             position: fixed;
             bottom: 0;
@@ -177,6 +206,30 @@
         h3 { color: var(--gold-color); margin-top: 0; text-transform: uppercase; font-size: 18px; }
         .instruction-list { text-align: left; font-size: 13px; color: #a1a1aa; line-height: 1.6; padding-left: 20px; margin: 15px 0; }
 
+        /* МУЛЬТИМОВНІ КНОПКИ У ВІКНІ */
+        .lang-select-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-bottom: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .lang-select-btn:active {
+            background: rgba(13, 242, 93, 0.1);
+            border-color: var(--neon-green);
+        }
+
+        /* ЗАГАЛЬНІ МОДАЛЬНІ ВІКНА */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -229,59 +282,64 @@
 </head>
 <body>
 
+    <!-- КНОПКА ПЛАНЕТИ В ПРАВОМУ ВЕРХНЬОМУ КУТКУ -->
+    <div class="lang-top-btn" onclick="openLangModal()">🌐</div>
+
     <div class="container">
+        <!-- ГОЛОВНА -->
         <div id="tab-main" class="tab-content active">
             <div class="card">
-                <div class="balance-title">Мій Баланс</div>
+                <div class="balance-title" id="txt-balance-title">Мій Баланс</div>
                 <div class="balance-value"><span id="user-balance">0.0000</span> USDT</div>
-                <p style="color: var(--neon-green); font-size: 13px; font-weight: bold; margin-bottom: 0;">⚡️ ОБЕРІТЬ ПЛАТФОРМУ ДЛЯ ЗАРОБІТКУ:</p>
+                <p style="color: var(--neon-green); font-size: 13px; font-weight: bold; margin-bottom: 0;" id="txt-choose-platform">⚡️ ОБЕРІТЬ ПЛАТФОРМУ ДЛЯ ЗАРОБІТКУ:</p>
             </div>
             
             <div style="margin-bottom: 15px;">
                 <div class="service-meta">
-                    <span>Сервіс 1 (Adsgram Video)</span>
+                    <span id="txt-srv1-title">Service 1</span>
                     <span id="timer-service1" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
                     <span id="limit-service1" class="limit-indicator">0 / 20</span>
                 </div>
-                <button class="btn" id="btn-service1" onclick="handleBtnClick('service1', watchAdsgram)">СЕРВІС 1 (+0.0004)</button>
+                <button class="btn" id="btn-service1" onclick="handleBtnClick('service1', watchAdsgram)">Service 1 (+0.0004)</button>
             </div>
 
             <div style="margin-bottom: 15px;">
                 <div class="service-meta">
-                    <span>Сервіс 2 (Adsterra Link)</span>
+                    <span id="txt-srv2-title">Service 2</span>
                     <span id="timer-service2" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
                     <span id="limit-service2" class="limit-indicator">0 / 20</span>
                 </div>
-                <button class="btn" id="btn-service2" onclick="startDirectLinkTimer('service2', 'https://www.effectivecpmnetwork.com/gbzuytbhy?key=8595ffd9c4e7bfcd3fbacb124a4b0c74')">СЕРВІС 2 (+0.0002)</button>
+                <button class="btn" id="btn-service2" onclick="startDirectLinkTimer('service2', 'https://www.effectivecpmnetwork.com/gbzuytbhy?key=8595ffd9c4e7bfcd3fbacb124a4b0c74')">Service 2 (+0.0002)</button>
             </div>
 
             <div style="margin-bottom: 15px;">
                 <div class="service-meta">
-                    <span>Сервіс 3 (HilltopAds Link)</span>
+                    <span id="txt-srv3-title">Service 3</span>
                     <span id="timer-service3" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
                     <span id="limit-service3" class="limit-indicator">0 / 20</span>
                 </div>
-                <button class="btn" id="btn-service3" onclick="startDirectLinkTimer('service3', 'https://affectionatestorage.com/gQiXSO')">СЕРВІС 3 (+0.0002)</button>
+                <button class="btn" id="btn-service3" onclick="startDirectLinkTimer('service3', 'https://affectionatestorage.com/gQiXSO')">Service 3 (+0.0002)</button>
             </div>
 
             <div style="margin-bottom: 15px;">
                 <div class="service-meta">
-                    <span>Сервіс 4 (Monetag SDK)</span>
+                    <span id="txt-srv4-title">Service 4</span>
                     <span id="timer-service4" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
                     <span id="limit-service4" class="limit-indicator">0 / 20</span>
                 </div>
-                <button class="btn" id="btn-service4" onclick="handleBtnClick('service4', watchMonetag)">СЕРВІС 4 (+0.0004)</button>
+                <button class="btn" id="btn-service4" onclick="handleBtnClick('service4', watchMonetag)">Service 4 (+0.0004)</button>
             </div>
         </div>
 
+        <!-- РЕКЛАМА -->
         <div id="tab-tasks" class="tab-content">
             <div class="card" style="border: 2px dashed var(--gold-color);">
-                <h3>🎁 Підтримка проєкту</h3>
-                <p style="color: #a1a1aa; font-size: 13px; margin-bottom: 15px;">
+                <h3 id="txt-support-title">🎁 Підтримка проєкту</h3>
+                <p style="color: #a1a1aa; font-size: 13px; margin-bottom: 15px;" id="txt-support-desc">
                     Допоможіть проєкту розвиватися! Цей перегляд добровільний, він сильно допомагає адміну формувати резерв виплат для користувачів.
                 </p>
                 <div class="service-meta" style="margin-top: 0; margin-bottom: 5px;">
-                    <span>Dobrovilne video</span>
+                    <span id="txt-support-meta">Dobrovilne video</span>
                     <span id="timer-support" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
                     <span id="limit-support" class="limit-indicator">0 / 20</span>
                 </div>
@@ -289,18 +347,19 @@
             </div>
         </div>
 
+        <!-- ГАМАНЕЦЬ -->
         <div id="tab-wallet" class="tab-content">
             <div class="card">
-                <h3>Підключення гаманця</h3>
-                <p style="color: #a1a1aa; font-size: 14px;">Підключіть свій TON-гаманець для фіксавої адреси в заявках.</p>
+                <h3 id="txt-wallet-connect-title">Підключення гаманця</h3>
+                <p style="color: #a1a1aa; font-size: 14px;" id="txt-wallet-connect-desc">Підключіть свій TON-гаманець для фіксавої адреси в заявках.</p>
                 <div id="ton-connect-btn"></div>
             </div>
 
             <div class="card">
-                <h3>Виведення коштів</h3>
+                <h3 id="txt-withdraw-title">Виведення коштів</h3>
                 <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 10px; border: 1px solid rgba(212,175,55,0.3);">
-                    <h4 style="margin: 0; font-size: 14px; color: var(--gold-color); text-align: left;">💡 Інструкція з виведення коштів:</h4>
-                    <ol class="instruction-list">
+                    <h4 style="margin: 0; font-size: 14px; color: var(--gold-color); text-align: left;" id="txt-inst-header">💡 Інструкція з виведення коштів:</h4>
+                    <ol class="instruction-list" id="txt-inst-list">
                         <li>Підключіть свій TON-гаманець вище.</li>
                         <li>Натисніть кнопку «Вивести на гаманець» (Мін. 5 USDT).</li>
                         <li>Підтвердіть дію. Ваш баланс автоматично скинеться, а система згенерує текст заявки.</li>
@@ -308,62 +367,77 @@
                         <li style="color: #ffcc00; font-weight: bold; list-style-type: '⚠️ ';">ВАЖЛИВО: Для підключення використовуйте додаток <u>Tonkeeper</u>. Офіційний Telegram Wallet всередині апок може працювати з перебоями!</li>
                     </ol>
                 </div>
-                <p style="font-size: 14px; text-align: left; color: #a1a1aa; margin-top: 15px;">Мінімальна сума: <span style="color: var(--neon-green); font-weight: bold;">5 USDT</span></p>
-                <button class="btn" onclick="withdrawFunds()">💸 Вивести на гаманець</button>
+                <p style="font-size: 14px; text-align: left; color: #a1a1aa; margin-top: 15px;"><span id="txt-min-sum-label">Мінімальна сума:</span> <span style="color: var(--neon-green); font-weight: bold;">5 USDT</span></p>
+                <button class="btn" onclick="withdrawFunds()" id="btn-withdraw-action">💸 Вивести на гаманець</button>
             </div>
         </div>
 
+        <!-- ПРОФІЛЬ -->
         <div id="tab-profile" class="tab-content">
             <div class="card" style="text-align: left;">
-                <h3 style="text-align: center;">👤 Мій кабінет</h3>
-                <p><strong>Ваш Telegram ID:</strong> <span id="user-id" style="color: var(--neon-green);">Завантаження...</span></p>
+                <h3 style="text-align: center;" id="txt-cabinet-title">👤 Мій кабінет</h3>
+                <p><strong id="txt-tgid-label">Ваш Telegram ID:</strong> <span id="user-id" style="color: var(--neon-green);">Завантаження...</span></p>
                 <div class="stats-grid">
                     <div class="stat-box">
-                        <div class="stat-box-title">Реферали</div>
+                        <div class="stat-box-title" id="txt-stat-ref">Реферали</div>
                         <div class="stat-box-value" id="ref-count">0 чол.</div>
                     </div>
                     <div class="stat-box">
-                        <div class="stat-box-title">Ref Бонус</div>
+                        <div class="stat-box-title" id="txt-stat-bonus">Ref Бонус</div>
                         <div class="stat-box-value" id="ref-bonus">0.0000 USDT</div>
                     </div>
                 </div>
             </div>
 
             <div class="card">
-                <h3>Партнерська програма</h3>
-                <p style="color: #a1a1aa; font-size: 14px;">Отримуйте фіксовані +10% від кожного перегляду реклами вашими друзями!</p>
+                <h3 id="txt-partner-title">Партнерська програма</h3>
+                <p style="color: #a1a1aa; font-size: 14px;" id="txt-partner-desc">Отримуйте фіксовані +10% від кожного перегляду реклами вашими друзями!</p>
                 <div class="ref-box" id="ref-link" style="background-color: rgba(0, 0, 0, 0.4); padding: 12px; border-radius: 8px; font-size: 14px; color: var(--neon-green); word-break: break-all; margin: 15px 0; border: 1px dashed var(--neon-green);">Завантаження посилання...</div>
-                <button class="btn btn-secondary" style="background: none; border: 2px solid var(--gold-color); color: var(--gold-color);" onclick="copyRefLink()">📋 Скопіювати лінк</button>
-                <button class="btn" onclick="shareBot()">🔗 Запросити друга</button>
+                <button class="btn btn-secondary" style="background: none; border: 2px solid var(--gold-color); color: var(--gold-color);" onclick="copyRefLink()" id="btn-copy-link">📋 Скопіювати лінк</button>
+                <button class="btn" onclick="shareBot()" id="btn-invite-friend">🔗 Запросити друга</button>
             </div>
         </div>
     </div>
 
-    <div class="modal-overlay" id="withdraw-modal">
-        <div class="modal-window">
-            <h3 style="color: var(--neon-green); margin-bottom: 5px;">⚡️ ЗАЯВКА СФОРМОВАНА ⚡️</h3>
-            <p style="font-size: 12px; color: #a1a1aa; margin: 0;">Ваш баланс обнулено. Скопіюйте шифр нижче та надішліть адміну.</p>
-            <textarea class="modal-textarea" id="modal-text-field" readonly></textarea>
-            <button class="btn" id="modal-copy-btn" style="background: linear-gradient(135deg, #0df25d 0%, #08a63f 100%); color: #000;" onclick="copyModalText()">📋 СКОПІЮВАТИ ТЕКСТ</button>
-            <button class="btn" style="background: none; border: 2px solid #ffffff; color: #ffffff; margin-top: 10px;" onclick="goToAdmin()">✈️ НАПИСАТИ АДМІНУ (@VoooodCoin)</button>
+    <!-- МОДАЛЬНЕ ВІКНО ВИБОРУ МОВИ -->
+    <div class="modal-overlay" id="lang-modal">
+        <div class="modal-window" style="border-color: var(--gold-color); box-shadow: 0 0 25px rgba(212, 175, 55, 0.4);">
+            <h3 style="margin-bottom: 20px;">🌐 Choose Language / Мова</h3>
+            <button class="lang-select-btn" onclick="selectLanguage('uk')"><span>🇺🇦 Українська</span> <span>➔</span></button>
+            <button class="lang-select-btn" onclick="selectLanguage('en')"><span>🇬🇧 English</span> <span>➔</span></button>
+            <button class="lang-select-btn" onclick="selectLanguage('ru')"><span>🇷🇺 Русский</span> <span>➔</span></button>
+            <button class="btn" style="background: none; border: 1px solid #71717a; color: #71717a; margin-top: 15px;" onclick="closeLangModal()">Close / Закрити</button>
         </div>
     </div>
 
+    <!-- ВНУТРІШНЄ ВІКНО ДЛЯ СКОПІЙОВАНОЇ ЗАЯВКИ -->
+    <div class="modal-overlay" id="withdraw-modal">
+        <div class="modal-window">
+            <h3 style="color: var(--neon-green); margin-bottom: 5px;" id="txt-modal-success-title">⚡️ ЗАЯВКА СФОРМОВАНА ⚡️</h3>
+            <p style="font-size: 12px; color: #a1a1aa; margin: 0;" id="txt-modal-success-desc">Ваш баланс обнулено. Скопіюйте шифр нижче та надішліть адміну.</p>
+            <textarea class="modal-textarea" id="modal-text-field" readonly></textarea>
+            <button class="btn" id="modal-copy-btn" style="background: linear-gradient(135deg, #0df25d 0%, #08a63f 100%); color: #000;" onclick="copyModalText()">📋 СКОПІЮВАТИ ТЕКСТ</button>
+            <button class="btn" style="background: none; border: 2px solid #ffffff; color: #ffffff; margin-top: 10px;" onclick="goToAdmin()" id="btn-modal-write-admin">✈️ НАПИСАТИ АДМІНУ (@VoooodCoin)</button>
+        </div>
+    </div>
+
+    <!-- НАВІГАЦІЙНА ПАНЕЛЬ (ПІДНЯТА) -->
     <div class="nav-bar">
-        <div class="nav-item active" onclick="switchTab('main', this)">
+        <div class="nav-item active" onclick="switchTab('main', this)" id="nav-btn-main">
             <span class="nav-icon">⚙️</span>Головна
         </div>
-        <div class="nav-item" onclick="switchTab('tasks', this)">
+        <div class="nav-item" onclick="switchTab('tasks', this)" id="nav-btn-tasks">
             <span class="nav-icon">⚡️</span>Реклама
         </div>
-        <div class="nav-item" onclick="switchTab('wallet', this)">
+        <div class="nav-item" onclick="switchTab('wallet', this)" id="nav-btn-wallet">
             <span class="nav-icon">💼</span>Гаманець
         </div>
-        <div class="nav-item" onclick="switchTab('profile', this)">
+        <div class="nav-item" onclick="switchTab('profile', this)" id="nav-btn-profile">
             <span class="nav-icon">🖥️</span>Кабінет
         </div>
     </div>
 
+    <!-- ПАСИВНИЙ РЕКЛАМНИЙ БАНЕР -->
     <div class="passive-banner-container">
         <div id="banner-passive-adsgram"></div>
     </div>
@@ -381,9 +455,6 @@
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             userId = tg.initDataUnsafe.user.id.toString();
         }
-        
-        document.getElementById('user-id').innerText = userId;
-        document.getElementById('ref-link').innerText = `https://t.me/WoodGrowCoinBot/${APP_SHORT_NAME}?startapp=${userId}`;
 
         const MAX_VIEWS = 20;
         const services = ['service1', 'service2', 'service3', 'service4', 'support'];
@@ -392,13 +463,246 @@
 
         let balance = 0.0000;
         let activeLinkTimers = {};
+        let currentLang = 'en';
 
-        const todayStr = new Date().toDateString();
-        const lastSavedDay = localStorage.getItem('wg_last_active_day') || '';
-        if (todayStr !== lastSavedDay) {
-            services.forEach(srv => localStorage.setItem(`wg_views_${srv}`, '0'));
-            localStorage.setItem('wg_last_active_day', todayStr);
+        // МОВОЗНАВЧИЙ СЛОВНИК (МУЛЬТИМОВНІСТЬ)
+        const translations = {
+            uk: {
+                balance_title: "Мій Баланс",
+                choose_platform: "⚡️ ОБЕРІТЬ ПЛАТФОРМУ ДЛЯ ЗАРОБІТКУ:",
+                support_title: "🎁 Підтримка проєкту",
+                support_desc: "Допоможіть проєкту розвиватися! Цей перегляд добровільний, він сильно допомагає адміну формувати резерв виплат для користувачів.",
+                wallet_connect_title: "Підключення гаманця",
+                wallet_connect_desc: "Підключіть свій TON-гаманець для фіксавої адреси в заявках.",
+                withdraw_title: "Виведення коштів",
+                inst_header: "💡 Інструкція з виведення коштів:",
+                inst_list: `
+                    <li>Підключіть свій TON-гаманець вище.</li>
+                    <li>Натисніть кнопку «Вивести на гаманець» (Мін. 5 USDT).</li>
+                    <li>Підтвердіть дію. Ваш баланс автоматично скинеться, а система згенерує текст заявки.</li>
+                    <li>Скопіюйте текст із вікна та надішліть адміну в особисті для виплати.</li>
+                    <li style="color: #ffcc00; font-weight: bold; list-style-type: '⚠️ ';">ВАЖЛИВО: Для підключення використовуйте додаток <u>Tonkeeper</u>. Офіційний Telegram Wallet всередині апок може працювати з перебоями!</li>
+                `,
+                min_sum_label: "Мінімальна сума:",
+                withdraw_action: "💸 Вивести на гаманець",
+                cabinet_title: "👤 Мій кабінет",
+                tgid_label: "Ваш Telegram ID:",
+                stat_ref: "Реферали",
+                stat_bonus: "Ref Бонус",
+                partner_title: "Партнерська програма",
+                partner_desc: "Отримуйте фіксовані +10% від кожного перегляду реклами вашими друзями!",
+                copy_link: "📋 Скопіювати лінк",
+                invite_friend: "🔗 Запросити друга",
+                modal_success_title: "⚡️ ЗАЯВКА СФОРМОВАНА ⚡️",
+                modal_success_desc: "Ваш баланс обнулено. Скопіюйте шифр нижче та надішліть адміну.",
+                modal_write_admin: "✈️ НАПИСАТИ АДМІНУ (@VoooodCoin)",
+                nav_main: "⚙️Головна",
+                nav_tasks: "⚡️Реклама",
+                nav_wallet: "💼Гаманець",
+                nav_profile: "🖥️Кабінет",
+                btn_support: "🍿 Підтримати WoodGrow (+0 USDT)",
+                loading: "Завантаження...",
+                people_count: "чол.",
+                copied: "Скопіювано!",
+                alert_wallet: "❌ Спочатку підключіть ваш TON-гаманець!",
+                alert_min: "❌ Мінімальна сума для виведення: 5 USDT (У вас {val})",
+                alert_confirm: "Ви впевнені, що хочете вивести {val} USDT?\n\nПісля натискання 'ОК' баланс буде скинуто, а система згенерує шифр.",
+                not_connected: "Не підключено",
+                checking: "⏳ ПЕРЕВІРКА...",
+                claim_bonus: "🎁 ЗАБРАТИ БОНУС",
+                ads_error: "Рекламу не зараховано.",
+                support_thanks: "Дякуємо! ❤️",
+                video_interrupted: "Відео перервано.",
+                db_error: "Помилка зв'язку з сервером бази даних.",
+                req_error: "Не вдалося виконати запит на виведення.",
+                copy_code_btn: "📋 СКОПІЮВАТИ ТЕКСТ",
+                code_copied_success: "✅ ШИФР СКОПІЙОВАНО!",
+                manual_copy: "Затисніть пальцем текст у полі та скопіюйте його вручну."
+            },
+            en: {
+                balance_title: "My Balance",
+                choose_platform: "⚡️ CHOOSE A PLATFORM TO EARN:",
+                support_title: "🎁 Project Support",
+                support_desc: "Help the project develop! This view is voluntary, it greatly helps the admin form a payout reserve for users.",
+                wallet_connect_title: "Wallet Connection",
+                wallet_connect_desc: "Connect your TON wallet for a fixed address in applications.",
+                withdraw_title: "Withdraw Funds",
+                inst_header: "💡 Withdrawal Instructions:",
+                inst_list: `
+                    <li>Connect your TON wallet above.</li>
+                    <li>Click the 'Withdraw to Wallet' button (Min. 5 USDT).</li>
+                    <li>Confirm the action. Your balance will automatically reset, and the system will generate a request text.</li>
+                    <li>Copy the text from the window and send it to the admin in private messages for payout.</li>
+                    <li style="color: #ffcc00; font-weight: bold; list-style-type: '⚠️ ';">IMPORTANT: Use the <u>Tonkeeper</u> app to connect. The official Telegram Wallet inside apps may work with interruptions!</li>
+                `,
+                min_sum_label: "Minimum amount:",
+                withdraw_action: "💸 Withdraw to wallet",
+                cabinet_title: "👤 My Profile",
+                tgid_label: "Your Telegram ID:",
+                stat_ref: "Referrals",
+                stat_bonus: "Ref Bonus",
+                partner_title: "Partner Program",
+                partner_desc: "Get a fixed +10% from every ad view by your friends!",
+                copy_link: "📋 Copy link",
+                invite_friend: "🔗 Invite a friend",
+                modal_success_title: "⚡️ REQUEST GENERATED ⚡️",
+                modal_success_desc: "Your balance has been reset. Copy the cipher below and send it to the admin.",
+                modal_write_admin: "✈️ WRITE TO ADMIN (@VoooodCoin)",
+                nav_main: "⚙️Main",
+                nav_tasks: "⚡️Ads",
+                nav_wallet: "💼Wallet",
+                nav_profile: "🖥️Profile",
+                btn_support: "🍿 Support WoodGrow (+0 USDT)",
+                loading: "Loading...",
+                people_count: "users",
+                copied: "Copied!",
+                alert_wallet: "❌ Connect your TON wallet first!",
+                alert_min: "❌ Minimum withdrawal amount: 5 USDT (You have {val})",
+                alert_confirm: "Are you sure you want to withdraw {val} USDT?\n\nAfter clicking 'OK', the balance will be reset and the system will generate a cipher.",
+                not_connected: "Not connected",
+                checking: "⏳ CHECKING...",
+                claim_bonus: "🎁 CLAIM BONUS",
+                ads_error: "Ad not credited.",
+                support_thanks: "Thank you! ❤️",
+                video_interrupted: "Video interrupted.",
+                db_error: "Error communicating with the database server.",
+                req_error: "Failed to process withdrawal request.",
+                copy_code_btn: "📋 COPY TEXT",
+                code_copied_success: "✅ CIPHER COPIED!",
+                manual_copy: "Press and hold text in the field and copy it manually."
+            },
+            ru: {
+                balance_title: "Мой Баланс",
+                choose_platform: "⚡️ ВЫБЕРИТЕ ПЛАТФОРМУ ДЛЯ ЗАРАБОТКА:",
+                support_title: "🎁 Поддержка проекта",
+                support_desc: "Помогите проекту развиваться! Этот просмотр добровольный, он сильно помогает админу формировать резерв выплат для пользователей.",
+                wallet_connect_title: "Подключение кошелька",
+                wallet_connect_desc: "Подключите свой TON-кошелек для фиксированного адреса в заявках.",
+                withdraw_title: "Вывод средств",
+                inst_header: "💡 Инструкция по выводу средств:",
+                inst_list: `
+                    <li>Подключите свой TON-кошелек выше.</li>
+                    <li>Нажмите кнопку «Вывести на кошелек» (Мин. 5 USDT).</li>
+                    <li>Подтвердите действие. Ваш баланс автоматически сбросится, а система сгенерирует текст заявки.</li>
+                    <li>Скопируйте текст из окна и отправьте админу в личные сообщения для выплаты.</li>
+                    <li style="color: #ffcc00; font-weight: bold; list-style-type: '⚠️ ';">ВАЖНО: Для подключения используйте приложение <u>Tonkeeper</u>. Официальный Telegram Wallet внутри апок может работать с перебоями!</li>
+                `,
+                min_sum_label: "Минимальная сумма:",
+                withdraw_action: "💸 Вывести на кошелек",
+                cabinet_title: "👤 Мой кабинет",
+                tgid_label: "Ваш Telegram ID:",
+                stat_ref: "Рефералы",
+                stat_bonus: "Ref Бонус",
+                partner_title: "Партнерская программа",
+                partner_desc: "Получайте фиксированные +10% от каждого просмотра рекламы вашими друзьями!",
+                copy_link: "📋 Скопировать линк",
+                invite_friend: "🔗 Пригласить друга",
+                modal_success_title: "⚡️ ЗАЯВКА СФОРМИРОВАНА ⚡️",
+                modal_success_desc: "Ваш баланс обнулен. Скопируйте шифр ниже и отправьте админу.",
+                modal_write_admin: "✈️ НАПИСАТЬ АДМИНУ (@VoooodCoin)",
+                nav_main: "⚙️Главная",
+                nav_tasks: "⚡️Реклама",
+                nav_wallet: "💼Кошелек",
+                nav_profile: "🖥️Кабинет",
+                btn_support: "🍿 Поддержать WoodGrow (+0 USDT)",
+                loading: "Загрузка...",
+                people_count: "чел.",
+                copied: "Скопировано!",
+                alert_wallet: "❌ Сначала подключите ваш TON-кошелек!",
+                alert_min: "❌ Минимальная сумма для вывода: 5 USDT (У вас {val})",
+                alert_confirm: "Вы уверены, что хотите вывести {val} USDT?\n\nПосле нажатия 'ОК' баланс будет сброшен, а система сгенерирует шифр.",
+                not_connected: "Не подключено",
+                checking: "⏳ ПРОВЕРКА...",
+                claim_bonus: "🎁 ЗАБРАТЬ БОНУС",
+                ads_error: "Реклама не засчитана.",
+                support_thanks: "Спасибо! ❤️",
+                video_interrupted: "Видео прервано.",
+                db_error: "Ошибка связи с сервером базы данных.",
+                req_error: "Не удалось выполнить запрос на вывод.",
+                copy_code_btn: "📋 СКОПИРОВАТЬ ТЕКСТ",
+                code_copied_success: "✅ ШИФР СКОПИРОВАН!",
+                manual_copy: "Зажмите пальцем текст в поле и скопируйте его вручную."
+            }
+        };
+
+        // ФУНКЦІЇ МОДАЛКИ МОВИ
+        function openLangModal() { document.getElementById('lang-modal').classList.add('active'); }
+        function closeLangModal() { document.getElementById('lang-modal').classList.remove('active'); }
+
+        function selectLanguage(langCode) {
+            currentLang = langCode;
+            localStorage.setItem('wg_user_lang', langCode);
+            applyTranslations();
+            closeLangModal();
         }
+
+        function initLanguage() {
+            let savedLang = localStorage.getItem('wg_user_lang');
+            if (savedLang && translations[savedLang]) {
+                currentLang = savedLang;
+            } else {
+                // Автовизначення через локаль Телеграма
+                let tgLang = 'en';
+                if (tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.language_code) {
+                    tgLang = tg.initDataUnsafe.user.language_code.toLowerCase();
+                }
+                if (tgLang === 'uk') currentLang = 'uk';
+                else if (['ru', 'be', 'kk'].includes(tgLang)) currentLang = 'ru';
+                else currentLang = 'en';
+            }
+            applyTranslations();
+        }
+
+        function applyTranslations() {
+            const t = translations[currentLang];
+            
+            document.getElementById('txt-balance-title').innerText = t.balance_title;
+            document.getElementById('txt-choose-platform').innerText = t.choose_platform;
+            document.getElementById('txt-support-title').innerText = t.support_title;
+            document.getElementById('txt-support-desc').innerText = t.support_desc;
+            document.getElementById('txt-wallet-connect-title').innerText = t.wallet_connect_title;
+            document.getElementById('txt-wallet-connect-desc').innerText = t.wallet_connect_desc;
+            document.getElementById('txt-withdraw-title').innerText = t.withdraw_title;
+            document.getElementById('txt-inst-header').innerText = t.inst_header;
+            document.getElementById('txt-inst-list').innerHTML = t.inst_list;
+            document.getElementById('txt-min-sum-label').innerText = t.min_sum_label;
+            document.getElementById('btn-withdraw-action').innerText = t.withdraw_action;
+            document.getElementById('txt-cabinet-title').innerText = t.cabinet_title;
+            document.getElementById('txt-tgid-label').innerText = t.tgid_label;
+            document.getElementById('txt-stat-ref').innerText = t.stat_ref;
+            document.getElementById('txt-stat-bonus').innerText = t.stat_bonus;
+            document.getElementById('txt-partner-title').innerText = t.partner_title;
+            document.getElementById('txt-partner-desc').innerText = t.partner_desc;
+            document.getElementById('btn-copy-link').innerText = t.copy_link;
+            document.getElementById('btn-invite-friend').innerText = t.invite_friend;
+            document.getElementById('txt-modal-success-title').innerText = t.modal_success_title;
+            document.getElementById('txt-modal-success-desc').innerText = t.modal_success_desc;
+            document.getElementById('btn-modal-write-admin').innerText = t.modal_write_admin;
+            document.getElementById('modal-copy-btn').innerText = t.copy_code_btn;
+
+            // Навігація
+            document.getElementById('nav-btn-main').innerHTML = `<span class="nav-icon">⚙️</span>${t.nav_main.replace('⚙️','')}`;
+            document.getElementById('nav-btn-tasks').innerHTML = `<span class="nav-icon">⚡️</span>${t.nav_tasks.replace('⚡️','')}`;
+            document.getElementById('nav-btn-wallet').innerHTML = `<span class="nav-icon">💼</span>${t.nav_wallet.replace('💼','')}`;
+            document.getElementById('nav-btn-profile').innerHTML = `<span class="nav-icon">🖥️</span>${t.nav_profile.replace('🖥️','')}`;
+
+            // Оновлення кнопок з текстом лімітів
+            document.getElementById('btn-support').innerText = t.btn_support;
+            
+            if (document.getElementById('user-id').innerText === "Завантаження..." || document.getElementById('user-id').innerText === "Loading..." || document.getElementById('user-id').innerText === "Загрузка...") {
+                document.getElementById('user-id').innerText = t.loading;
+            }
+            if (document.getElementById('ref-link').innerText.includes('Завантаження')) {
+                document.getElementById('ref-link').innerText = t.loading;
+            }
+
+            updateRefCounter();
+            services.forEach(srv => updateLimitUI(srv));
+        }
+
+        // КОД ЛОГІКИ ДОДАТКА
+        document.getElementById('user-id').innerText = userId;
+        document.getElementById('ref-link').innerText = `https://t.me/WoodGrowCoinBot/${APP_SHORT_NAME}?startapp=${userId}`;
 
         let viewCounts = {
             service1: parseInt(localStorage.getItem('wg_views_service1')) || 0,
@@ -407,6 +711,14 @@
             service4: parseInt(localStorage.getItem('wg_views_service4')) || 0,
             support: parseInt(localStorage.getItem('wg_views_support')) || 0
         };
+
+        const todayStr = new Date().toDateString();
+        const lastSavedDay = localStorage.getItem('wg_last_active_day') || '';
+        if (todayStr !== lastSavedDay) {
+            services.forEach(srv => localStorage.setItem(`wg_views_${srv}`, '0'));
+            localStorage.setItem('wg_last_active_day', todayStr);
+            viewCounts = { service1: 0, service2: 0, service3: 0, service4: 0, support: 0 };
+        }
 
         let isClickBlocked = false;
 
@@ -482,7 +794,8 @@
                 if (refData) {
                     count = Object.keys(refData).length;
                 }
-                document.getElementById('ref-count').innerText = `${count} чол.`;
+                const pCountText = translations[currentLang].people_count;
+                document.getElementById('ref-count').innerText = `${count} ${pCountText}`;
             } catch (err) {
                 console.error("Error updating ref counter:", err);
             }
@@ -509,8 +822,8 @@
                 limitSpan.innerText = "20 / 20 🛑";
                 btn.disabled = true;
                 btn.className = "btn";
-                if(serviceKey === 'service2') btn.innerText = "СЕРВІС 2 (+0.0002)";
-                if(serviceKey === 'service3') btn.innerText = "СЕРВІС 3 (+0.0002)";
+                if(serviceKey === 'service2') btn.innerText = "Service 2 (+0.0002)";
+                if(serviceKey === 'service3') btn.innerText = "Service 3 (+0.0002)";
             } else {
                 limitSpan.className = 'limit-indicator';
                 const expireTime = localStorage.getItem(`wg_cooldown_${serviceKey}`);
@@ -529,7 +842,8 @@
         });
 
         tonConnectUI.onStatusChange(wallet => {
-            currentWalletAddress = wallet ? wallet.account.address : "Не підключено";
+            const notConn = translations[currentLang].not_connected;
+            currentWalletAddress = wallet ? wallet.account.address : notConn;
         });
 
         // ADSGRAM (ВІДЕО З НАГОРОДОЮ)
@@ -537,18 +851,18 @@
 
         function watchAdsgram() {
             if (viewCounts['service1'] >= MAX_VIEWS || !AdController) return;
-            AdController.show().then(() => rewardUserServer('service1')).catch(() => alert("Рекламу не зараховано."));
+            AdController.show().then(() => rewardUserServer('service1')).catch(() => alert(translations[currentLang].ads_error));
         }
 
         function watchSupportAd() {
             if (viewCounts['support'] >= MAX_VIEWS || !AdController) return;
             AdController.show().then(() => {
                 rewardUserServer('support');
-                alert("Дякуємо! ❤️");
-            }).catch(() => alert("Відео перервано."));
+                alert(translations[currentLang].support_thanks);
+            }).catch(() => alert(translations[currentLang].video_interrupted));
         }
 
-        // ІНІЦІАЛІЗАЦІЯ ПАСИВНОГО БАНЕРА ADSGRAM (Task-36297)
+        // ІНІЦІАЛІЗАЦІЯ ПАСИВНОГО БАНЕРА (Task-36297)
         function initPassiveBanner() {
             if (window.Adsgram) {
                 window.Adsgram.init({ 
@@ -556,7 +870,7 @@
                     renderTo: "banner-passive-adsgram",
                     type: "Native" 
                 }).show().catch((err) => {
-                    console.error("Пасивний банер не завантажився або порожній:", err);
+                    console.error("Passive banner awaiting active status:", err);
                 });
             }
         }
@@ -569,13 +883,11 @@
                     show_11189906().then(() => {
                         rewardUserServer('service4');
                     }).catch((err) => {
-                        console.error("Monetag close or error", err);
+                        console.error("Monetag closed or error", err);
                     });
                 } catch(e) {
-                    alert("Помилка запуску реклами Monetag.");
+                    console.error("Monetag launch error.");
                 }
-            } else {
-                alert("Рекламний модуль ще завантажується. Спробуйте через мить.");
             }
         }
 
@@ -583,11 +895,12 @@
         function startDirectLinkTimer(serviceKey, url) {
             if (viewCounts[serviceKey] >= MAX_VIEWS) return;
             const btn = document.getElementById(`btn-${serviceKey}`);
+            const t = translations[currentLang];
 
             if (btn.classList.contains('ready-claim')) {
                 btn.classList.remove('ready-claim');
-                if (serviceKey === 'service2') btn.innerText = "СЕРВІС 2 (+0.0002)";
-                if (serviceKey === 'service3') btn.innerText = "СЕРВІС 3 (+0.0002)";
+                if (serviceKey === 'service2') btn.innerText = "Service 2 (+0.0002)";
+                if (serviceKey === 'service3') btn.innerText = "Service 3 (+0.0002)";
                 rewardUserServer(serviceKey);
                 return;
             }
@@ -595,7 +908,7 @@
             tg.openLink(url);
             btn.disabled = true;
             let timeLeft = 20;
-            btn.innerText = `⏳ ПЕРЕВІРКА... ${timeLeft}s`;
+            btn.innerText = `${t.checking} ${timeLeft}s`;
 
             activeLinkTimers[serviceKey] = setInterval(() => {
                 timeLeft--;
@@ -603,9 +916,9 @@
                     clearInterval(activeLinkTimers[serviceKey]);
                     btn.disabled = false;
                     btn.classList.add('ready-claim');
-                    btn.innerText = `🎁 ЗАБРАТИ БОНУС (+${configRewards[serviceKey]})`;
+                    btn.innerText = `${t.claim_bonus} (+${configRewards[serviceKey]})`;
                 } else {
-                    btn.innerText = `⏳ ПЕРЕВІРКА... ${timeLeft}s`;
+                    btn.innerText = `${t.checking} ${timeLeft}s`;
                 }
             }, 1000);
         }
@@ -680,8 +993,8 @@
             if (remaining > 0) {
                 if(activeLinkTimers[serviceKey]) clearInterval(activeLinkTimers[serviceKey]);
                 btn.classList.remove('ready-claim');
-                if (serviceKey === 'service2') btn.innerText = "СЕРВІС 2 (+0.0002)";
-                if (serviceKey === 'service3') btn.innerText = "СЕРВІС 3 (+0.0002)";
+                if (serviceKey === 'service2') btn.innerText = "Service 2 (+0.0002)";
+                if (serviceKey === 'service3') btn.innerText = "Service 3 (+0.0002)";
                 btn.disabled = true;
                 timerBox.style.display = 'inline';
                 timerBox.querySelector('.sec').innerText = remaining;
@@ -707,25 +1020,28 @@
 
         function copyRefLink() {
             navigator.clipboard.writeText(document.getElementById('ref-link').innerText);
-            alert("Скопійовано!");
+            alert(translations[currentLang].copied);
         }
 
         function shareBot() {
             const link = document.getElementById('ref-link').innerText;
-            tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent("👋 Заробляй зі мною в WoodGrow!")}`);
+            const tText = currentLang === 'en' ? "👋 Earn with me in WoodGrow!" : (currentLang === 'ru' ? "👋 Зарабатывай со мной в WoodGrow!" : "👋 Заробляй зі мною в WoodGrow!");
+            tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(tText)}`);
         }
 
         async function withdrawFunds() {
-            if (!tonConnectUI.connected || currentWalletAddress === "Не підключено") {
-                alert("❌ Спочатку підключіть ваш TON-гаманець!");
+            const t = translations[currentLang];
+            const notConn = t.not_connected;
+            if (!tonConnectUI.connected || currentWalletAddress === notConn) {
+                alert(t.alert_wallet);
                 return;
             }
             if (balance < 5.0) {
-                alert(`❌ Мінімальна сума для виведення: 5 USDT (У вас ${balance.toFixed(4)})`);
+                alert(t.alert_min.replace('{val}', balance.toFixed(4)));
                 return;
             }
 
-            const confirmed = confirm(`Ви впевнені, що хочете вивести ${balance.toFixed(4)} USDT?\n\nПісля натискання "ОК" баланс буде скинуто, а система згенерує шифр.`);
+            const confirmed = confirm(t.alert_confirm.replace('{val}', balance.toFixed(4)));
             if (!confirmed) return;
 
             const finalUserId = userId;
@@ -743,42 +1059,44 @@
                     balance = 0.0000;
                     document.getElementById('user-balance').innerText = "0.0000";
 
-                    const applicationText = `ЗАЯВКА НА ВИВІД WOODGROW:\n• ID: ${finalUserId}\n• Сума: ${finalSum} USDT\n• TON Гаманець: ${finalWallet}\n• Код безпеки: ${securityCheckCode}`;
+                    const applicationText = `ЗАЯВКА НА ВИВІД / WITHDRAWAL REQUEST:\n• ID: ${finalUserId}\n• Sum: ${finalSum} USDT\n• TON Wallet: ${finalWallet}\n• Security code: ${securityCheckCode}`;
                     document.getElementById('modal-text-field').value = applicationText;
                     
                     navigator.clipboard.writeText(applicationText).catch(() => {});
                     document.getElementById('withdraw-modal').classList.add('active');
                 } else {
-                    alert("Помилка зв'язку з сервером бази даних.");
+                    alert(t.db_error);
                 }
             } catch (err) {
-                alert("Не вдалося виконати запит на виведення.");
+                alert(t.req_error);
             }
         }
 
         function copyModalText() {
             const textField = document.getElementById('modal-text-field');
+            const t = translations[currentLang];
             textField.select();
             textField.setSelectionRange(0, 99999);
             navigator.clipboard.writeText(textField.value).then(() => {
                 const copyBtn = document.getElementById('modal-copy-btn');
-                copyBtn.innerText = "✅ ШИФР СКОПІЙОВАНО!";
+                copyBtn.innerText = t.code_copied_success;
                 copyBtn.style.background = "#0df25d";
                 copyBtn.style.color = "#111111";
                 setTimeout(() => {
-                    copyBtn.innerText = "📋 СКОПІЮВАТИ ТЕКСТ";
+                    copyBtn.innerText = t.copy_code_btn;
                     copyBtn.style.background = "linear-gradient(135deg, #0df25d 0%, #08a63f 100%)";
+                    copyBtn.style.color = "#111111";
                 }, 3000);
             }).catch(() => {
-                alert("Затисніть пальцем text у полі та скопіюйте його вручну.");
+                alert(t.manual_copy);
             });
         }
 
         function goToAdmin() { tg.openTelegramLink("https://t.me/VoooodCoin"); }
 
-        // ЗАПУСК ДОДАТКА
+        // ЗАПУСК СИСТЕМИ МОВ ТА ДАНИХ
+        initLanguage();
         fetchUserData();
-        // Запуск пасивного рек-блоку
         initPassiveBanner();
     </script>
 </body>
