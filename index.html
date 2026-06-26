@@ -28,7 +28,6 @@
             color: var(--text-light);
             margin: 0;
             padding: 0;
-            /* Відступ зверху для кнопки мови та знизу для меню + банера */
             padding-top: 65px;
             padding-bottom: 170px;
             box-sizing: border-box;
@@ -36,7 +35,6 @@
             user-select: none;
         }
 
-        /* КНОПКА ПЕРЕМИКАННЯ МОВИ ЗВЕРХУ */
         .lang-top-btn {
             position: fixed;
             top: 15px;
@@ -143,7 +141,6 @@
             100% { box-shadow: 0 4px 15px rgba(13, 242, 93, 0.4); }
         }
 
-        /* НАВІГАЦІЯ: піднята над банером (bottom: 75px) */
         .nav-bar {
             position: fixed;
             bottom: 75px;
@@ -186,26 +183,42 @@
 
         .nav-item.active .nav-icon { transform: scale(1.15); }
 
-        /* КОНТЕЙНЕР ПАСИВНОГО БАНЕРА */
+        /* ОНОВЛЕНИЙ КЛІКАБЕЛЬНИЙ КОНТЕЙНЕР ДЛЯ МОНЕТАГ */
         .passive-banner-container {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
             height: 75px;
-            background: #000000;
-            border-top: 1px solid rgba(13, 242, 93, 0.3);
+            background: linear-gradient(90deg, #000000 0%, #051409 50%, #000000 100%);
+            border-top: 2px solid var(--neon-green);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 2500;
+            cursor: pointer;
+            box-shadow: 0 -4px 15px rgba(13, 242, 93, 0.2);
+        }
+
+        .passive-banner-text {
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            text-align: center;
+            animation: textPulse 2s infinite;
+        }
+
+        @keyframes textPulse {
+            0% { opacity: 0.8; text-shadow: 0 0 5px rgba(13, 242, 93, 0.2); }
+            50% { opacity: 1; text-shadow: 0 0 15px rgba(13, 242, 93, 0.8); color: var(--neon-green); }
+            100% { opacity: 0.8; text-shadow: 0 0 5px rgba(13, 242, 93, 0.2); }
         }
 
         #ton-connect-btn { display: flex; justify-content: center; margin: 20px 0; }
         h3 { color: var(--gold-color); margin-top: 0; text-transform: uppercase; font-size: 18px; }
         .instruction-list { text-align: left; font-size: 13px; color: #a1a1aa; line-height: 1.6; padding-left: 20px; margin: 15px 0; }
 
-        /* МУЛЬТИМОВНІ КНОПКИ У ВІКНІ */
         .lang-select-btn {
             display: flex;
             align-items: center;
@@ -228,7 +241,6 @@
             border-color: var(--neon-green);
         }
 
-        /* ЗАГАЛЬНІ МОДАЛЬНІ ВІКНА */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -428,8 +440,8 @@
         </div>
     </div>
 
-    <div class="passive-banner-container">
-        <div id="banner-passive-adsgram"></div>
+    <div class="passive-banner-container" onclick="triggerPassiveMonetag()">
+        <div class="passive-banner-text" id="txt-passive-banner-banner">🎁 КЛІК ДЛЯ БОНУСУ / CLICK FOR BONUS 🚀</div>
     </div>
 
     <script>
@@ -455,13 +467,12 @@
         let activeLinkTimers = {};
         let currentLang = 'en';
 
-        // МОВОЗНАВЧИЙ СЛОВНИК (МУЛЬТИМОВНІСТЬ)
         const translations = {
             uk: {
                 balance_title: "Мій Баланс",
                 choose_platform: "⚡️ ОБЕРІТЬ ПЛАТФОРМУ ДЛЯ ЗАРОБІТКУ:",
                 support_title: "🎁 Підтримка проєкту",
-                support_desc: "Допоможіть проєкту розвиватися! Цей перегляд добровільний, він сильно допомагає адміну формувати резерв виплат для користувачів.",
+                support_desc: "Допоможіть проєкту розвиватися! Цей перегляд добровільний, він сильно допомагає адміну формивати резерв виплат для користувачів.",
                 wallet_connect_title: "Підключення гаманця",
                 wallet_connect_desc: "Підключіть свій TON-гаманець для фіксавої адреси в заявках.",
                 withdraw_title: "Виведення коштів",
@@ -507,7 +518,8 @@
                 req_error: "Не вдалося виконати запит на виведення.",
                 copy_code_btn: "📋 СКОПІЮВАТИ ТЕКСТ",
                 code_copied_success: "✅ ШИФР СКОПІЙОВАНО!",
-                manual_copy: "Затисніть пальцем текст у полі та скопіюйте його вручну."
+                manual_copy: "Затисніть пальцем текст у полі та скопіюйте його вручну.",
+                passive_banner_text: "🎁 КЛІК ДЛЯ БОНУСУ (+0.0001 USDT) 🚀"
             },
             en: {
                 balance_title: "My Balance",
@@ -559,7 +571,8 @@
                 req_error: "Failed to process withdrawal request.",
                 copy_code_btn: "📋 COPY TEXT",
                 code_copied_success: "✅ CIPHER COPIED!",
-                manual_copy: "Press and hold text in the field and copy it manually."
+                manual_copy: "Press and hold text in the field and copy it manually.",
+                passive_banner_text: "🎁 CLICK FOR BONUS (+0.0001 USDT) 🚀"
             },
             ru: {
                 balance_title: "Мой Баланс",
@@ -575,7 +588,7 @@
                     <li>Нажмите кнопку «Вывести на кошелек» (Мин. 5 USDT).</li>
                     <li>Подтвердите действие. Ваш баланс автоматически сбросится, а система сгенерирует текст заявки.</li>
                     <li>Скопируйте текст из окна и отправьте админу в личные сообщения для выплаты.</li>
-                    <li style="color: #ffcc00; font-weight: bold; list-style-type: '⚠️ ';">ВАЖНО: Для подключения используйте приложение <u>Tonkeeper</u>. Официальный Telegram Wallet внутри апок может работать с перебоями!</li>
+                    <li style="color: #ffcc00; font-weight: bold; list-style-type: '⚠️ ';">ВАЖЛИВО: Для підключення використовуйте додаток <u>Tonkeeper</u>. Офіційний Telegram Wallet всередині апок може працювати з перебоями!</li>
                 `,
                 min_sum_label: "Минимальная сумма:",
                 withdraw_action: "💸 Вывести на кошелек",
@@ -611,11 +624,11 @@
                 req_error: "Не удалось выполнить запрос на вывод.",
                 copy_code_btn: "📋 СКОПИРОВАТЬ ТЕКСТ",
                 code_copied_success: "✅ ШИФР СКОПИРОВАН!",
-                manual_copy: "Зажмите пальцем текст в поле и скопируйте его вручную."
+                manual_copy: "Зажмите пальцем текст в поле и скопируйте его вручную.",
+                passive_banner_text: "🎁 КЛИК ДЛЯ БОНУСУ (+0.0001 USDT) 🚀"
             }
         };
 
-        // ФУНКЦІЇ МОДАЛКИ МОВИ
         function openLangModal() { document.getElementById('lang-modal').classList.add('active'); }
         function closeLangModal() { document.getElementById('lang-modal').classList.remove('active'); }
 
@@ -631,7 +644,6 @@
             if (savedLang && translations[savedLang]) {
                 currentLang = savedLang;
             } else {
-                // Автовизначення через локаль Телеграма
                 let tgLang = 'en';
                 if (tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.language_code) {
                     tgLang = tg.initDataUnsafe.user.language_code.toLowerCase();
@@ -669,14 +681,13 @@
             document.getElementById('txt-modal-success-desc').innerText = t.modal_success_desc;
             document.getElementById('btn-modal-write-admin').innerText = t.modal_write_admin;
             document.getElementById('modal-copy-btn').innerText = t.copy_code_btn;
+            document.getElementById('txt-passive-banner-banner').innerText = t.passive_banner_text;
 
-            // Навігація
             document.getElementById('nav-btn-main').innerHTML = `<span class="nav-icon">⚙️</span>${t.nav_main.replace('⚙️','')}`;
             document.getElementById('nav-btn-tasks').innerHTML = `<span class="nav-icon">⚡️</span>${t.nav_tasks.replace('⚡️','')}`;
             document.getElementById('nav-btn-wallet').innerHTML = `<span class="nav-icon">💼</span>${t.nav_wallet.replace('💼','')}`;
             document.getElementById('nav-btn-profile').innerHTML = `<span class="nav-icon">🖥️</span>${t.nav_profile.replace('🖥️','')}`;
 
-            // Оновлення кнопок з текстом лімітів
             document.getElementById('btn-support').innerText = t.btn_support;
             
             if (document.getElementById('user-id').innerText === "Завантаження..." || document.getElementById('user-id').innerText === "Loading..." || document.getElementById('user-id').innerText === "Загрузка...") {
@@ -690,7 +701,6 @@
             services.forEach(srv => updateLimitUI(srv));
         }
 
-        // КОД ЛОГІКИ ДОДАТКА
         document.getElementById('user-id').innerText = userId;
         document.getElementById('ref-link').innerText = `https://t.me/WoodGrowCoinBot/${APP_SHORT_NAME}?startapp=${userId}`;
 
@@ -836,7 +846,7 @@
             currentWalletAddress = wallet ? wallet.account.address : notConn;
         });
 
-        // ADSGRAM (ВІДЕО З НАГОРОДОЮ)
+        // ADSGRAM (ЗАЛИШАЄМО СТАБІЛЬНИЙ БЛОК 35910 ДЛЯ КНОПОК)
         const AdController = window.Adsgram ? window.Adsgram.init({ blockId: "35910" }) : null;
 
         function watchAdsgram() {
@@ -852,20 +862,36 @@
             }).catch(() => alert(translations[currentLang].video_interrupted));
         }
 
-        // ІНІЦІАЛІЗАЦІЯ ПАСИВНОГО БАНЕРА (Task-36297)
-        function initPassiveBanner() {
-            if (window.Adsgram) {
-                window.Adsgram.init({ 
-                    blockId: "task-36297", 
-                    renderTo: "banner-passive-adsgram",
-                    type: "Native" 
-                }).show().catch((err) => {
-                    console.error("Passive banner awaiting active status:", err);
+        // НОВА ФУНКЦІЯ ДЛЯ КЛІКАБЕЛЬНОГО БАНЕРА MONETAG (ЗАМІСТЬ ПРОБЛЕМНОГО ADSGRAM)
+        function triggerPassiveMonetag() {
+            if (typeof show_11189906 === 'function') {
+                show_11189906().then(() => {
+                    // Користувач подивився рекламу, додаємо мікро-бонус на сервер
+                    rewardPassiveBonus();
+                }).catch((err) => {
+                    console.error("Monetag closed or skipped:", err);
                 });
             }
         }
 
-        // MONETAG
+        // Мікро-нарахування за клік на банер
+        async function rewardPassiveBonus() {
+            try {
+                let newBalance = balance + 0.0001;
+                const response = await fetch(`${FIREBASE_BASE_URL}/users/${userId}/balance.json`, {
+                    method: 'PUT',
+                    body: JSON.stringify(newBalance)
+                });
+                if (response.ok) {
+                    balance = newBalance;
+                    document.getElementById('user-balance').innerText = balance.toFixed(4);
+                }
+            } catch (err) {
+                console.error("Passive reward error:", err);
+            }
+        }
+
+        // MONETAG ДЛЯ SERVICE 4
         function watchMonetag() {
             if (viewCounts['service4'] >= MAX_VIEWS) return;
             if (typeof show_11189906 === 'function') {
@@ -1008,7 +1034,6 @@
             }
         }
 
-        // КОПІЮВАННЯ ПОСИЛАННЯ В ПРОВІДНИКУ
         function copyRefLink() {
             navigator.clipboard.writeText(document.getElementById('ref-link').innerText);
             alert(translations[currentLang].copied);
@@ -1085,10 +1110,8 @@
 
         function goToAdmin() { tg.openTelegramLink("https://t.me/VoooodCoin"); }
 
-        // ЗАПУСК СИСТЕМИ МОВ ТА ДАНИХ
         initLanguage();
         fetchUserData();
-        initPassiveBanner();
     </script>
 </body>
 </html>
