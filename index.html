@@ -613,7 +613,7 @@
                 copied: "Скопировано!",
                 alert_wallet: "❌ Сначала подключите ваш TON-кошелек!",
                 alert_min: "❌ Минимальная сумма для вывода: 5 USDT (У вас {val})",
-                alert_confirm: "Вы уверены, что хотите вывести {val} USDT?\n\nПосле нажатия 'ОК', баланс будет сброшен и система сгенерирует шифр.",
+                alert_confirm: "Вы уверены, что хотите вывести {val} USDT?\n\nПосле нажатия 'ОК', balance будет сброшен и система сгенерирует шифр.",
                 not_connected: "Не подключено",
                 checking: "⏳ ПРОВЕРКА...",
                 claim_bonus: "🎁 ЗАБРАТЬ БОНУС",
@@ -696,6 +696,9 @@
             if (document.getElementById('ref-link').innerText.includes('Завантаження')) {
                 document.getElementById('ref-link').innerText = t.loading;
             }
+
+            // Рендеримо завантажене значення балансу
+            document.getElementById('user-balance').innerText = balance.toFixed(4);
 
             updateRefCounter();
             services.forEach(srv => updateLimitUI(srv));
@@ -869,7 +872,7 @@
         function triggerPassiveMonetag() {
             let passiveViews = parseInt(localStorage.getItem('wg_views_passive')) || 0;
             if (passiveViews >= PASSIVE_MAX_VIEWS) {
-                alert(currentLang === 'uk' ? "❌ Ліміт бонусів на сьогодні вичерпано!" : "❌ Bonus limit for today reached!");
+                alert(currentLang === 'uk' ? "❌ Ліміт бонусі на сьогодні вичерпано!" : "❌ Bonus limit for today reached!");
                 return;
             }
 
@@ -1157,8 +1160,13 @@
             }
         }, 1000);
 
-        initLanguage();
-        fetchUserData();
+        // Фікс черговості: Спочатку ініціалізація мови, а ТІЛЬКИ ПОТІМ завантаження даних
+        async function startApp() {
+            initLanguage();     // Встановили мову і намалювали шаблон
+            await fetchUserData(); // Сходили в базу і перезаписали нулі реальними даними
+        }
+
+        startApp();
     </script>
 </body>
 </html>
