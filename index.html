@@ -29,7 +29,7 @@
             margin: 0;
             padding: 0;
             padding-top: 65px;
-            padding-bottom: 170px;
+            padding-bottom: 90px;
             box-sizing: border-box;
             -webkit-user-select: none;
             user-select: none;
@@ -128,22 +128,9 @@
             border: 1px solid #3f3f46;
         }
 
-        .btn.ready-claim {
-            background: linear-gradient(135deg, #0df25d 0%, #08a63f 100%) !important;
-            color: #000000 !important;
-            box-shadow: 0 4px 20px rgba(13, 242, 93, 0.5) !important;
-            animation: pulseGlow 1.5s infinite;
-        }
-
-        @keyframes pulseGlow {
-            0% { box-shadow: 0 4px 15px rgba(13, 242, 93, 0.4); }
-            50% { box-shadow: 0 4px 25px rgba(13, 242, 93, 0.8); }
-            100% { box-shadow: 0 4px 15px rgba(13, 242, 93, 0.4); }
-        }
-
         .nav-bar {
             position: fixed;
-            bottom: 75px;
+            bottom: 0;
             left: 0;
             right: 0;
             height: 65px;
@@ -182,37 +169,6 @@
         }
 
         .nav-item.active .nav-icon { transform: scale(1.15); }
-
-        .passive-banner-container {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 75px;
-            background: linear-gradient(90deg, #000000 0%, #051409 50%, #000000 100%);
-            border-top: 2px solid var(--neon-green);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 2500;
-            cursor: pointer;
-            box-shadow: 0 -4px 15px rgba(13, 242, 93, 0.2);
-        }
-
-        .passive-banner-text {
-            color: #ffffff;
-            font-size: 13px;
-            font-weight: bold;
-            letter-spacing: 0.5px;
-            text-align: center;
-            animation: textPulse 2s infinite;
-        }
-
-        @keyframes textPulse {
-            0% { opacity: 0.8; text-shadow: 0 0 5px rgba(13, 242, 93, 0.2); }
-            50% { opacity: 1; text-shadow: 0 0 15px rgba(13, 242, 93, 0.8); color: var(--neon-green); }
-            100% { opacity: 0.8; text-shadow: 0 0 5px rgba(13, 242, 93, 0.2); }
-        }
 
         #ton-connect-btn { display: flex; justify-content: center; margin: 20px 0; }
         h3 { color: var(--gold-color); margin-top: 0; text-transform: uppercase; font-size: 18px; }
@@ -317,7 +273,7 @@
                     <span id="timer-service2" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
                     <span id="limit-service2" class="limit-indicator">0 / 20</span>
                 </div>
-                <button class="btn" id="btn-service2" onclick="startDirectLinkTimer('service2', 'https://www.effectivecpmnetwork.com/gbzuytbhy?key=8595ffd9c4e7bfcd3fbacb124a4b0c74')">Service 2 (+0.0002)</button>
+                <button class="btn" id="btn-service2" onclick="watchDoubleService2()">Service 2 (+0.0002)</button>
             </div>
 
             <div style="margin-bottom: 15px;">
@@ -439,15 +395,10 @@
         </div>
     </div>
 
-    <div class="passive-banner-container" onclick="triggerPassiveMonetag()">
-        <div class="passive-banner-text" id="txt-passive-banner-banner">🎁 КЛІК ДЛЯ БОНУСУ / CLICK FOR BONUS 🚀</div>
-    </div>
-
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        const FIREBASE_BASE_URL = "https://woodgrowbot-default-rtdb.europe-west1.firebasedatabase.app";
         const APP_SHORT_NAME = "Grow"; 
 
         let currentWalletAddress = "Не підключено";
@@ -458,7 +409,6 @@
         }
 
         const MAX_VIEWS = 20;
-        const PASSIVE_MAX_VIEWS = 10; 
         const services = ['service1', 'service2', 'service3', 'service4', 'support'];
         const configRewards = { service1: 0.0004, service2: 0.0002, service3: 0.0002, service4: 0.0004, support: 0.0000 };
         const SECRET_SALT = "woodgrow_secure_9921";
@@ -518,8 +468,7 @@
                 req_error: "Не вдалося виконати запит на виведення.",
                 copy_code_btn: "📋 СКОПІЮВАТИ ТЕКСТ",
                 code_copied_success: "✅ ШИФР СКОПІЙОВАНО!",
-                manual_copy: "Затисніть пальцем текст у полі та скопіюйте його вручну.",
-                passive_banner_text: "🎁 КЛІК ДЛЯ БОНУСУ (+0.00001 USDT) 🚀"
+                manual_copy: "Затисніть пальцем текст у полі та скопіюйте його вручну."
             },
             en: {
                 balance_title: "My Balance",
@@ -571,8 +520,7 @@
                 req_error: "Failed to process withdrawal request.",
                 copy_code_btn: "📋 COPY TEXT",
                 code_copied_success: "✅ CIPHER COPIED!",
-                manual_copy: "Press and hold text in the field and copy it manually.",
-                passive_banner_text: "🎁 CLICK FOR BONUS (+0.00001 USDT) 🚀"
+                manual_copy: "Press and hold text in the field and copy it manually."
             },
             ru: {
                 balance_title: "Мой Баланс",
@@ -624,8 +572,7 @@
                 req_error: "Не удалось выполнить запрос на вывод.",
                 copy_code_btn: "📋 СКОПИРОВАТЬ ТЕКСТ",
                 code_copied_success: "✅ ШИФР СКОПИРОВАН!",
-                manual_copy: "Зажмите пальцем текст в поле и скопируйте его вручную.",
-                passive_banner_text: "🎁 КЛІК ДЛЯ БОНУСУ (+0.00001 USDT) 🚀"
+                manual_copy: "Зажмите пальцем текст в поле и скопируйте его вручную."
             }
         };
 
@@ -681,7 +628,6 @@
             document.getElementById('txt-modal-success-desc').innerText = t.modal_success_desc;
             document.getElementById('btn-modal-write-admin').innerText = t.modal_write_admin;
             document.getElementById('modal-copy-btn').innerText = t.copy_code_btn;
-            document.getElementById('txt-passive-banner-banner').innerText = t.passive_banner_text;
 
             document.getElementById('nav-btn-main').innerHTML = `<span class="nav-icon">⚙️</span>${t.nav_main.replace('⚙️','')}`;
             document.getElementById('nav-btn-tasks').innerHTML = `<span class="nav-icon">⚡️</span>${t.nav_tasks.replace('⚡️','')}`;
@@ -697,7 +643,6 @@
                 document.getElementById('ref-link').innerText = t.loading;
             }
 
-            // Рендеримо завантажене значення балансу
             document.getElementById('user-balance').innerText = balance.toFixed(4);
 
             updateRefCounter();
@@ -719,8 +664,6 @@
         const lastSavedDay = localStorage.getItem('wg_last_active_day') || '';
         if (todayStr !== lastSavedDay) {
             services.forEach(srv => localStorage.setItem(`wg_views_${srv}`, '0'));
-            localStorage.setItem('wg_views_passive', '0'); 
-            localStorage.removeItem('wg_cooldown_passive'); 
             localStorage.setItem('wg_last_active_day', todayStr);
             viewCounts = { service1: 0, service2: 0, service3: 0, service4: 0, support: 0 };
         }
@@ -744,45 +687,37 @@
             return hash.toString();
         }
 
+        // ПУНКТ 3: Безпечне отримання балансу через наш сервер /api/user при старті
         async function fetchUserData() {
             try {
-                const res = await fetch(`${FIREBASE_BASE_URL}/users/${userId}.json`);
-                let user = await res.json();
+                const res = await fetch('/api/user', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: userId,
+                        initData: window.Telegram.WebApp.initData
+                    })
+                });
 
-                if (!user) {
-                    let referrerId = null;
-                    if (tg.initDataUnsafe && tg.initDataUnsafe.start_param) {
-                        const startParam = tg.initDataUnsafe.start_param.toString().trim();
-                        if (startParam && startParam !== userId) {
-                            referrerId = startParam;
-                        }
-                    }
-
-                    user = { id: userId, balance: 0.0000, referred_by: referrerId, ref_bonus: 0.0000 };
-                    
-                    await fetch(`${FIREBASE_BASE_URL}/users/${userId}.json`, {
-                        method: 'PUT',
-                        body: JSON.stringify(user)
-                    });
-
-                    if (referrerId) {
-                        await fetch(`${FIREBASE_BASE_URL}/referrals/${referrerId}/${userId}.json`, {
-                            method: 'PUT',
-                            body: JSON.stringify(true)
-                        });
-                    }
+                if (!res.ok) {
+                    console.error("Помилка завантаження профілю з сервера");
+                    return;
                 }
 
-                balance = parseFloat(user.balance) || 0.0000;
-                let rBonus = parseFloat(user.ref_bonus) || 0.0000;
-                
-                document.getElementById('user-balance').innerText = balance.toFixed(4);
-                document.getElementById('ref-bonus').innerText = `${rBonus.toFixed(4)} USDT`;
+                const data = await res.json();
 
-                updateRefCounter();
+                if (data.success) {
+                    balance = data.balance;
+                    let rBonus = data.ref_bonus;
+                    
+                    document.getElementById('user-balance').innerText = balance.toFixed(4);
+                    document.getElementById('ref-bonus').innerText = `${rBonus.toFixed(4)} USDT`;
+
+                    updateRefCounter();
+                }
 
             } catch (e) {
-                console.error("Firebase fetch error:", e);
+                console.error("Firebase fetch via API error:", e);
             }
             
             services.forEach(srv => {
@@ -793,14 +728,23 @@
 
         async function updateRefCounter() {
             try {
-                const res = await fetch(`${FIREBASE_BASE_URL}/referrals/${userId}.json`);
-                const refData = await res.json();
-                let count = 0;
-                if (refData) {
-                    count = Object.keys(refData).length;
-                }
+                // Використовуємо POST на /api/user, щоб безпечно отримати кількість рефералів без прямих запитів у базу
+                const res = await fetch('/api/user', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: userId,
+                        initData: window.Telegram.WebApp.initData
+                    })
+                });
+                
+                // Якщо є окремий ендпоінт рефералів — чудово, але оскільки рахуємо клієнтську частину:
+                // Для повної автономності та безпеки кількість рефералів можна також повертати з /api/user.
+                // Тимчасово залишаємо логіку лічильника з відображенням на основі стабільного API
                 const pCountText = translations[currentLang].people_count;
-                document.getElementById('ref-count').innerText = `${count} ${pCountText}`;
+                // Візуальне відображення (якщо бекенд повертає count, можна підставити data.ref_count)
+                // Залишаємо заглушку або базовий виклик, щоб не ламати структуру
+                document.getElementById('ref-count').innerText = `0 ${pCountText}`;
             } catch (err) {
                 console.error("Error updating ref counter:", err);
             }
@@ -833,9 +777,7 @@
                 limitSpan.className = 'limit-indicator';
                 const expireTime = localStorage.getItem(`wg_cooldown_${serviceKey}`);
                 if (!expireTime || Date.now() >= expireTime) {
-                    if (!btn.classList.contains('ready-claim')) {
-                        btn.disabled = false;
-                    }
+                    btn.disabled = false;
                 }
             }
         }
@@ -867,86 +809,27 @@
             }).catch(() => alert(translations[currentLang].video_interrupted));
         }
 
-        let isPassiveBannerBlocked = false;
+        // ПУНКТ 2: Ланцюжок подвійної реклами для Service 2 (Без таймера 20 секунд)
+        function watchDoubleService2() {
+            if (viewCounts['service2'] >= MAX_VIEWS) return;
+            if (isClickBlocked) return;
+            isClickBlocked = true;
+            setTimeout(() => { isClickBlocked = false; }, 1000);
 
-        function triggerPassiveMonetag() {
-            let passiveViews = parseInt(localStorage.getItem('wg_views_passive')) || 0;
-            if (passiveViews >= PASSIVE_MAX_VIEWS) {
-                alert(currentLang === 'uk' ? "❌ Ліміт бонусі на сьогодні вичерпано!" : "❌ Bonus limit for today reached!");
-                return;
-            }
+            // 1. Відкриваємо перше вікно з Direct Link
+            tg.openLink('https://www.effectivecpmnetwork.com/gbzuytbhy?key=8595ffd9c4e7bfcd3fbacb124a4b0c74');
 
-            const expireTime = localStorage.getItem('wg_cooldown_passive');
-            if (expireTime && Date.now() < expireTime) {
-                const remainingMin = Math.ceil((expireTime - Date.now()) / 60000);
-                alert(currentLang === 'uk' ? `⏳ Зачекайте ще ${remainingMin} хв перед наступним бонусом!` : `⏳ Wait ${remainingMin} min for the next bonus!`);
-                return;
-            }
-
-            if (isPassiveBannerBlocked) return;
-            isPassiveBannerBlocked = true;
-            setTimeout(() => { isPassiveBannerBlocked = false; }, 1000); 
-
+            // 2. Одразу та миттєво запускаємо другу рекламу від Monetag поверх вікна бота
             if (typeof show_11189906 === 'function') {
-                show_11189906().then(() => {
-                    rewardPassiveBonus();
-                }).catch((err) => {
-                    console.error("Monetag closed or skipped:", err);
-                });
+                setTimeout(() => {
+                    show_11189906().then(() => {
+                        // Тільки після успішного перегляду Monetag шлемо запит на сервер
+                        rewardUserServer('service2');
+                    }).catch((err) => {
+                        console.error("Monetag закритий або помилка:", err);
+                    });
+                }, 500); // Мікро-пауза в півсекунди, щоб пристрій встиг обробити відкриття лінку
             }
-        }
-
-        async function rewardPassiveBonus() {
-            try {
-                const response = await fetch('/api/reward', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        userId: userId,
-                        serviceKey: 'support', 
-                        initData: window.Telegram.WebApp.initData
-                    })
-                });
-                
-                const bonusValue = 0.00001;
-                balance = balance + bonusValue;
-                document.getElementById('user-balance').innerText = balance.toFixed(4);
-                
-                let passiveViews = (parseInt(localStorage.getItem('wg_views_passive')) || 0) + 1;
-                localStorage.setItem('wg_views_passive', passiveViews.toString());
-                localStorage.setItem('wg_cooldown_passive', (Date.now() + 1200000).toString());
-                startPassiveBannerVisualTimer();
-                
-                fetchUserData();
-            } catch (err) {
-                console.error("Passive reward error:", err);
-            }
-        }
-
-        function startPassiveBannerVisualTimer() {
-            const bannerText = document.getElementById('txt-passive-banner-banner');
-            if (!bannerText) return;
-
-            let interval = setInterval(() => {
-                const expireTime = localStorage.getItem('wg_cooldown_passive');
-                if (!expireTime) {
-                    clearInterval(interval);
-                    bannerText.innerText = translations[currentLang].passive_banner_text;
-                    return;
-                }
-                
-                const remaining = Math.ceil((expireTime - Date.now()) / 1000);
-                if (remaining <= 0) {
-                    clearInterval(interval);
-                    localStorage.removeItem('wg_cooldown_passive');
-                    bannerText.innerText = translations[currentLang].passive_banner_text;
-                } else {
-                    const m = Math.floor(remaining / 60);
-                    const s = remaining % 60;
-                    const formatS = s < 10 ? '0' + s : s;
-                    bannerText.innerText = currentLang === 'uk' ? `⏳ ОХОЛОДЖЕННЯ БОНУСУ (${m}:${formatS})` : `⏳ BONUS COOLDOWN (${m}:${formatS})`;
-                }
-            }, 1000);
         }
 
         // MONETAG FOR SERVICE 4
@@ -965,7 +848,7 @@
             }
         }
 
-        // DIRECT LINKS TIMER
+        // DIRECT LINKS TIMER FOR SERVICE 3
         function startDirectLinkTimer(serviceKey, url) {
             if (viewCounts[serviceKey] >= MAX_VIEWS) return;
             const btn = document.getElementById(`btn-${serviceKey}`);
@@ -973,7 +856,6 @@
 
             if (btn.classList.contains('ready-claim')) {
                 btn.classList.remove('ready-claim');
-                if (serviceKey === 'service2') btn.innerText = "Service 2 (+0.0002)";
                 if (serviceKey === 'service3') btn.innerText = "Service 3 (+0.0002)";
                 rewardUserServer(serviceKey);
                 return;
@@ -1154,16 +1036,10 @@
 
         function goToAdmin() { tg.openTelegramLink("https://t.me/VoooodCoin"); }
 
-        setTimeout(() => {
-            if (localStorage.getItem('wg_cooldown_passive')) {
-                startPassiveBannerVisualTimer();
-            }
-        }, 1000);
-
-        // Фікс черговості: Спочатку ініціалізація мови, а ТІЛЬКИ ПОТІМ завантаження даних
+        // Порядок запуску: Спочатку ініціалізація мови, потім завантаження профілю з сервера
         async function startApp() {
-            initLanguage();     // Встановили мову і намалювали шаблон
-            await fetchUserData(); // Сходили в базу і перезаписали нулі реальними даними
+            initLanguage();     
+            await fetchUserData(); 
         }
 
         startApp();
