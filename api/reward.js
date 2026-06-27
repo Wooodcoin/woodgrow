@@ -1,4 +1,21 @@
-const FIREBASE_BASE_URL = "https://woodgrowbot-default-rtdb.europe-west1.firebasedatabase.app";
+import admin from 'firebase-admin';
+
+// Ініціалізуємо Firebase Admin SDK, якщо він ще не ініціалізований
+if (!admin.apps.length) {
+    try {
+        // Завантажуємо наш JSON-ключ із змінної оточення Vercel
+        const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+        
+        admin.initializeApp({
+            credential: admin.credential.cert(serviceAccount),
+            databaseURL: "https://woodgrowbot-default-rtdb.europe-west1.firebasedatabase.app"
+        });
+    } catch (error) {
+        console.error('Firebase admin initialization error:', error);
+    }
+}
+
+const db = admin.database();
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -6,11 +23,7 @@ export default async function handler(req, res) {
     if (!userId || !serviceKey || !initData) return res.status(400).json({ error: 'Missing parameters' });
 
     const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-    const FB_SECRET = process.env.FIREBASE_SECRET;
-
-    if (!BOT_TOKEN || !FB_SECRET) {
-        return res.status(500).json({ error: 'Server configuration missing' });
-    }
+    if (!BOT_TOKEN) return res.status(500).json({ error: 'Server configuration missing' });
 
     // 1. Валідація Telegram InitData
     try {
@@ -35,12 +48,13 @@ export default async function handler(req, res) {
     if (reward === undefined) return res.status(400).json({ error: 'Invalid service' });
 
     try {
-        const now = Date.now(); // Поточний час у мілісекундах
-        const cooldownTime = 120 * 1000; // 120 секунд у мілісекундах
+        const now = Date.now();
+        const cooldownTime = 120 * 1000; // 120 секунд
 
-        // 2. Серверна перевірка тайм-ауту (Захист від ботів та накрутки)
-        const lastClickRes = await fetch(`${FIREBASE_BASE_URL}/users/${userId}/last_clicks/${serviceKey}.json?auth=${FB_SECRET}`);
-        const lastClickTime = await lastClickRes.json();
+        // 2. Серверна перевірка таймауту через Admin SDK (Гілка "users" з малої)
+        const lastClickRef = db.ref(`users/${userId}/last_clicks/${serviceKey}`);
+        const lastClickSnapshot = await lastClickRef.once('value');
+        const lastClickTime = lastClickSnapshot.val();
 
         if (lastClickTime && (now - lastClickTime < cooldownTime)) {
             const timeLeft = Math.ceil((cooldownTime - (now - lastClickTime)) / 1000);
@@ -48,14 +62,13 @@ export default async function handler(req, res) {
         }
 
         // 3. Оновлюємо час останнього кліку
-        await fetch(`${FIREBASE_BASE_URL}/users/${userId}/last_clicks/${serviceKey}.json?auth=${FB_SECRET}`, {
-            method: 'PUT',
-            body: JSON.stringify(now)
-        });
+        await lastClickRef.set(now);
 
-        // 4. Отримання даних користувача та нарахування балансу
-        const userRes = await fetch(`${FIREBASE_BASE_URL}/users/${userId}.json?auth=${FB_SECRET}`);
-        const user = await userRes.json();
+        // 4. Отримання даних користувача (Гілка "users" з малої)
+        const userRef = db.ref(`users/${userId}`);
+        const userSnapshot = await userRef.once('value');
+        const user = userSnapshot.val();
+
         let currentBalance = 0;
         let referredBy = null;
 
@@ -65,26 +78,31 @@ export default async function handler(req, res) {
         }
 
         const newBalance = currentBalance + reward;
-        await fetch(`${FIREBASE_BASE_URL}/users/${userId}/balance.json?auth=${FB_SECRET}`, { 
-            method: 'PUT', 
-            body: JSON.stringify(newBalance) 
-        });
+        
+        // Оновлюємо баланс основного користувача
+        await userRef.update({ balance: newBalance });
 
-        // Реферальний бонус (+10% USDT)
+        // 5. Реферальний бонус (+10% USDT) (Гілка "users" з малої)
         if (referredBy && reward > 0) {
-            const refRes = await fetch(`${FIREBASE_BASE_URL}/users/${referredBy}.json?auth=${FB_SECRET}`);
-            const referrerData = await refRes.json();
+            const referrerRef = db.ref(`users/${referredBy}`);
+            const referrerSnapshot = await referrerRef.once('value');
+            const referrerData = referrerSnapshot.val();
+
             if (referrerData) {
                 let refBonus = reward * 0.10;
                 let newRefBalance = (parseFloat(referrerData.balance) || 0) + refBonus;
                 let newRefBonusTotal = (parseFloat(referrerData.ref_bonus) || 0) + refBonus;
-                await fetch(`${FIREBASE_BASE_URL}/users/${referredBy}/balance.json?auth=${FB_SECRET}`, { method: 'PUT', body: JSON.stringify(newRefBalance) });
-                await fetch(`${FIREBASE_BASE_URL}/users/${referrerBy}/ref_bonus.json?auth=${FB_SECRET}`, { method: 'PUT', body: JSON.stringify(newRefBonusTotal) });
+                
+                await referrerRef.update({
+                    balance: newRefBalance,
+                    ref_bonus: newRefBonusTotal
+                });
             }
         }
 
         return res.status(200).json({ success: true, newBalance: newBalance });
     } catch (e) {
+        console.error("Database error:", e);
         return res.status(500).json({ error: 'Database error' });
     }
 }
