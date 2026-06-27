@@ -3,8 +3,9 @@ import admin from 'firebase-admin';
 // Ініціалізуємо Firebase Admin SDK, якщо він ще не ініціалізований
 if (!admin.apps.length) {
     try {
-        // Завантажуємо наш JSON-ключ із змінної оточення Vercel
-        const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+        // Захист від помилок мобільного копіювання: очищаємо символи перенесення рядка та пробіли
+        const cleanedKey = process.env.FIREBASE_SERVICE_ACCOUNT.replace(/\\n/g, '\n').trim();
+        const serviceAccount = JSON.parse(cleanedKey);
         
         admin.initializeApp({
             credential: admin.credential.cert(serviceAccount),
