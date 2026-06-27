@@ -1,0 +1,107 @@
+// api/reward.js
+const FIREBASE_BASE_URL = "https://woodgrowbot-default-rtdb.europe-west1.firebasedatabase.app";
+
+// Сюди впиши токен свого Telegram-бота, який ти отримав у @BotFather
+const TELEGRAM_BOT_TOKEN = "ТВІЙ_ТОКЕН_БОТА_З_BOT_FATHER"; 
+
+export default async function handler(req, res) {
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method not allowed' });
+    }
+
+    const { userId, serviceKey, initData } = req.body;
+
+    if (!userId || !serviceKey || !initData) {
+        return res.status(400).json({ error: 'Missing parameters' });
+    }
+
+    // 🛡️ 1. КРИТИЧНИЙ ЗАХИСТ: Валідація користувача через Telegram InitData
+    // Хакер не зможе підробити запит, бо не знає токен твого бота.
+    try {
+        const urlParams = new URLSearchParams(initData);
+        const hash = urlParams.get('hash');
+        urlParams.delete('hash');
+        
+        // Сортуємо параметри альфавітно, як вимагає Telegram
+        const dataCheckString = Array.from(urlParams.entries())
+            .map(([key, value]) => `${key}=${value}`)
+            .sort()
+            .join('\n');
+
+        // Створюємо перевірочний ключ за допомогою алгоритму Web Crypto
+        const encoder = new TextEncoder();
+        const secretKeyMaterial = await crypto.subtle.importKey(
+            "raw", encoder.encode("WebAppData"), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]
+        );
+        const secretKeyBuffer = await crypto.subtle.sign("HMAC", secretKeyMaterial, encoder.encode(TELEGRAM_BOT_TOKEN));
+        const checkKeyMaterial = await crypto.subtle.importKey(
+            "raw", secretKeyBuffer, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]
+        );
+        const signatureBuffer = await crypto.subtle.sign("HMAC", checkKeyMaterial, encoder.encode(dataCheckString));
+        
+        const calculatedHash = Array.from(new Uint8Array(signatureBuffer))
+            .map(b => b.toString(16).padStart(2, '0'))
+            .join('');
+
+        if (calculatedHash !== hash) {
+            return res.status(403).json({ error: 'Запит підроблено! Auth failed.' });
+        }
+    } catch (err) {
+        return res.status(500).json({ error: 'Помилка валідації Telegram' });
+    }
+
+    // 💰 2. Жорстко прописуємо рейки нагород на сервері (хакер не змінить суму)
+    const configRewards = { 
+        service1: 0.0004, 
+        service2: 0.0002, 
+        service3: 0.0002, 
+        service4: 0.0004, 
+        support: 0.0000 
+    };
+
+    const reward = configRewards[serviceKey];
+    if (reward === undefined) {
+        return res.status(400).json({ error: 'Невірний сервіс' });
+    }
+
+    try {
+        // Отримуємо поточний баланс користувача з Firebase
+        const userRes = await fetch(`${FIREBASE_BASE_URL}/users/${userId}.json`);
+        const user = await userRes.json();
+        
+        let currentBalance = 0;
+        let referredBy = null;
+
+        if (user) {
+            currentBalance = parseFloat(user.balance) || 0;
+            referredBy = user.referred_by || null;
+        }
+
+        const newBalance = currentBalance + reward;
+
+        // Оновлюємо баланс у базі даних
+        await fetch(`${FIREBASE_BASE_URL}/users/${userId}/balance.json`, {
+            method: 'PUT',
+            body: JSON.stringify(newBalance)
+        });
+
+        // 👥 3. Нарахування реферального бонусу (+10%) на стороні сервера
+        if (referredBy && reward > 0) {
+            const refRes = await fetch(`${FIREBASE_BASE_URL}/users/${referredBy}.json`);
+            const referrerData = await refRes.json();
+            if (referrerData) {
+                let refBonus = reward * 0.10;
+                let newRefBalance = (parseFloat(referrerData.balance) || 0) + refBonus;
+                let newRefBonusTotal = (parseFloat(referrerData.ref_bonus) || 0) + refBonus;
+
+                await fetch(`${FIREBASE_BASE_URL}/users/${referredBy}/balance.json`, { method: 'PUT', body: JSON.stringify(newRefBalance) });
+                await fetch(`${FIREBASE_BASE_URL}/users/${referredBy}/ref_bonus.json`, { method: 'PUT', body: JSON.stringify(newRefBonusTotal) });
+            }
+        }
+
+        return res.status(200).json({ success: true, newBalance: newBalance });
+
+    } catch (e) {
+        return res.status(500).json({ error: 'Помилка бази даних' });
+    }
+}
