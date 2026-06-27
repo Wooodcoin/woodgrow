@@ -3,14 +3,20 @@ import admin from 'firebase-admin';
 // Ініціалізуємо Firebase Admin SDK, якщо він ще не ініціалізований
 if (!admin.apps.length) {
     try {
-        // Захист від помилок мобільного копіювання: очищаємо символи перенесення рядка та пробіли
-        const cleanedKey = process.env.FIREBASE_SERVICE_ACCOUNT.replace(/\\n/g, '\n').trim();
-        const serviceAccount = JSON.parse(cleanedKey);
+        const base64Key = process.env.FIREBASE_SERVICE_ACCOUNT;
         
-        admin.initializeApp({
-            credential: admin.credential.cert(serviceAccount),
-            databaseURL: "https://woodgrowbot-default-rtdb.europe-west1.firebasedatabase.app"
-        });
+        if (!base64Key) {
+            console.error('КРИТИЧНА ПОМИЛКА: Змінна FIREBASE_SERVICE_ACCOUNT порожня у Vercel!');
+        } else {
+            // Декодуємо Base64 рядок назад у чистий JSON
+            const decodedJson = Buffer.from(base64Key, 'base64').toString('utf-8');
+            const serviceAccount = JSON.parse(decodedJson);
+            
+            admin.initializeApp({
+                credential: admin.credential.cert(serviceAccount),
+                databaseURL: "https://woodgrowbot-default-rtdb.europe-west1.firebasedatabase.app"
+            });
+        }
     } catch (error) {
         console.error('Firebase admin initialization error:', error);
     }
