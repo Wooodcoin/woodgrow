@@ -3,7 +3,9 @@ import admin from 'firebase-admin';
 // Ініціалізуємо Firebase Admin SDK, якщо він ще не ініціалізований
 if (!admin.apps.length) {
     try {
-        const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+        // Захист від помилок мобільного копіювання: очищаємо символи перенесення рядка та пробіли
+        const cleanedKey = process.env.FIREBASE_SERVICE_ACCOUNT.replace(/\\n/g, '\n').trim();
+        const serviceAccount = JSON.parse(cleanedKey);
         
         admin.initializeApp({
             credential: admin.credential.cert(serviceAccount),
@@ -41,7 +43,7 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'Validation error' });
     }
 
-    // 2. Перевірка балансу та безпечне обнулення через Admin SDK
+    // 2. Перевірка балансу та безпечне обнулення через Admin SDK (Гілка "users" з малої)
     try {
         const userRef = db.ref(`users/${userId}`);
         const userSnapshot = await userRef.once('value');
