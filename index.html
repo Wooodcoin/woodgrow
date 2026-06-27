@@ -578,7 +578,7 @@
                 balance_title: "Мой Баланс",
                 choose_platform: "⚡️ ВЫБЕРИТЕ ПЛАТФОРМУ ДЛЯ ЗАРАБОТКА:",
                 support_title: "🎁 Поддержка проекта",
-                support_desc: "Помогите проекту развиваться! Этот просмотр добровольный, он сильно помогает админу формировать резерв выплат для пользователей.",
+                support_desc: "Помогите проекту развиваться! Этот просмотр добровольный, он сильно помогает адмену формировать резерв выплат для пользователей.",
                 wallet_connect_title: "Подключение кошелька",
                 wallet_connect_desc: "Подключите свой TON-кошелек для фиксированного адреса в заявках.",
                 withdraw_title: "Вывод средств",
@@ -839,7 +839,7 @@
 
         // TON CONNECT
         const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-            manifestUrl: 'https://wooodcoin.github.io/woodgrow/tonconnect-manifest.json',
+            manifestUrl: 'https://woodgrow.vercel.app/tonconnect-manifest.json',
             buttonRootId: 'ton-connect-btn'
         });
 
@@ -895,18 +895,16 @@
 
         async function rewardPassiveBonus() {
             try {
-                // Безпечне нарахування пасивного бонусу через сервер /api/reward
                 const response = await fetch('/api/reward', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         userId: userId,
-                        serviceKey: 'support', // Пропишемо ключ безкоштовної дії або можеш залишити логіку, але тепер сервер підкине баланс
+                        serviceKey: 'support', 
                         initData: window.Telegram.WebApp.initData
                     })
                 });
                 
-                // Тимчасово оновлюємо візуально, щоб баланс збільшився на твою константу
                 const bonusValue = 0.00001;
                 balance = balance + bonusValue;
                 document.getElementById('user-balance').innerText = balance.toFixed(4);
@@ -916,7 +914,6 @@
                 localStorage.setItem('wg_cooldown_passive', (Date.now() + 1200000).toString());
                 startPassiveBannerVisualTimer();
                 
-                // Оновлюємо точні дані з бази
                 fetchUserData();
             } catch (err) {
                 console.error("Passive reward error:", err);
@@ -997,7 +994,7 @@
             }, 1000);
         }
 
-        // REWARD USER SERVER (ПЕРЕНЕСЕНО НА БЕЗПЕЧНИЙ СЕРВЕР /api/reward)
+        // REWARD USER SERVER
         async function rewardUserServer(serviceKey) {
             if (viewCounts[serviceKey] >= MAX_VIEWS) return;
 
@@ -1026,7 +1023,6 @@
                         localStorage.setItem(`wg_cooldown_${serviceKey}`, (Date.now() + 120000).toString());
                         checkSingleCooldown(serviceKey);
                     }
-                    // Оновлюємо лічильники кабінету
                     updateRefCounter();
                 } else {
                     alert("Security Error: " + (data.error || "Rejected"));
@@ -1120,7 +1116,6 @@
                     balance = 0.0000;
                     document.getElementById('user-balance').innerText = "0.0000";
 
-                    // Твоє оригінальне модальне вікно та генерація тексту для адміна
                     const applicationText = `ЗАЯВКА НА ВИВІД / WITHDRAWAL REQUEST:\n• ID: ${finalUserId}\n• Sum: ${finalSum} USDT\n• TON Wallet: ${finalWallet}\n• Security code: ${securityCheckCode}`;
                     document.getElementById('modal-text-field').value = applicationText;
                     
