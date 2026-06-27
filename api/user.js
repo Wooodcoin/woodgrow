@@ -3,7 +3,14 @@ import admin from 'firebase-admin';
 // Ініціалізуємо Firebase Admin SDK, якщо він ще не ініціалізований
 if (!admin.apps.length) {
     try {
-        const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+        const rawKey = process.env.FIREBASE_SERVICE_ACCOUNT;
+        
+        // Декодуємо Base64 ключ, якщо він зашифрований (починається на "ewog")
+        const decryptedKey = rawKey.startsWith('ewog') 
+            ? Buffer.from(rawKey, 'base64').toString('utf-8') 
+            : rawKey;
+
+        const serviceAccount = JSON.parse(decryptedKey);
         
         admin.initializeApp({
             credential: admin.credential.cert(serviceAccount),
@@ -17,7 +24,7 @@ if (!admin.apps.length) {
 const db = admin.database();
 
 export default async function handler(req, res) {
-    // Дозволяємо тільки POST запити для безпеки
+    // Дозволяємо тільки POST запити
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
     
     const { userId, initData } = req.body;
@@ -50,11 +57,11 @@ export default async function handler(req, res) {
         const userSnapshot = await userRef.once('value');
         let user = userSnapshot.val();
 
-        // Якщо користувача немає в базі, створюємо його (як це було у старому фронтенді)
+        // Якщо користувача немає в базі, створюємо його автоматично
         if (!user) {
             let referrerId = null;
             
-            // Намагаємось витягнути реферала з initData, якщо він там є
+            // Спроба дістати реферала з start_param
             const urlParams = new URLSearchParams(initData);
             const startParam = urlParams.get('start_param');
             if (startParam && startParam.trim() !== userId) {
@@ -63,16 +70,16 @@ export default async function handler(req, res) {
 
             user = { id: userId, balance: 0.0000, referred_by: referrerId, ref_bonus: 0.0000 };
             
-            // Записуємо нового користувача в базу
+            // Записуємо нового користувача
             await userRef.set(user);
 
-            // Якщо є реферал, фіксуємо його в гілці "referrals"
+            // Якщо є реферал, зв'язуємо в гілці "referrals"
             if (referrerId) {
                 await db.ref(`referrals/${referrerId}/${userId}`).set(true);
             }
         }
 
-        // Повертаємо чисті дані на фронтенд
+        // Повертаємо дані на фронтенд
         return res.status(200).json({
             success: true,
             balance: parseFloat(user.balance) || 0.0000,
