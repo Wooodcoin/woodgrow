@@ -19,7 +19,6 @@
             --text-dark: #111111;
             --text-light: #ffffff;
             --card-bg: rgba(212, 175, 55, 0.15);
-            --neon-blue: #00d2ff;
         }
 
         body {
@@ -77,12 +76,6 @@
             backdrop-filter: blur(10px);
         }
 
-        .community-card {
-            background: rgba(0, 210, 255, 0.05);
-            border: 2px solid var(--neon-blue);
-            box-shadow: 0 0 15px rgba(0, 210, 255, 0.2);
-        }
-
         .balance-title {
             font-size: 14px;
             color: var(--neon-green);
@@ -126,12 +119,6 @@
             margin-top: 6px;
             box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
             text-transform: uppercase;
-        }
-
-        .btn-blue {
-            background: linear-gradient(135deg, #00d2ff 0%, #0066ff 100%);
-            color: #ffffff;
-            box-shadow: 0 4px 15px rgba(0, 102, 255, 0.4);
         }
 
         .btn:disabled {
@@ -292,22 +279,6 @@
         </div>
 
         <div id="tab-tasks" class="tab-content">
-            <div class="card community-card">
-                <h3 style="color: var(--neon-blue);" id="txt-channel-title">📢 Офіційний Канал</h3>
-                <p style="color: #a1a1aa; font-size: 13px; margin-bottom: 15px;" id="txt-channel-desc">
-                    Підписуйтесь, щоб першими дізнаватися про апдейти, нові бонуси та важливі новини WoodGrow Coin!
-                </p>
-                <button class="btn btn-blue" onclick="tg.openTelegramLink('https://t.me/WoodGrowchannel')">🔔 <span id="txt-btn-subscribe">Підписатися</span></button>
-            </div>
-
-            <div class="card community-card" style="margin-bottom: 25px;">
-                <h3 style="color: var(--neon-blue);" id="txt-chat-title">💬 Наша Спільнота (Чат)</h3>
-                <p style="color: #a1a1aa; font-size: 13px; margin-bottom: 15px;" id="txt-chat-desc">
-                    Спілкуйтеся з іншими гравцями, діліться реферальними лінками, обговорюйте виведення та стратегії заробітку!
-                </p>
-                <button class="btn btn-blue" onclick="tg.openTelegramLink('https://t.me/+YMHbK3uysIwzMGI6')">💬 <span id="txt-btn-join-chat">Увійти в чат</span></button>
-            </div>
-
             <div class="card" style="border: 2px dashed var(--gold-color);">
                 <h3 id="txt-support-title">🎁 Підтримка проєкту</h3>
                 <p style="color: #a1a1aa; font-size: 13px; margin-bottom: 15px;" id="txt-support-desc">
@@ -319,6 +290,22 @@
                     <span id="limit-support" class="limit-indicator">0 / 20</span>
                 </div>
                 <button class="btn" id="btn-support" style="background: var(--gold-gradient);" onclick="handleBtnClick('support', watchSupportAd)">🍿 Підтримати WoodGrow (+0 USDT)</button>
+            </div>
+
+            <div class="card">
+                <h3 id="txt-channel-title">📢 Офіційний Канал</h3>
+                <p style="color: #a1a1aa; font-size: 13px; margin-bottom: 15px;" id="txt-channel-desc">
+                    Підписуйтесь, щоб першими дізнаватися про апдейти, нові бонуси та важливі новини WoodGrow Coin!
+                </p>
+                <button class="btn" onclick="tg.openTelegramLink('https://t.me/WoodGrowchannel')">🔔 <span id="txt-btn-subscribe">Підписатися</span></button>
+            </div>
+
+            <div class="card" style="margin-bottom: 25px;">
+                <h3 id="txt-chat-title">💬 Наша Спільнота (Чат)</h3>
+                <p style="color: #a1a1aa; font-size: 13px; margin-bottom: 15px;" id="txt-chat-desc">
+                    Спілкуйтеся з іншими гравцями, діліться реферальними лінками, обговорюйте виведення та стратегії заробітку!
+                </p>
+                <button class="btn" onclick="tg.openTelegramLink('https://t.me/+YMHbK3uysIwzMGI6')">💬 <span id="txt-btn-join-chat">Увійти в чат</span></button>
             </div>
         </div>
 
