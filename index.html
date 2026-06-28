@@ -19,6 +19,7 @@
             --text-dark: #111111;
             --text-light: #ffffff;
             --card-bg: rgba(212, 175, 55, 0.15);
+            --neon-blue: #00d2ff;
         }
 
         body {
@@ -76,6 +77,12 @@
             backdrop-filter: blur(10px);
         }
 
+        .community-card {
+            background: rgba(0, 210, 255, 0.05);
+            border: 2px solid var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 210, 255, 0.2);
+        }
+
         .balance-title {
             font-size: 14px;
             color: var(--neon-green);
@@ -119,6 +126,12 @@
             margin-top: 6px;
             box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
             text-transform: uppercase;
+        }
+
+        .btn-blue {
+            background: linear-gradient(135deg, #00d2ff 0%, #0066ff 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(0, 102, 255, 0.4);
         }
 
         .btn:disabled {
@@ -279,6 +292,22 @@
         </div>
 
         <div id="tab-tasks" class="tab-content">
+            <div class="card community-card">
+                <h3 style="color: var(--neon-blue);" id="txt-channel-title">📢 Офіційний Канал</h3>
+                <p style="color: #a1a1aa; font-size: 13px; margin-bottom: 15px;" id="txt-channel-desc">
+                    Підписуйтесь, щоб першими дізнаватися про апдейти, нові бонуси та важливі новини WoodGrow Coin!
+                </p>
+                <button class="btn btn-blue" onclick="tg.openTelegramLink('https://t.me/WoodGrowchannel')">🔔 <span id="txt-btn-subscribe">Підписатися</span></button>
+            </div>
+
+            <div class="card community-card" style="margin-bottom: 25px;">
+                <h3 style="color: var(--neon-blue);" id="txt-chat-title">💬 Наша Спільнота (Чат)</h3>
+                <p style="color: #a1a1aa; font-size: 13px; margin-bottom: 15px;" id="txt-chat-desc">
+                    Спілкуйтеся з іншими гравцями, діліться реферальними лінками, обговорюйте виведення та стратегії заробітку!
+                </p>
+                <button class="btn btn-blue" onclick="tg.openTelegramLink('https://t.me/+YMHbK3uysIwzMGI6')">💬 <span id="txt-btn-join-chat">Увійти в чат</span></button>
+            </div>
+
             <div class="card" style="border: 2px dashed var(--gold-color);">
                 <h3 id="txt-support-title">🎁 Підтримка проєкту</h3>
                 <p style="color: #a1a1aa; font-size: 13px; margin-bottom: 15px;" id="txt-support-desc">
@@ -404,6 +433,12 @@
             uk: {
                 balance_title: "Мій Баланс",
                 choose_platform: "⚡️ ОБЕРІТЬ ПЛАТФОРМУ ДЛЯ ЗАРОБІТКУ:",
+                channel_title: "📢 Офіційний Канал",
+                channel_desc: "Підписуйтесь, щоб першими дізнаватися про апдейти, нові бонуси та важливі новини WoodGrow Coin!",
+                btn_subscribe: "Підписатися",
+                chat_title: "💬 Наша Спільнота (Чат)",
+                chat_desc: "Спілкуйтеся з іншими гравцями, діліться реферальними лінками, обговорюйте виведення та стратегії заробітку!",
+                btn_join_chat: "Увійти в чат",
                 support_title: "🎁 Підтримка проєкту",
                 support_desc: "Допоможіть проєкту розвиватися! Цей перегляд добровільний, він сильно допомагає адміну формивати резерв виплат для користувачів.",
                 wallet_connect_title: "Підключення гаманця",
@@ -452,6 +487,12 @@
             en: {
                 balance_title: "My Balance",
                 choose_platform: "⚡️ CHOOSE A PLATFORM TO EARN:",
+                channel_title: "📢 Official Channel",
+                channel_desc: "Subscribe to be the first to know about updates, new bonuses, and important WoodGrow Coin news!",
+                btn_subscribe: "Subscribe",
+                chat_title: "💬 Our Community (Chat)",
+                chat_desc: "Chat with other players, share referral links, discuss withdrawals and earning strategies!",
+                btn_join_chat: "Join Chat",
                 support_title: "🎁 Project Support",
                 support_desc: "Help the project develop! This view is voluntary, it greatly helps the admin form a payout reserve for users.",
                 wallet_connect_title: "Wallet Connection",
@@ -500,6 +541,12 @@
             ru: {
                 balance_title: "Мой Баланс",
                 choose_platform: "⚡️ ВЫ ВЫБЕРИТЕ ПЛАТФОРМУ ДЛЯ ЗАРАБОТКА:",
+                channel_title: "📢 Официальный Канал",
+                channel_desc: "Подписывайтесь, чтобы первыми узнавать об апдейтах, новых бонусах и важных новостях WoodGrow Coin!",
+                btn_subscribe: "Подписаться",
+                chat_title: "💬 Наше Сообщество (Чат)",
+                chat_desc: "Общайтесь с другими игроками, делитесь реферальными ссылками, обсуждайте выводы и стратегии заработка!",
+                btn_join_chat: "Войти в чат",
                 support_title: "🎁 Поддержка проекта",
                 support_desc: "Помогите проекту развиваться! Этот просмотр добровольный, он сильно помогает адмену формировать резерв выплат для пользователей.",
                 wallet_connect_title: "Подключение кошелька",
@@ -511,7 +558,7 @@
                     <li>Нажмите кнопку «Вывод на кошелек» (Минимум 5 USDT).</li>
                     <li>Подтвердите действие. Ваш баланс автоматически сбросится, а система зарегистрирует заявку на сервере.</li>
                     <li>Ожидайте перевода на ваш кошелек. Заявки обрабатываются автоматически в порядке очереди.</li>
-                    <li style="color: #ffcc00; font-weight: bold; list-style-type: '⚠️ ';">ВАЖНО: Для подключения используйте приложение <u>Tonkeeper</u>. Официальный Telegram Wallet внутри приложений может работать с перебоями!</li>
+                    <li style="color: #ffcc00; font-weight: bold; list-style-type: '⚠️ ';">ВАЖЛИВО: Для подключения используйте приложение <u>Tonkeeper</u>. Официальный Telegram Wallet внутри приложений может работать с перебоями!</li>
                 `,
                 min_sum_label: "Минимальная сумма:",
                 withdraw_action: "💸 Вывести на кошелек",
@@ -579,6 +626,14 @@
             
             document.getElementById('txt-balance-title').innerText = t.balance_title;
             document.getElementById('txt-choose-platform').innerText = t.choose_platform;
+            
+            document.getElementById('txt-channel-title').innerText = t.channel_title;
+            document.getElementById('txt-channel-desc').innerText = t.channel_desc;
+            document.getElementById('txt-btn-subscribe').innerText = t.btn_subscribe;
+            document.getElementById('txt-chat-title').innerText = t.chat_title;
+            document.getElementById('txt-chat-desc').innerText = t.chat_desc;
+            document.getElementById('txt-btn-join-chat').innerText = t.btn_join_chat;
+
             document.getElementById('txt-support-title').innerText = t.support_title;
             document.getElementById('txt-support-desc').innerText = t.support_desc;
             document.getElementById('txt-wallet-connect-title').innerText = t.wallet_connect_title;
@@ -907,11 +962,10 @@
 
         function shareBot() {
             const link = document.getElementById('ref-link').innerText;
-            const tText = currentLang === 'en' ? "👋 Earn with me in WoodGrow!" : (currentLang === 'ru' ? "👋 Зарабатывай со мной в WoodGrow!" : "👋 Заробляй зі мною в WoodGrow!");
+            const tText = currentLang === 'en' ? "👋 Earn with me in WoodGrow!" : (currentLang === 'ru' ? "👋 Зарабатывай со мной in WoodGrow!" : "👋 Заробляй зі мною в WoodGrow!");
             tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(tText)}`);
         }
 
-        // ОНОВЛЕНЕ АВТОМАТИЧНЕ ВИВЕДЕННЯ КОШТІВ НА СЕРВЕР СТРУКТУРОВАНОЮ ЗАЯВКОЮ
         async function withdrawFunds() {
             const t = translations[currentLang];
             const notConn = t.not_connected;
@@ -935,7 +989,7 @@
                     body: JSON.stringify({
                         userId: userId,
                         initData: window.Telegram.WebApp.initData,
-                        walletAddress: currentWalletAddress // <--- Передаємо адресу підключеного гаманця користувача!
+                        walletAddress: currentWalletAddress
                     })
                 });
 
@@ -944,8 +998,6 @@
                 if (response.ok && data.success) {
                     balance = 0.0000;
                     document.getElementById('user-balance').innerText = "0.0000";
-
-                    // Просто відкриваємо чисте модальне вікно успіху
                     document.getElementById('withdraw-modal').classList.add('active');
                 } else {
                     alert(data.error || t.db_error);
