@@ -1,6 +1,6 @@
 import admin from 'firebase-admin';
 
-// Ініціалізуємо Firebase Admin SDK, якщо він ще не ініціалізований
+// Ініціалізуємо Firebase Admin SDK
 if (!admin.apps.length) {
     try {
         const rawKey = process.env.FIREBASE_SERVICE_ACCOUNT;
@@ -28,12 +28,14 @@ export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
     
     const { userId, initData } = req.body;
+    
+    // Якщо клієнт не надіслав параметри, повертаємо 400
     if (!userId || !initData) return res.status(400).json({ error: 'Missing parameters' });
 
     const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
     if (!BOT_TOKEN) return res.status(500).json({ error: 'Server configuration missing' });
 
-    // 1. Валідація Telegram InitData (захист від підміни ID)
+    // 1. Валідація Telegram InitData (захист від злому)
     try {
         const urlParams = new URLSearchParams(initData);
         const hash = urlParams.get('hash');
@@ -52,7 +54,7 @@ export default async function handler(req, res) {
     }
 
     try {
-        // 2. Отримання даних користувача (Гілка "users" з малої літери)
+        // 2. Отримання даних користувача (Гілка "users")
         const userRef = db.ref(`users/${userId}`);
         const userSnapshot = await userRef.once('value');
         let user = userSnapshot.val();
@@ -60,8 +62,6 @@ export default async function handler(req, res) {
         // Якщо користувача немає в базі, створюємо його автоматично
         if (!user) {
             let referrerId = null;
-            
-            // Спроба дістати реферала з start_param
             const urlParams = new URLSearchParams(initData);
             const startParam = urlParams.get('start_param');
             if (startParam && startParam.trim() !== userId) {
@@ -69,21 +69,29 @@ export default async function handler(req, res) {
             }
 
             user = { id: userId, balance: 0.0000, referred_by: referrerId, ref_bonus: 0.0000 };
-            
-            // Записуємо нового користувача
             await userRef.set(user);
 
-            // Якщо є реферал, зв'язуємо в гілці "referrals"
             if (referrerId) {
                 await db.ref(`referrals/${referrerId}/${userId}`).set(true);
             }
         }
 
-        // Повертаємо дані на фронтенд
+        // 3. Підрахунок кількості рефералів з гілки "referrals"
+        const referralsRef = db.ref(`referrals/${userId}`);
+        const referralsSnapshot = await referralsRef.once('value');
+        let totalReferrals = 0;
+        
+        if (referralsSnapshot.exists()) {
+            // Рахуємо кількість дочірніх елементів у гілці користувача
+            totalReferrals = referralsSnapshot.numChildren();
+        }
+
+        // Повертаємо повні та точні дані на фронтенд
         return res.status(200).json({
             success: true,
             balance: parseFloat(user.balance) || 0.0000,
-            ref_bonus: parseFloat(user.ref_bonus) || 0.0000
+            ref_bonus: parseFloat(user.ref_bonus) || 0.0000,
+            ref_count: totalReferrals
         });
 
     } catch (e) {
