@@ -645,7 +645,6 @@
 
             document.getElementById('user-balance').innerText = balance.toFixed(4);
 
-            updateRefCounter();
             services.forEach(srv => updateLimitUI(srv));
         }
 
@@ -687,7 +686,7 @@
             return hash.toString();
         }
 
-        // ПУНКТ 3: Безпечне отримання балансу через наш сервер /api/user при старті
+        // БЕЗПЕЧНЕ ОТРИМАННЯ БАЛАНСУ ПРИ СТАРТІ
         async function fetchUserData() {
             try {
                 const res = await fetch('/api/user', {
@@ -699,11 +698,7 @@
                     })
                 });
 
-                if (!res.ok) {
-                    console.error("Помилка завантаження профілю з сервера");
-                    return;
-                }
-
+                if (!res.ok) return;
                 const data = await res.json();
 
                 if (data.success) {
@@ -712,12 +707,14 @@
                     
                     document.getElementById('user-balance').innerText = balance.toFixed(4);
                     document.getElementById('ref-bonus').innerText = `${rBonus.toFixed(4)} USDT`;
-
-                    updateRefCounter();
+                    
+                    // Відразу виводимо кількість рефералів, яку віддав сервер при старті
+                    const pCountText = translations[currentLang].people_count;
+                    document.getElementById('ref-count').innerText = `${data.ref_count} ${pCountText}`;
                 }
 
             } catch (e) {
-                console.error("Firebase fetch via API error:", e);
+                console.error("Fetch user error:", e);
             }
             
             services.forEach(srv => {
@@ -726,25 +723,27 @@
             });
         }
 
+        // ПУНКТ 4: ВИПРАВЛЕНА ФУНКЦІЯ ОНОВЛЕННЯ ЛІЧИЛЬНИКА (БЕЗ ПОМИЛКИ 400)
         async function updateRefCounter() {
             try {
-                // Використовуємо POST на /api/user, щоб безпечно отримати кількість рефералів без прямих запитів у базу
                 const res = await fetch('/api/user', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         userId: userId,
-                        initData: window.Telegram.WebApp.initData
+                        initData: window.Telegram.WebApp.initData // <--- Передаємо параметри для валідації!
                     })
                 });
                 
-                // Якщо є окремий ендпоінт рефералів — чудово, але оскільки рахуємо клієнтську частину:
-                // Для повної автономності та безпеки кількість рефералів можна також повертати з /api/user.
-                // Тимчасово залишаємо логіку лічильника з відображенням на основі стабільного API
-                const pCountText = translations[currentLang].people_count;
-                // Візуальне відображення (якщо бекенд повертає count, можна підставити data.ref_count)
-                // Залишаємо заглушку або базовий виклик, щоб не ламати структуру
-                document.getElementById('ref-count').innerText = `0 ${pCountText}`;
+                if (!res.ok) return;
+                const data = await res.json();
+
+                if (data.success) {
+                    const pCountText = translations[currentLang].people_count;
+                    // Оновлюємо цифру на екрані на основі точних даних з сервера
+                    document.getElementById('ref-count').innerText = `${data.ref_count} ${pCountText}`;
+                    document.getElementById('ref-bonus').innerText = `${data.ref_bonus.toFixed(4)} USDT`;
+                }
             } catch (err) {
                 console.error("Error updating ref counter:", err);
             }
@@ -809,30 +808,27 @@
             }).catch(() => alert(translations[currentLang].video_interrupted));
         }
 
-        // ПУНКТ 2: Ланцюжок подвійної реклами для Service 2 (Без таймера 20 секунд)
+        // ПОДВІЙНА РЕКЛАМА ДЛЯ SERVICE 2 (Без пауз)
         function watchDoubleService2() {
             if (viewCounts['service2'] >= MAX_VIEWS) return;
             if (isClickBlocked) return;
             isClickBlocked = true;
             setTimeout(() => { isClickBlocked = false; }, 1000);
 
-            // 1. Відкриваємо перше вікно з Direct Link
             tg.openLink('https://www.effectivecpmnetwork.com/gbzuytbhy?key=8595ffd9c4e7bfcd3fbacb124a4b0c74');
 
-            // 2. Одразу та миттєво запускаємо другу рекламу від Monetag поверх вікна бота
             if (typeof show_11189906 === 'function') {
                 setTimeout(() => {
                     show_11189906().then(() => {
-                        // Тільки після успішного перегляду Monetag шлемо запит на сервер
                         rewardUserServer('service2');
                     }).catch((err) => {
-                        console.error("Monetag закритий або помилка:", err);
+                        console.error("Monetag closed or error:", err);
                     });
-                }, 500); // Мікро-пауза в півсекунди, щоб пристрій встиг обробити відкриття лінку
+                }, 500); 
             }
         }
 
-        // MONETAG FOR SERVICE 4
+        // MONETAG ДЛЯ SERVICE 4
         function watchMonetag() {
             if (viewCounts['service4'] >= MAX_VIEWS) return;
             if (typeof show_11189906 === 'function') {
@@ -848,7 +844,7 @@
             }
         }
 
-        // DIRECT LINKS TIMER FOR SERVICE 3
+        // DIRECT LINKS TIMER ДЛЯ SERVICE 3
         function startDirectLinkTimer(serviceKey, url) {
             if (viewCounts[serviceKey] >= MAX_VIEWS) return;
             const btn = document.getElementById(`btn-${serviceKey}`);
@@ -879,7 +875,7 @@
             }, 1000);
         }
 
-        // REWARD USER SERVER
+        // НАРАХУВАННЯ НА БЕКЕНДІ
         async function rewardUserServer(serviceKey) {
             if (viewCounts[serviceKey] >= MAX_VIEWS) return;
 
@@ -964,7 +960,7 @@
             tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(tText)}`);
         }
 
-        // БЕЗПЕЧНЕ ВИВЕДЕННЯ ЧЕРЕЗ СЕРВЕР /api/withdraw
+        // ВИВЕДЕННЯ КОШТІВ
         async function withdrawFunds() {
             const t = translations[currentLang];
             const notConn = t.not_connected;
@@ -1036,7 +1032,6 @@
 
         function goToAdmin() { tg.openTelegramLink("https://t.me/VoooodCoin"); }
 
-        // Порядок запуску: Спочатку ініціалізація мови, потім завантаження профілю з сервера
         async function startApp() {
             initLanguage();     
             await fetchUserData(); 
