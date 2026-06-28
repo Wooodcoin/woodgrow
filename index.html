@@ -216,28 +216,11 @@
             background: #0d0d11;
             border: 2px solid var(--neon-green);
             border-radius: 20px;
-            padding: 20px;
+            padding: 25px 20px;
             width: 100%;
             max-width: 400px;
             text-align: center;
             box-shadow: 0 0 35px rgba(13, 242, 93, 0.4);
-        }
-
-        .modal-textarea {
-            width: 100%;
-            height: 130px;
-            background: #141418;
-            color: var(--neon-green);
-            border: 1px solid rgba(13, 242, 93, 0.5);
-            border-radius: 10px;
-            padding: 10px;
-            box-sizing: border-box;
-            font-family: monospace;
-            font-size: 12px;
-            resize: none;
-            margin: 15px 0;
-            -webkit-user-select: text;
-            user-select: text;
         }
 
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
@@ -324,8 +307,8 @@
                     <ol class="instruction-list" id="txt-inst-list">
                         <li>Підключіть свій TON-гаманець вище.</li>
                         <li>Натисніть кнопку «Вивести на гаманець» (Мін. 5 USDT).</li>
-                        <li>Підтвердіть дію. Ваш баланс автоматично скинеться, а система згенерує текст заявки.</li>
-                        <li>Скопіюйте текст із вікна та надішліть адміну в особисті для виплати.</li>
+                        <li>Підтвердіть дію. Ваш баланс автоматично скинеться, а система зареєструє заявку на сервері.</li>
+                        <li>Очікуйте переказу на ваш гаманець. Заявки обробляються автоматично в порядку черги.</li>
                         <li style="color: #ffcc00; font-weight: bold; list-style-type: '⚠️ ';">ВАЖЛИВО: Для підключення використовуйте додаток <u>Tonkeeper</u>. Офіційний Telegram Wallet всередині апок може працювати з перебоями!</li>
                     </ol>
                 </div>
@@ -372,11 +355,12 @@
 
     <div class="modal-overlay" id="withdraw-modal">
         <div class="modal-window">
-            <h3 style="color: var(--neon-green); margin-bottom: 5px;" id="txt-modal-success-title">⚡️ ЗАЯВКА СФОРМОВАНА ⚡️</h3>
-            <p style="font-size: 12px; color: #a1a1aa; margin: 0;" id="txt-modal-success-desc">Ваш баланс обнулено. Скопіюйте шифр нижче та надішліть адміну.</p>
-            <textarea class="modal-textarea" id="modal-text-field" readonly></textarea>
-            <button class="btn" id="modal-copy-btn" style="background: linear-gradient(135deg, #0df25d 0%, #08a63f 100%); color: #000;" onclick="copyModalText()">📋 СКОПІЮВАТИ ТЕКСТ</button>
-            <button class="btn" style="background: none; border: 2px solid #ffffff; color: #ffffff; margin-top: 10px;" onclick="goToAdmin()" id="btn-modal-write-admin">✈️ НАПИСАТИ АДМІНУ (@VoooodCoin)</button>
+            <div style="font-size: 45px; margin-bottom: 10px;">🎉</div>
+            <h3 style="color: var(--neon-green); margin-bottom: 10px; font-size: 20px;" id="txt-modal-success-title">ЗАЯВКУ СТВОРЕНО!</h3>
+            <p style="font-size: 14px; color: #ffffff; line-height: 1.5; margin-bottom: 20px;" id="txt-modal-success-desc">
+                Ваш баланс успішно списано. Заявка на виведення автоматично надійшла в систему. Очікуйте виплату на ваш підключений гаманець протягом 24 годин.
+            </p>
+            <button class="btn" style="background: var(--gold-gradient); color: #000;" onclick="closeWithdrawModal()">👌 ЧУДОВО</button>
         </div>
     </div>
 
@@ -411,7 +395,6 @@
         const MAX_VIEWS = 20;
         const services = ['service1', 'service2', 'service3', 'service4', 'support'];
         const configRewards = { service1: 0.0004, service2: 0.0002, service3: 0.0002, service4: 0.0004, support: 0.0000 };
-        const SECRET_SALT = "woodgrow_secure_9921";
 
         let balance = 0.0000;
         let activeLinkTimers = {};
@@ -430,8 +413,8 @@
                 inst_list: `
                     <li>Підключіть свій TON-гаманець вище.</li>
                     <li>Натисніть кнопку «Вивести на гаманець» (Мін. 5 USDT).</li>
-                    <li>Підтвердіть дію. Ваш баланс автоматично скинеться, а система згенерує текст заявки.</li>
-                    <li>Скопіюйте текст із вікна та надішліть адміну в особисті для виплати.</li>
+                    <li>Підтвердіть дію. Ваш баланс автоматично скинеться, а система зареєструє заявку на сервері.</li>
+                    <li>Очікуйте переказу на ваш гаманець. Заявки обробляються автоматично в порядку черги.</li>
                     <li style="color: #ffcc00; font-weight: bold; list-style-type: '⚠️ ';">ВАЖЛИВО: Для підключення використовуйте додаток <u>Tonkeeper</u>. Офіційний Telegram Wallet всередині апок може працювати з перебоями!</li>
                 `,
                 min_sum_label: "Мінімальна сума:",
@@ -444,9 +427,8 @@
                 partner_desc: "Отримуйте фіксовані +10% від кожного перегляду реклами вашими друзями!",
                 copy_link: "📋 Скопіювати лінк",
                 invite_friend: "🔗 Запросити друга",
-                modal_success_title: "⚡️ ЗАЯВКА СФОРМОВАНА ⚡️",
-                modal_success_desc: "Ваш баланс обнулено. Скопіюйте шифр нижче та надішліть адміну.",
-                modal_write_admin: "✈️ НАПИСАТИ АДМІНУ (@VoooodCoin)",
+                modal_success_title: "ЗАЯВКУ СТВОРЕНО!",
+                modal_success_desc: "Ваш баланс успішно списано. Заявка на виведення автоматично надійшла в систему. Очікуйте виплату на ваш підключений гаманець протягом 24 годин.",
                 nav_main: "⚙️Головна",
                 nav_tasks: "⚡️Реклама",
                 nav_wallet: "💼Гаманець",
@@ -457,7 +439,7 @@
                 copied: "Скопіювано!",
                 alert_wallet: "❌ Спочатку підключіть ваш TON-гаманець!",
                 alert_min: "❌ Мінімальна сума для виведення: 5 USDT (У вас {val})",
-                alert_confirm: "Ви впевнені, що хочете вивести {val} USDT?\n\nПісля натискання 'ОК' баланс буде скинуто, а sistema згенерує шифр.",
+                alert_confirm: "Ви впевнені, що хочете вивести {val} USDT?\n\nПісля натискання 'ОК' ваш баланс буде списано, а заявка автоматично надійде адміну.",
                 not_connected: "Не підключено",
                 checking: "⏳ ПЕРЕВІРКА...",
                 claim_bonus: "🎁 ЗАБРАТИ БОНУС",
@@ -465,10 +447,7 @@
                 support_thanks: "Дякуємо! ❤️",
                 video_interrupted: "Відео перервано.",
                 db_error: "Помилка зв'язку з сервером бази даних.",
-                req_error: "Не вдалося виконати запит на виведення.",
-                copy_code_btn: "📋 СКОПІЮВАТИ ТЕКСТ",
-                code_copied_success: "✅ ШИФР СКОПІЙОВАНО!",
-                manual_copy: "Затисніть пальцем текст у полі та скопіюйте його вручну."
+                req_error: "Не вдалося виконати запит на виведення."
             },
             en: {
                 balance_title: "My Balance",
@@ -482,8 +461,8 @@
                 inst_list: `
                     <li>Connect your TON wallet above.</li>
                     <li>Click the 'Withdraw to Wallet' button (Min. 5 USDT).</li>
-                    <li>Confirm the action. Your balance will automatically reset, and the system will generate a request text.</li>
-                    <li>Copy the text from the window and send it to the admin in private messages for payout.</li>
+                    <li>Confirm the action. Your balance will automatically reset, and the system will register the request on the server.</li>
+                    <li>Wait for the transfer to your wallet. Applications are processed automatically in order of queue.</li>
                     <li style="color: #ffcc00; font-weight: bold; list-style-type: '⚠️ ';">IMPORTANT: Use the <u>Tonkeeper</u> app to connect. The official Telegram Wallet inside apps may work with interruptions!</li>
                 `,
                 min_sum_label: "Minimum amount:",
@@ -496,9 +475,8 @@
                 partner_desc: "Get a fixed +10% from every ad view by your friends!",
                 copy_link: "📋 Copy link",
                 invite_friend: "🔗 Invite a friend",
-                modal_success_title: "⚡️ REQUEST GENERATED ⚡️",
-                modal_success_desc: "Your balance has been reset. Copy the cipher below and send it to the admin.",
-                modal_write_admin: "✈️ WRITE TO ADMIN (@VoooodCoin)",
+                modal_success_title: "REQUEST CREATED!",
+                modal_success_desc: "Your balance has been successfully debited. The withdrawal request has been automatically sent to the system. Expect payment to your connected wallet within 24 hours.",
                 nav_main: "⚙️Main",
                 nav_tasks: "⚡️Ads",
                 nav_wallet: "💼Wallet",
@@ -509,7 +487,7 @@
                 copied: "Copied!",
                 alert_wallet: "❌ Connect your TON wallet first!",
                 alert_min: "❌ Minimum withdrawal amount: 5 USDT (You have {val})",
-                alert_confirm: "Are you sure you want to withdraw {val} USDT?\n\nAfter clicking 'OK', the balance will be reset and the system will generate a cipher.",
+                alert_confirm: "Are you sure you want to withdraw {val} USDT?\n\nAfter clicking 'OK', your balance will be debited and the request will be sent to the admin.",
                 not_connected: "Not connected",
                 checking: "⏳ CHECKING...",
                 claim_bonus: "🎁 CLAIM BONUS",
@@ -517,14 +495,11 @@
                 support_thanks: "Thank you! ❤️",
                 video_interrupted: "Video interrupted.",
                 db_error: "Error communicating with the database server.",
-                req_error: "Failed to process withdrawal request.",
-                copy_code_btn: "📋 COPY TEXT",
-                code_copied_success: "✅ CIPHER COPIED!",
-                manual_copy: "Press and hold text in the field and copy it manually."
+                req_error: "Failed to process withdrawal request."
             },
             ru: {
                 balance_title: "Мой Баланс",
-                choose_platform: "⚡️ ВЫБЕРИТЕ ПЛАТФОРМУ ДЛЯ ЗАРАБОТКА:",
+                choose_platform: "⚡️ ВЫ ВЫБЕРИТЕ ПЛАТФОРМУ ДЛЯ ЗАРАБОТКА:",
                 support_title: "🎁 Поддержка проекта",
                 support_desc: "Помогите проекту развиваться! Этот просмотр добровольный, он сильно помогает адмену формировать резерв выплат для пользователей.",
                 wallet_connect_title: "Подключение кошелька",
@@ -533,10 +508,10 @@
                 inst_header: "💡 Инструкция по выводу средств:",
                 inst_list: `
                     <li>Подключите свой TON-кошелек выше.</li>
-                    <li>Нажмите кнопку «Вывод на кошелек» (Мин. 5 USDT).</li>
-                    <li>Подтвердите действие. Ваш баланс автоматически сбросится, а система сгенерирует текст заявки.</li>
-                    <li>Скопируйте текст из окна и отправьте админу в личные сообщения для выплаты.</li>
-                    <li style="color: #ffcc00; font-weight: bold; list-style-type: '⚠️ ';">ВАЖЛИВО: Для підключення використовуйте додаток <u>Tonkeeper</u>. Офіційний Telegram Wallet всередині апок може працювати з перебоями!</li>
+                    <li>Нажмите кнопку «Вывод на кошелек» (Минимум 5 USDT).</li>
+                    <li>Подтвердите действие. Ваш баланс автоматически сбросится, а система зарегистрирует заявку на сервере.</li>
+                    <li>Ожидайте перевода на ваш кошелек. Заявки обрабатываются автоматически в порядке очереди.</li>
+                    <li style="color: #ffcc00; font-weight: bold; list-style-type: '⚠️ ';">ВАЖНО: Для подключения используйте приложение <u>Tonkeeper</u>. Официальный Telegram Wallet внутри приложений может работать с перебоями!</li>
                 `,
                 min_sum_label: "Минимальная сумма:",
                 withdraw_action: "💸 Вывести на кошелек",
@@ -548,9 +523,8 @@
                 partner_desc: "Получайте фиксированные +10% от каждого просмотра рекламы вашими друзьями!",
                 copy_link: "📋 Скопировать линк",
                 invite_friend: "🔗 Пригласить друга",
-                modal_success_title: "⚡️ ЗАЯВКА СФОРМИРОВАНА ⚡️",
-                modal_success_desc: "Ваш баланс обнулено. Скопируйте шифр ниже и отправьте админу.",
-                modal_write_admin: "✈️ НАПИСАТИ АДМІНУ (@VoooodCoin)",
+                modal_success_title: "ЗАЯВКА СОЗДАНА!",
+                modal_success_desc: "Ваш баланс успешно списан. Заявка на вывод автоматически поступила в систему. Ожидайте выплату на ваш подключенный кошелек в течение 24 часов.",
                 nav_main: "⚙️Главная",
                 nav_tasks: "⚡️Реклама",
                 nav_wallet: "💼Кошелек",
@@ -561,7 +535,7 @@
                 copied: "Скопировано!",
                 alert_wallet: "❌ Сначала подключите ваш TON-кошелек!",
                 alert_min: "❌ Минимальная сумма для вывода: 5 USDT (У вас {val})",
-                alert_confirm: "Вы уверены, что хотите вывести {val} USDT?\n\nПосле нажатия 'ОК', balance будет сброшен и система сгенерирует шифр.",
+                alert_confirm: "Вы уверены, что хотите вывести {val} USDT?\n\nПосле нажатия 'ОК' ваш баланс будет списан, а заявка автоматически поступит админу.",
                 not_connected: "Не подключено",
                 checking: "⏳ ПРОВЕРКА...",
                 claim_bonus: "🎁 ЗАБРАТЬ БОНУС",
@@ -569,15 +543,13 @@
                 support_thanks: "Спасибо! ❤️",
                 video_interrupted: "Видео прервано.",
                 db_error: "Ошибка связи с сервером базы данных.",
-                req_error: "Не удалось выполнить запрос на вывод.",
-                copy_code_btn: "📋 СКОПИРОВАТЬ ТЕКСТ",
-                code_copied_success: "✅ ШИФР СКОПИРОВАН!",
-                manual_copy: "Зажмите пальцем текст в поле и скопируйте его вручную."
+                req_error: "Не удалось выполнить запрос на вывод."
             }
         };
 
         function openLangModal() { document.getElementById('lang-modal').classList.add('active'); }
         function closeLangModal() { document.getElementById('lang-modal').classList.remove('active'); }
+        function closeWithdrawModal() { document.getElementById('withdraw-modal').classList.remove('active'); }
 
         function selectLanguage(langCode) {
             currentLang = langCode;
@@ -626,8 +598,6 @@
             document.getElementById('btn-invite-friend').innerText = t.invite_friend;
             document.getElementById('txt-modal-success-title').innerText = t.modal_success_title;
             document.getElementById('txt-modal-success-desc').innerText = t.modal_success_desc;
-            document.getElementById('btn-modal-write-admin').innerText = t.modal_write_admin;
-            document.getElementById('modal-copy-btn').innerText = t.copy_code_btn;
 
             document.getElementById('nav-btn-main').innerHTML = `<span class="nav-icon">⚙️</span>${t.nav_main.replace('⚙️','')}`;
             document.getElementById('nav-btn-tasks').innerHTML = `<span class="nav-icon">⚡️</span>${t.nav_tasks.replace('⚡️','')}`;
@@ -644,7 +614,6 @@
             }
 
             document.getElementById('user-balance').innerText = balance.toFixed(4);
-
             services.forEach(srv => updateLimitUI(srv));
         }
 
@@ -676,17 +645,6 @@
             actionFunction();
         }
 
-        function generateHash(val) {
-            let str = val.toFixed(4) + SECRET_SALT;
-            let hash = 0;
-            for (let i = 0; i < str.length; i++) {
-                hash = (hash << 5) - hash + str.charCodeAt(i);
-                hash |= 0;
-            }
-            return hash.toString();
-        }
-
-        // БЕЗПЕЧНЕ ОТРИМАННЯ БАЛАНСУ ПРИ СТАРТІ
         async function fetchUserData() {
             try {
                 const res = await fetch('/api/user', {
@@ -708,7 +666,6 @@
                     document.getElementById('user-balance').innerText = balance.toFixed(4);
                     document.getElementById('ref-bonus').innerText = `${rBonus.toFixed(4)} USDT`;
                     
-                    // Відразу виводимо кількість рефералів, яку віддав сервер при старті
                     const pCountText = translations[currentLang].people_count;
                     document.getElementById('ref-count').innerText = `${data.ref_count} ${pCountText}`;
                 }
@@ -723,7 +680,6 @@
             });
         }
 
-        // ПУНКТ 4: ВИПРАВЛЕНА ФУНКЦІЯ ОНОВЛЕННЯ ЛІЧИЛЬНИКА (БЕЗ ПОМИЛКИ 400)
         async function updateRefCounter() {
             try {
                 const res = await fetch('/api/user', {
@@ -731,7 +687,7 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         userId: userId,
-                        initData: window.Telegram.WebApp.initData // <--- Передаємо параметри для валідації!
+                        initData: window.Telegram.WebApp.initData
                     })
                 });
                 
@@ -740,7 +696,6 @@
 
                 if (data.success) {
                     const pCountText = translations[currentLang].people_count;
-                    // Оновлюємо цифру на екрані на основі точних даних з сервера
                     document.getElementById('ref-count').innerText = `${data.ref_count} ${pCountText}`;
                     document.getElementById('ref-bonus').innerText = `${data.ref_bonus.toFixed(4)} USDT`;
                 }
@@ -808,7 +763,6 @@
             }).catch(() => alert(translations[currentLang].video_interrupted));
         }
 
-        // ПОДВІЙНА РЕКЛАМА ДЛЯ SERVICE 2 (Без пауз)
         function watchDoubleService2() {
             if (viewCounts['service2'] >= MAX_VIEWS) return;
             if (isClickBlocked) return;
@@ -828,7 +782,6 @@
             }
         }
 
-        // MONETAG ДЛЯ SERVICE 4
         function watchMonetag() {
             if (viewCounts['service4'] >= MAX_VIEWS) return;
             if (typeof show_11189906 === 'function') {
@@ -844,7 +797,6 @@
             }
         }
 
-        // DIRECT LINKS TIMER ДЛЯ SERVICE 3
         function startDirectLinkTimer(serviceKey, url) {
             if (viewCounts[serviceKey] >= MAX_VIEWS) return;
             const btn = document.getElementById(`btn-${serviceKey}`);
@@ -875,7 +827,6 @@
             }, 1000);
         }
 
-        // НАРАХУВАННЯ НА БЕКЕНДІ
         async function rewardUserServer(serviceKey) {
             if (viewCounts[serviceKey] >= MAX_VIEWS) return;
 
@@ -960,10 +911,11 @@
             tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(tText)}`);
         }
 
-        // ВИВЕДЕННЯ КОШТІВ
+        // ОНОВЛЕНЕ АВТОМАТИЧНЕ ВИВЕДЕННЯ КОШТІВ НА СЕРВЕР СТРУКТУРОВАНОЮ ЗАЯВКОЮ
         async function withdrawFunds() {
             const t = translations[currentLang];
             const notConn = t.not_connected;
+            
             if (!tonConnectUI.connected || currentWalletAddress === notConn) {
                 alert(t.alert_wallet);
                 return;
@@ -976,18 +928,14 @@
             const confirmed = confirm(t.alert_confirm.replace('{val}', balance.toFixed(4)));
             if (!confirmed) return;
 
-            const finalUserId = userId;
-            const finalSum = balance.toFixed(4);
-            const finalWallet = currentWalletAddress;
-            const securityCheckCode = generateHash(balance);
-
             try {
                 const response = await fetch('/api/withdraw', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         userId: userId,
-                        initData: window.Telegram.WebApp.initData
+                        initData: window.Telegram.WebApp.initData,
+                        walletAddress: currentWalletAddress // <--- Передаємо адресу підключеного гаманця користувача!
                     })
                 });
 
@@ -997,40 +945,15 @@
                     balance = 0.0000;
                     document.getElementById('user-balance').innerText = "0.0000";
 
-                    const applicationText = `ЗАЯВКА НА ВИВІД / WITHDRAWAL REQUEST:\n• ID: ${finalUserId}\n• Sum: ${finalSum} USDT\n• TON Wallet: ${finalWallet}\n• Security code: ${securityCheckCode}`;
-                    document.getElementById('modal-text-field').value = applicationText;
-                    
-                    navigator.clipboard.writeText(applicationText).catch(() => {});
+                    // Просто відкриваємо чисте модальне вікно успіху
                     document.getElementById('withdraw-modal').classList.add('active');
                 } else {
-                    alert(t.db_error);
+                    alert(data.error || t.db_error);
                 }
             } catch (err) {
                 alert(t.req_error);
             }
         }
-
-        function copyModalText() {
-            const textField = document.getElementById('modal-text-field');
-            const t = translations[currentLang];
-            textField.select();
-            textField.setSelectionRange(0, 99999);
-            navigator.clipboard.writeText(textField.value).then(() => {
-                const copyBtn = document.getElementById('modal-copy-btn');
-                copyBtn.innerText = t.code_copied_success;
-                copyBtn.style.background = "#0df25d";
-                copyBtn.style.color = "#111111";
-                setTimeout(() => {
-                    copyBtn.innerText = t.copy_code_btn;
-                    copyBtn.style.background = "linear-gradient(135deg, #0df25d 0%, #08a63f 100%)";
-                    copyBtn.style.color = "#111111";
-                }, 3000);
-            }).catch(() => {
-                alert(t.manual_copy);
-            });
-        }
-
-        function goToAdmin() { tg.openTelegramLink("https://t.me/VoooodCoin"); }
 
         async function startApp() {
             initLanguage();     
