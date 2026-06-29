@@ -9,6 +9,40 @@
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     
     <script src='//libtl.com/sdk.js' data-zone='11189906' data-sdk='show_11189906'></script>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics-compat.js"></script>
+    <script>
+        // Повна офіційна конфігурація твого проєкту WoodGrow з консолі Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCGCYgpl-dUdkrEWfIzKrVsSTQk31VnU98",
+            authDomain: "woodgrowbot.firebaseapp.com",
+            databaseURL: "https://woodgrowbot-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "woodgrowbot",
+            storageBucket: "woodgrowbot.firebasestorage.app",
+            messagingSenderId: "284079363279",
+            appId: "1:284079363279:web:f2375e30fac7b53cc99407",
+            measurementId: "G-703FVSQ9HD"
+        };
+
+        // Ініціалізуємо Firebase та запускаємо збір аналітики Google Analytics (GA4)
+        const app = firebase.initializeApp(firebaseConfig);
+        const analytics = firebase.analytics();
+
+        // Автоматично реєструємо запуск Mini App у Telegram
+        if (window.Telegram && window.Telegram.WebApp) {
+            const tgUser = window.Telegram.WebApp.initDataUnsafe?.user;
+            if (tgUser) {
+                // Записуємо унікальні властивості користувача для побудови точних звітів у Firebase
+                firebase.analytics().setUserProperties({
+                    telegram_id: tgUser.id.toString(),
+                    user_lang: tgUser.language_code || 'unknown'
+                });
+            }
+            // Фіксуємо унікальну подію відкриття додатка
+            firebase.analytics().logEvent('app_launch_telegram');
+        }
+    </script>
     
     <style>
         :root {
@@ -569,7 +603,7 @@
                 copied: "Скопировано!",
                 alert_wallet: "❌ Сначала подключите ваш TON-кошелек!",
                 alert_min: "❌ Минимальная сумма для вывода: 5 USDT (У вас {val})",
-                alert_confirm: "Вы уверены, что хотите вывести {val} USDT?\n\nПосле нажатия 'ОК' ваш баланс будет списан, а заявка автоматически поступит админу.",
+                alert_confirm: "Вы уверены, що хотите вывести {val} USDT?\n\nПосле нажатия 'ОК' ваш баланс будет списан, а заявка автоматически поступит админу.",
                 not_connected: "Не подключено",
                 checking: "⏳ ПРОВЕРКА...",
                 claim_bonus: "🎁 ЗАБРАТЬ БОНУС",
@@ -684,6 +718,12 @@
             if (isClickBlocked) return;
             isClickBlocked = true;
             setTimeout(() => { isClickBlocked = false; }, 1000);
+
+            // ТРЕКІНГ: Фіксуємо клік по рекламній кнопці в аналітиці Google
+            if (typeof firebase !== 'undefined' && firebase.analytics) {
+                firebase.analytics().logEvent('click_ad_service', { service: serviceKey });
+            }
+
             actionFunction();
         }
 
@@ -751,6 +791,12 @@
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
             document.getElementById('tab-' + tabName).classList.add('active');
             element.classList.add('active');
+
+            // ТРЕКІНГ: Фіксуємо перехід користувача по вкладках меню
+            if (typeof firebase !== 'undefined' && firebase.analytics) {
+                firebase.analytics().logEvent('switch_tab', { tab_name: tabName });
+            }
+
             if (tabName === 'profile') updateRefCounter();
         }
 
@@ -787,6 +833,11 @@
         tonConnectUI.onStatusChange(wallet => {
             const notConn = translations[currentLang].not_connected;
             currentWalletAddress = wallet ? wallet.account.address : notConn;
+
+            // ТРЕКІНГ: Логуємо успішне підключення криптогаманця TON
+            if (wallet && typeof firebase !== 'undefined' && firebase.analytics) {
+                firebase.analytics().logEvent('wallet_connected', { wallet_provider: wallet.device.appName });
+            }
         });
 
         // ADSGRAM
@@ -810,6 +861,11 @@
             if (isClickBlocked) return;
             isClickBlocked = true;
             setTimeout(() => { isClickBlocked = false; }, 1000);
+
+            // ТРЕКІНГ: Клік саме по Service 2 (двійна реклама)
+            if (typeof firebase !== 'undefined' && firebase.analytics) {
+                firebase.analytics().logEvent('click_ad_service', { service: 'service2' });
+            }
 
             tg.openLink('https://www.effectivecpmnetwork.com/gbzuytbhy?key=8595ffd9c4e7bfcd3fbacb124a4b0c74');
 
@@ -849,6 +905,11 @@
                 if (serviceKey === 'service3') btn.innerText = "Service 3 (+0.0002)";
                 rewardUserServer(serviceKey);
                 return;
+            }
+
+            // ТРЕКІНГ: Клік по Service 3 (пряме посилання з таймером)
+            if (typeof firebase !== 'undefined' && firebase.analytics) {
+                firebase.analytics().logEvent('click_ad_service', { service: 'service3' });
             }
 
             tg.openLink(url);
@@ -892,6 +953,11 @@
                     viewCounts[serviceKey] += 1;
                     localStorage.setItem(`wg_views_${serviceKey}`, viewCounts[serviceKey].toString());
                     updateLimitUI(serviceKey);
+
+                    // ТРЕКІНГ: Фіксуємо успішно зарахований перегляд реклами на сервері
+                    if (typeof firebase !== 'undefined' && firebase.analytics) {
+                        firebase.analytics().logEvent('ad_reward_success', { service: serviceKey });
+                    }
 
                     if (viewCounts[serviceKey] < MAX_VIEWS) {
                         localStorage.setItem(`wg_cooldown_${serviceKey}`, (Date.now() + 120000).toString());
@@ -945,12 +1011,22 @@
         function copyRefLink() {
             navigator.clipboard.writeText(document.getElementById('ref-link').innerText);
             alert(translations[currentLang].copied);
+
+            // ТРЕКІНГ: Клік на копіювання посилання
+            if (typeof firebase !== 'undefined' && firebase.analytics) {
+                firebase.analytics().logEvent('share_link_copied');
+            }
         }
 
         function shareBot() {
             const link = document.getElementById('ref-link').innerText;
             const tText = currentLang === 'en' ? "👋 Earn with me in WoodGrow!" : (currentLang === 'ru' ? "👋 Зарабатывай со мной in WoodGrow!" : "👋 Заробляй зі мною в WoodGrow!");
             tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(tText)}`);
+
+            // ТРЕКІНГ: Клік на кнопку "Запросити друга"
+            if (typeof firebase !== 'undefined' && firebase.analytics) {
+                firebase.analytics().logEvent('share_link_clicked');
+            }
         }
 
         async function withdrawFunds() {
@@ -983,6 +1059,11 @@
                 const data = await response.json();
 
                 if (response.ok && data.success) {
+                    // ТРЕКІНГ: Логуємо створення успішної заявки на вивід грошей
+                    if (typeof firebase !== 'undefined' && firebase.analytics) {
+                        firebase.analytics().logEvent('withdraw_request_success', { amount: balance });
+                    }
+
                     balance = 0.0000;
                     document.getElementById('user-balance').innerText = "0.0000";
                     document.getElementById('withdraw-modal').classList.add('active');
