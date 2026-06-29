@@ -71,6 +71,9 @@ export default async function handler(req, res) {
             user = { id: userId, balance: 0.0000, referred_by: referrerId, ref_bonus: 0.0000 };
             await userRef.set(user);
 
+            // ЛІЧИЛЬНИК: Безпечно додаємо +1 до загальної статистики на сервері
+            await db.ref('system_stats/global/total_users').set(admin.database.ServerValue.increment(1));
+
             if (referrerId) {
                 await db.ref(`referrals/${referrerId}/${userId}`).set(true);
             }
@@ -82,11 +85,10 @@ export default async function handler(req, res) {
         let totalReferrals = 0;
         
         if (referralsSnapshot.exists()) {
-            // Рахуємо кількість дочірніх елементів у гілці користувача
             totalReferrals = referralsSnapshot.numChildren();
         }
 
-        // Повертаємо повні та точні дані на фронтенд
+        // Повертаємо дані на фронтенд (без total_users, як у Варіанті 1)
         return res.status(200).json({
             success: true,
             balance: parseFloat(user.balance) || 0.0000,
