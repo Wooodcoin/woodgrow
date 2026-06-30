@@ -294,7 +294,7 @@
                     <span id="timer-service2" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
                     <span id="limit-service2" class="limit-indicator">0 / 20</span>
                 </div>
-                <button class="btn" id="btn-service2" onclick="watchDoubleService2()">Service 2 (+0.0002)</button>
+                <button class="btn" id="btn-service2" onclick="watchMonetag()">Service 2 (+0.0002)</button>
             </div>
 
             <div style="margin-bottom: 15px;">
@@ -303,7 +303,7 @@
                     <span id="timer-service3" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
                     <span id="limit-service3" class="limit-indicator">0 / 20</span>
                 </div>
-                <button class="btn" id="btn-service3" onclick="startDirectLinkTimer('service3', 'https://affectionatestorage.com/gQiXSO')">Service 3 (+0.0002)</button>
+                <button class="btn" id="btn-service3" onclick="startDirectLinkTimer('service3', 'task-36297')">Service 3 (+0.0002)</button>
             </div>
 
             <div style="margin-bottom: 15px;">
@@ -312,7 +312,7 @@
                     <span id="timer-service4" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
                     <span id="limit-service4" class="limit-indicator">0 / 20</span>
                 </div>
-                <button class="btn" id="btn-service4" onclick="handleBtnClick('service4', watchMonetag)">Service 4 (+0.0004)</button>
+                <button class="btn" id="btn-service4" onclick="startDirectLinkTimer('service4', 'https://omg10.com/4/11217998')">Service 4 (+0.0004)</button>
             </div>
         </div>
 
@@ -327,7 +327,7 @@
                     <span id="timer-support" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
                     <span id="limit-support" class="limit-indicator">0 / 20</span>
                 </div>
-                <button class="btn" id="btn-support" style="background: var(--gold-gradient);" onclick="handleBtnClick('support', watchSupportAd)">🍿 Підтримати WoodGrow (+0 USDT)</button>
+                <button class="btn" id="btn-support" style="background: var(--gold-gradient);" onclick="startDirectLinkTimer('support', 'https://omg10.com/4/11217999')">🍿 Підтримати WoodGrow (+0 USDT)</button>
             </div>
 
             <div class="card">
@@ -684,7 +684,11 @@
             document.getElementById('nav-btn-wallet').innerHTML = `<span class="nav-icon">💼</span>${t.nav_wallet.replace('💼','')}`;
             document.getElementById('nav-btn-profile').innerHTML = `<span class="nav-icon">🖥️</span>${t.nav_profile.replace('🖥️','')}`;
 
-            document.getElementById('btn-support').innerText = t.btn_support;
+            // Якщо кнопка не активована як таймер, оновлюємо стандартний текст перекладу
+            const btnSupport = document.getElementById('btn-support');
+            if (btnSupport && !btnSupport.classList.contains('ready-claim') && !btnSupport.disabled) {
+                btnSupport.innerText = t.btn_support;
+            }
             
             if (document.getElementById('user-id').innerText === "Завантаження..." || document.getElementById('user-id').innerText === "Loading..." || document.getElementById('user-id').innerText === "Загрузка...") {
                 document.getElementById('user-id').innerText = t.loading;
@@ -723,7 +727,6 @@
             isClickBlocked = true;
             setTimeout(() => { isClickBlocked = false; }, 1000);
 
-            // ТРЕКІНГ: Фіксуємо клік по рекламній кнопці в аналітиці Google
             if (typeof firebase !== 'undefined' && firebase.analytics) {
                 firebase.analytics().logEvent('click_ad_service', { service: serviceKey });
             }
@@ -796,7 +799,6 @@
             document.getElementById('tab-' + tabName).classList.add('active');
             element.classList.add('active');
 
-            // ТРЕКІНГ: Фіксуємо перехід користувача по вкладках меню
             if (typeof firebase !== 'undefined' && firebase.analytics) {
                 firebase.analytics().logEvent('switch_tab', { tab_name: tabName });
             }
@@ -819,6 +821,8 @@
                 btn.className = "btn";
                 if(serviceKey === 'service2') btn.innerText = "Service 2 (+0.0002)";
                 if(serviceKey === 'service3') btn.innerText = "Service 3 (+0.0002)";
+                if(serviceKey === 'service4') btn.innerText = "Service 4 (+0.0004)";
+                if(serviceKey === 'support') btn.innerText = translations[currentLang].btn_support;
             } else {
                 limitSpan.className = 'limit-indicator';
                 const expireTime = localStorage.getItem(`wg_cooldown_${serviceKey}`);
@@ -838,13 +842,12 @@
             const notConn = translations[currentLang].not_connected;
             currentWalletAddress = wallet ? wallet.account.address : notConn;
 
-            // ТРЕКІНГ: Логуємо успішне підключення криптогаманця TON
             if (wallet && typeof firebase !== 'undefined' && firebase.analytics) {
                 firebase.analytics().logEvent('wallet_connected', { wallet_provider: wallet.device.appName });
             }
         });
 
-        // ADSGRAM
+        // ADSGRAM (Лише для Service 1)
         const AdController = window.Adsgram ? window.Adsgram.init({ blockId: "35910" }) : null;
 
         function watchAdsgram() {
@@ -852,44 +855,21 @@
             AdController.show().then(() => rewardUserServer('service1')).catch(() => alert(translations[currentLang].ads_error));
         }
 
-        function watchSupportAd() {
-            if (viewCounts['support'] >= MAX_VIEWS || !AdController) return;
-            AdController.show().then(() => {
-                rewardUserServer('support');
-                alert(translations[currentLang].support_thanks);
-            }).catch(() => alert(translations[currentLang].video_interrupted));
-        }
-
-        function watchDoubleService2() {
+        // MONETAG SDK (Лише для Service 2)
+        function watchMonetag() {
             if (viewCounts['service2'] >= MAX_VIEWS) return;
             if (isClickBlocked) return;
             isClickBlocked = true;
             setTimeout(() => { isClickBlocked = false; }, 1000);
 
-            // ТРЕКІНГ: Клік саме по Service 2 (двійна реклама)
             if (typeof firebase !== 'undefined' && firebase.analytics) {
                 firebase.analytics().logEvent('click_ad_service', { service: 'service2' });
             }
 
-            tg.openLink('https://www.effectivecpmnetwork.com/gbzuytbhy?key=8595ffd9c4e7bfcd3fbacb124a4b0c74');
-
-            if (typeof show_11189906 === 'function') {
-                setTimeout(() => {
-                    show_11189906().then(() => {
-                        rewardUserServer('service2');
-                    }).catch((err) => {
-                        console.error("Monetag closed or error:", err);
-                    });
-                }, 500); 
-            }
-        }
-
-        function watchMonetag() {
-            if (viewCounts['service4'] >= MAX_VIEWS) return;
             if (typeof show_11189906 === 'function') {
                 try {
                     show_11189906().then(() => {
-                        rewardUserServer('service4');
+                        rewardUserServer('service2');
                     }).catch((err) => {
                         console.error("Monetag closed or error", err);
                     });
@@ -899,6 +879,7 @@
             }
         }
 
+        // УНІВЕРСАЛЬНИЙ ТАЙМЕР ДЛЯ DIRECT LINKS (Service 3, Service 4, Support)
         function startDirectLinkTimer(serviceKey, url) {
             if (viewCounts[serviceKey] >= MAX_VIEWS) return;
             const btn = document.getElementById(`btn-${serviceKey}`);
@@ -906,20 +887,26 @@
 
             if (btn.classList.contains('ready-claim')) {
                 btn.classList.remove('ready-claim');
+                
+                // Скидаємо базові написи кнопок
                 if (serviceKey === 'service3') btn.innerText = "Service 3 (+0.0002)";
+                if (serviceKey === 'service4') btn.innerText = "Service 4 (+0.0004)";
+                if (serviceKey === 'support') btn.innerText = t.btn_support;
+                
                 rewardUserServer(serviceKey);
                 return;
             }
 
-            // ТРЕКІНГ: Клік по Service 3 (пряме посилання з таймером)
             if (typeof firebase !== 'undefined' && firebase.analytics) {
-                firebase.analytics().logEvent('click_ad_service', { service: 'service3' });
+                firebase.analytics().logEvent('click_ad_service', { service: serviceKey });
             }
 
             tg.openLink(url);
             btn.disabled = true;
             let timeLeft = 20;
             btn.innerText = `${t.checking} ${timeLeft}s`;
+
+            if(activeLinkTimers[serviceKey]) clearInterval(activeLinkTimers[serviceKey]);
 
             activeLinkTimers[serviceKey] = setInterval(() => {
                 timeLeft--;
@@ -958,9 +945,12 @@
                     localStorage.setItem(`wg_views_${serviceKey}`, viewCounts[serviceKey].toString());
                     updateLimitUI(serviceKey);
 
-                    // ТРЕКІНГ: Фіксуємо успішно зарахований перегляд реклами на сервері
                     if (typeof firebase !== 'undefined' && firebase.analytics) {
                         firebase.analytics().logEvent('ad_reward_success', { service: serviceKey });
+                    }
+
+                    if (serviceKey === 'support') {
+                        alert(translations[currentLang].support_thanks);
                     }
 
                     if (viewCounts[serviceKey] < MAX_VIEWS) {
@@ -987,8 +977,12 @@
             if (remaining > 0) {
                 if(activeLinkTimers[serviceKey]) clearInterval(activeLinkTimers[serviceKey]);
                 btn.classList.remove('ready-claim');
+                
                 if (serviceKey === 'service2') btn.innerText = "Service 2 (+0.0002)";
                 if (serviceKey === 'service3') btn.innerText = "Service 3 (+0.0002)";
+                if (serviceKey === 'service4') btn.innerText = "Service 4 (+0.0004)";
+                if (serviceKey === 'support') btn.innerText = translations[currentLang].btn_support;
+                
                 btn.disabled = true;
                 timerBox.style.display = 'inline';
                 timerBox.querySelector('.sec').innerText = remaining;
@@ -1016,7 +1010,6 @@
             navigator.clipboard.writeText(document.getElementById('ref-link').innerText);
             alert(translations[currentLang].copied);
 
-            // ТРЕКІНГ: Клік на копіювання посилання
             if (typeof firebase !== 'undefined' && firebase.analytics) {
                 firebase.analytics().logEvent('share_link_copied');
             }
@@ -1027,7 +1020,6 @@
             const tText = currentLang === 'en' ? "👋 Earn with me in WoodGrow!" : (currentLang === 'ru' ? "👋 Зарабатывай со мной in WoodGrow!" : "👋 Заробляй зі мною в WoodGrow!");
             tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(tText)}`);
 
-            // ТРЕКІНГ: Клік на кнопку "Запросити друга"
             if (typeof firebase !== 'undefined' && firebase.analytics) {
                 firebase.analytics().logEvent('share_link_clicked');
             }
@@ -1063,7 +1055,6 @@
                 const data = await response.json();
 
                 if (response.ok && data.success) {
-                    // ТРЕКІНГ: Логуємо створення успішної заявки на вивід грошей
                     if (typeof firebase !== 'undefined' && firebase.analytics) {
                         firebase.analytics().logEvent('withdraw_request_success', { amount: balance });
                     }
