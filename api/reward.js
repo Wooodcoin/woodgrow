@@ -58,7 +58,7 @@ export default async function handler(req, res) {
         const now = Date.now();
         const cooldownTime = 120 * 1000; // 120 секунд
 
-        // 2. Серверна перевірка таймауту через Admin SDK (Гілка "users" з малої)
+        // 2. Серверна перевірка таймауту через Admin SDK
         const lastClickRef = db.ref(`users/${userId}/last_clicks/${serviceKey}`);
         const lastClickSnapshot = await lastClickRef.once('value');
         const lastClickTime = lastClickSnapshot.val();
@@ -71,25 +71,38 @@ export default async function handler(req, res) {
         // 3. Оновлюємо час останнього кліку
         await lastClickRef.set(now);
 
-        // 4. Отримання даних користувача (Гілка "users" з малої)
+        // 4. Отримання даних користувача
         const userRef = db.ref(`users/${userId}`);
         const userSnapshot = await userRef.once('value');
         const user = userSnapshot.val();
 
         let currentBalance = 0;
         let referredBy = null;
+        let currentViews = 0;
 
         if (user) {
             currentBalance = parseFloat(user.balance) || 0;
             referredBy = user.referred_by || null;
+            if (user.viewCounts && user.viewCounts[serviceKey]) {
+                currentViews = parseInt(user.viewCounts[serviceKey]) || 0;
+            }
+        }
+
+        // Обмеження нарахування, якщо ліміт 20 вже вичерпано (захист від спаму запитами)
+        if (serviceKey !== 'support' && currentViews >= 20) {
+            return res.status(400).json({ error: 'Ліміт переглядів для цього сервісу вже вичерпано на сьогодні!' });
         }
 
         const newBalance = currentBalance + reward;
+        const newViews = currentViews + 1;
         
-        // Оновлюємо баланс основного користувача
-        await userRef.update({ balance: newBalance });
+        // Оновлюємо баланс основного користувача та інкрементуємо лічильник у базі
+        const updates = { balance: newBalance };
+        updates[`viewCounts/${serviceKey}`] = newViews;
+        
+        await userRef.update(updates);
 
-        // 5. Реферальний бонус (+10% USDT) (Гілка "users" з малої)
+        // 5. Реферальний бонус (+10% USDT)
         if (referredBy && reward > 0) {
             const referrerRef = db.ref(`users/${referredBy}`);
             const referrerSnapshot = await referrerRef.once('value');
