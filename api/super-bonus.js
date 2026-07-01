@@ -1,6 +1,6 @@
 import admin from 'firebase-admin';
 
-// Ініціалізуємо Firebase Admin SDK
+// Ініціалізуємо Firebase Admin SDK, якщо він ще не ініціалізований
 if (!admin.apps.length) {
     try {
         const base64Key = process.env.FIREBASE_SERVICE_ACCOUNT;
@@ -49,7 +49,7 @@ export default async function handler(req, res) {
     }
 
     try {
-        // Отримуємо дані користувача з Firebase (гілка "users")
+        // Отримуємо дані користувача з Firebase
         const userRef = db.ref(`users/${userId}`);
         const userSnapshot = await userRef.once('value');
         const user = userSnapshot.val();
@@ -57,17 +57,13 @@ export default async function handler(req, res) {
         if (!user) return res.status(404).json({ error: 'User not found' });
 
         // 2. Перевірка: чи не отримував вже супер-бонус сьогодні
-        // (Використовуємо дату сервера у форматі YYYY-MM-DD для надійності)
         const todayStr = new Date().toISOString().split('T')[0]; 
         if (user.last_super_bonus_date === todayStr) {
             return res.status(400).json({ error: 'Ви вже отримали свій Супер Бонус сьогодні!' });
         }
 
-        // 3. Перевірка лімітів комерційних сервісів (має бути 20/20 на всіх чотирьох)
+        // 3. Перевірка лімітів комерційних сервісів (має бути строго 20/20)
         const clicks = user.viewCounts || {}; 
-        // Якщо у твоїй базі кліки лежать в коліні користувача (наприклад user.service1), 
-        // то змінити на: const s1 = parseInt(user.service1) || 0; і т.д. 
-        // Нижче прописано стандартний вигляд з урахуванням фронтенду:
         const s1 = parseInt(clicks.service1) || 0;
         const s2 = parseInt(clicks.service2) || 0;
         const s3 = parseInt(clicks.service3) || 0;
@@ -77,33 +73,40 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: 'Спочатку виконайте всі 4 завдання до ліміту 20/20!' });
         }
 
-        // 4. Математика зваженого рандому (Сітка шансів від 3% до 45%)
-        const randomRoll = Math.floor(Math.random() * 100) + 1; // Число від 1 до 100
+        // 4. Математика зваженого рандому
+        const randomRoll = Math.floor(Math.random() * 100) + 1;
         let winAmount = 0.0003;
 
         if (randomRoll <= 45) {
             winAmount = 0.0003; // 45% шанс
         } else if (randomRoll <= 76) {
-            winAmount = 0.0005; // 31% шанс (45 + 31)
+            winAmount = 0.0005; // 31% шанс
         } else if (randomRoll <= 90) {
-            winAmount = 0.0007; // 14% шанс (76 + 14)
+            winAmount = 0.0007; // 14% шанс
         } else if (randomRoll <= 97) {
-            winAmount = 0.0009; // 7% шанс (90 + 7)
+            winAmount = 0.0009; // 7% шанс
         } else {
-            winAmount = 0.0012; // 3% джекпот (97 + 3)
+            winAmount = 0.0012; // 3% джекпот
         }
 
         // 5. Нарахування нагороди
         const currentBalance = parseFloat(user.balance) || 0;
         const newBalance = currentBalance + winAmount;
 
-        // Оновлюємо основний баланс та мітку сьогоднішньої дати, щоб закрити повторний доступ
+        // Оновлюємо баланс, фіксуємо дату та СКИДАЄМО перегляди для нового дня
         await userRef.update({ 
             balance: newBalance,
-            last_super_bonus_date: todayStr
+            last_super_bonus_date: todayStr,
+            viewCounts: {
+                service1: 0,
+                service2: 0,
+                service3: 0,
+                service4: 0,
+                support: 0
+            }
         });
 
-        // 6. Рефералка для Супер Бонусу (+10% від виграшу запрошеному адміну)
+        // 6. Рефералка для Супер Бонусу (+10% від виграшу)
         const referredBy = user.referred_by || null;
         if (referredBy) {
             const referrerRef = db.ref(`users/${referredBy}`);
@@ -122,7 +125,7 @@ export default async function handler(req, res) {
             }
         }
 
-        // Повертаємо успішну відповідь та суму виграшу
+        // Повертаємо успішну відповідь
         return res.status(200).json({ 
             success: true, 
             winAmount: winAmount, 
