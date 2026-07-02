@@ -8,7 +8,6 @@ if (!admin.apps.length) {
         if (!base64Key) {
             console.error('КРИТИЧНА ПОМИЛКА: Змінна FIREBASE_SERVICE_ACCOUNT порожня у Vercel!');
         } else {
-            // Декодуємо Base64 рядок назад у чистий JSON
             const decodedJson = Buffer.from(base64Key, 'base64').toString('utf-8');
             const serviceAccount = JSON.parse(decodedJson);
             
@@ -57,6 +56,7 @@ export default async function handler(req, res) {
     try {
         const now = Date.now();
         const cooldownTime = 120 * 1000; // 120 секунд
+        const todayStr = new Date().toISOString().split('T')[0]; // Поточна дата (РРРР-ММ-ДД)
 
         // 2. Серверна перевірка таймауту через Admin SDK
         const lastClickRef = db.ref(`users/${userId}/last_clicks/${serviceKey}`);
@@ -68,37 +68,51 @@ export default async function handler(req, res) {
             return res.status(429).json({ error: `Зачекайте ще ${timeLeft} сек перед наступним кліком!` });
         }
 
-        // 3. Оновлюємо час останнього кліку
-        await lastClickRef.set(now);
-
-        // 4. Отримання даних користувача
+        // 3. Отримання даних користувача
         const userRef = db.ref(`users/${userId}`);
         const userSnapshot = await userRef.once('value');
         const user = userSnapshot.val();
 
         let currentBalance = 0;
         let referredBy = null;
-        let currentViews = 0;
+        let viewCounts = {};
+        let lastAdDate = '';
 
         if (user) {
             currentBalance = parseFloat(user.balance) || 0;
             referredBy = user.referred_by || null;
-            if (user.viewCounts && user.viewCounts[serviceKey]) {
-                currentViews = parseInt(user.viewCounts[serviceKey]) || 0;
-            }
+            viewCounts = user.viewCounts || {};
+            lastAdDate = user.last_ad_date || '';
         }
+
+        // ПРАВКА: Якщо настав новий календарний день, скидаємо лічильники переглядів на сервері
+        if (lastAdDate !== todayStr) {
+            viewCounts = { service1: 0, service2: 0, service3: 0, service4: 0, support: 0 };
+            // Одразу фіксуємо новий день у локальній змінній, щоб зберегти в базу нижче
+            lastAdDate = todayStr; 
+        }
+
+        let currentViews = parseInt(viewCounts[serviceKey]) || 0;
 
         // Обмеження нарахування, якщо ліміт 20 вже вичерпано (захист від спаму запитами)
         if (serviceKey !== 'support' && currentViews >= 20) {
             return res.status(400).json({ error: 'Ліміт переглядів для цього сервісу вже вичерпано на сьогодні!' });
         }
 
+        // 4. Оновлюємо час останнього кліку (перенесено сюди, щоб фіксувати лише після успішних перевірок дати)
+        await lastClickRef.set(now);
+
         const newBalance = currentBalance + reward;
         const newViews = currentViews + 1;
         
-        // Оновлюємо баланс основного користувача та інкрементуємо лічильник у базі
-        const updates = { balance: newBalance };
-        updates[`viewCounts/${serviceKey}`] = newViews;
+        // Оновлюємо баланс основного користувача, інкрементуємо лічильник та фіксуємо дату активності реклами
+        viewCounts[serviceKey] = newViews;
+        
+        const updates = { 
+            balance: newBalance,
+            last_ad_date: todayStr, // Записуємо поточну дату як дату останньої реклами
+            viewCounts: viewCounts
+        };
         
         await userRef.update(updates);
 
