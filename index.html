@@ -528,7 +528,9 @@
                 super_btn_cooldown: "⏳ ПЕРЕВІРКА ПЕРЕГЛЯДІВ... {val}s",
                 super_btn_ready: "🎁 ЗАБРАТИ СУПЕР БОНУС",
                 super_btn_claimed: "🛑 БОНУС УЖЕ ОТРИМАНО СЬОГОДНІ",
-                super_success: "🎉 Вітаємо! Ви виграли Супер Бонус: {val} USDT!"
+                super_success: "🎉 Вітаємо! Ви виграли Супер Бонус: {val} USDT!",
+                super_btn_verifying: "⏳ ПЕРЕВІРКА ПЕРЕХОДУ... {val}s",
+                super_btn_confirm: "🎁 ПІДТВЕРДИТИ ОТРИМАННЯ"
             },
             en: {
                 balance_title: "My Balance",
@@ -588,7 +590,9 @@
                 super_btn_cooldown: "⏳ CHECKING VIEWS... {val}s",
                 super_btn_ready: "🎁 CLAIM SUPER BONUS",
                 super_btn_claimed: "🛑 BONUS ALREADY CLAIMED TODAY",
-                super_success: "🎉 Congratulations! You won Super Bonus: {val} USDT!"
+                super_success: "🎉 Congratulations! You won Super Bonus: {val} USDT!",
+                super_btn_verifying: "⏳ VERIFYING CLICK... {val}s",
+                super_btn_confirm: "🎁 CONFIRM CLAIM"
             },
             ru: {
                 balance_title: "Мой Баланс",
@@ -648,7 +652,9 @@
                 super_btn_cooldown: "⏳ ПРОВЕРКА ПРОСМОТРОВ... {val}s",
                 super_btn_ready: "🎁 ЗАБРАТЬ СУПЕР БОНУС",
                 super_btn_claimed: "🛑 БОНУС УЖЕ ПОЛУЧЕН СЕГОДНЯ",
-                super_success: "🎉 Поздравляем! Вы выиграли Супер Бонус: {val} USDT!"
+                super_success: "🎉 Поздравляем! Вы выиграли Супер Бонус: {val} USDT!",
+                super_btn_verifying: "⏳ ПРОВЕРКА ПЕРЕХОДА... {val}s",
+                super_btn_confirm: "🎁 ПОДТВЕРДИТЬ ПОЛУЧЕНИЕ"
             }
         };
 
@@ -753,6 +759,7 @@
             services.forEach(srv => localStorage.setItem(`wg_views_${srv}`, '0'));
             localStorage.setItem('wg_super_bonus_claimed', 'false'); 
             localStorage.removeItem('wg_super_bonus_expire'); 
+            localStorage.removeItem('wg_super_redirect_expire'); // Очищуємо таймер редиректу супербонусу
             localStorage.setItem('wg_last_active_day', todayStr);
             viewCounts = { service1: 0, service2: 0, service3: 0, service4: 0, support: 0 };
         }
@@ -765,7 +772,6 @@
             if (isClickBlocked) return;
             if (serviceKey !== 'super_bonus' && serviceKey !== 'support' && viewCounts[serviceKey] >= MAX_VIEWS) return;
 
-            // Перевірка кулдауну перед кліком (для додаткового захисту)
             const expireTime = localStorage.getItem(`wg_cooldown_${serviceKey}`);
             if (expireTime && Date.now() < expireTime && !document.getElementById(`btn-${serviceKey}`).classList.contains('ready-claim')) return;
 
@@ -909,12 +915,27 @@
                 superBtn.innerText = t.super_btn_claimed;
                 superBtn.style.background = "#27272a";
                 superBtn.style.color = "#71717a";
+                superBtn.classList.remove('ready-claim');
                 return;
             }
 
             const isAllCompleted = (viewCounts.service1 >= MAX_VIEWS && viewCounts.service2 >= MAX_VIEWS && viewCounts.service3 >= MAX_VIEWS && viewCounts.service4 >= MAX_VIEWS);
 
             if (isAllCompleted) {
+                // Якщо вже запущено 20-секундний таймер перевірки переходу
+                if (superBtn.classList.contains('verifying-redirect')) {
+                    return; 
+                }
+                
+                // Якщо рекламу вже переглянуто і очікується фінальний клік підтвердження
+                if (superBtn.classList.contains('ready-claim')) {
+                    superBtn.disabled = false;
+                    superBtn.innerText = t.super_btn_confirm;
+                    superBtn.style.background = "linear-gradient(135deg, #ffe066 0%, #d4af37 100%)";
+                    superBtn.style.color = "#000000";
+                    return;
+                }
+
                 let expireTime = localStorage.getItem('wg_super_bonus_expire');
                 
                 if (!expireTime) {
@@ -968,6 +989,7 @@
                 superBtn.innerText = t.super_btn_locked;
                 superBtn.style.background = "#27272a";
                 superBtn.style.color = "#71717a";
+                superBtn.classList.remove('ready-claim');
             }
         }
 
@@ -1022,7 +1044,6 @@
             const btn = document.getElementById(`btn-${serviceKey}`);
             const t = translations[currentLang];
 
-            // Виправлено: якщо діє глобальний кулдаун сервісу, не запускаємо таймер редиректу
             const globalCooldown = localStorage.getItem(`wg_cooldown_${serviceKey}`);
             if (globalCooldown && Date.now() < globalCooldown && !btn.classList.contains('ready-claim')) {
                 return;
@@ -1062,10 +1083,46 @@
             if (isSuperBonusClaimed) return;
             
             const superBtn = document.getElementById('btn-super-bonus');
-            if (superBtn) superBtn.disabled = true; 
-            
+            if (!superBtn) return;
+            const t = translations[currentLang];
+
+            // ПРАВКА: Якщо активовано стан готовності (20 секунд пройшло), виконуємо фінальне отримання
+            if (superBtn.classList.contains('ready-claim')) {
+                superBtn.classList.remove('ready-claim');
+                superBtn.disabled = true;
+                rewardSuperBonusServer();
+                return;
+            }
+
+            // Перший клік: відкриваємо посилання та запускаємо 20-секундний відлік
             tg.openLink(url);
-            rewardSuperBonusServer();
+            superBtn.disabled = true;
+            superBtn.classList.add('verifying-redirect');
+            
+            let timeLeft = 20;
+            superBtn.innerText = t.super_btn_verifying.replace('{val}', timeLeft);
+            superBtn.style.background = "#27272a";
+            superBtn.style.color = "#71717a";
+
+            if (superBonusIntervalId) clearInterval(superBonusIntervalId);
+
+            superBonusIntervalId = setInterval(() => {
+                timeLeft--;
+                if (timeLeft <= 0) {
+                    clearInterval(superBonusIntervalId);
+                    superBonusIntervalId = null;
+                    
+                    superBtn.classList.remove('verifying-redirect');
+                    superBtn.classList.add('ready-claim');
+                    superBtn.disabled = false;
+                    
+                    superBtn.innerText = t.super_btn_confirm;
+                    superBtn.style.background = "linear-gradient(135deg, #ffe066 0%, #d4af37 100%)";
+                    superBtn.style.color = "#000000";
+                } else {
+                    superBtn.innerText = t.super_btn_verifying.replace('{val}', timeLeft);
+                }
+            }, 1000);
         }
 
         async function rewardUserServer(serviceKey) {
