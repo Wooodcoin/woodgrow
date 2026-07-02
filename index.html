@@ -467,6 +467,7 @@
         let isSuperBonusClaimed = false; 
         let activeLinkTimers = {};
         let currentLang = 'en';
+        let superBonusIntervalId = null;
 
         const translations = {
             uk: {
@@ -524,9 +525,10 @@
                 req_error: "Не вдалося виконати запит на виведення.",
                 super_hint: "Перегляньте всю рекламу та отримайте можливість отримати бонус від 0.0003 до 0.0012 USDT",
                 super_btn_locked: "🔒 СПОЧАТКУ ВИКОНАЙТЕ ВСІ ЗАВДАННЯ",
+                super_btn_cooldown: "⏳ ПЕРЕВІРКА ПЕРЕГЛЯДІВ... {val}s",
                 super_btn_ready: "🎁 ЗАБРАТИ СУПЕР БОНУС",
                 super_btn_claimed: "🛑 БОНУС УЖЕ ОТРИМАНО СЬОГОДНІ",
-                super_success: "🎉 Вітаємо! Ви виграли Супер Бонус: {val} USDT!"
+                super_success: "🎉 Вітаємо! Ви виграли㹮 Супер Бонус: {val} USDT!"
             },
             en: {
                 balance_title: "My Balance",
@@ -583,6 +585,7 @@
                 req_error: "Failed to process withdrawal request.",
                 super_hint: "Watch all ads and get a chance to receive a bonus from 0.0003 to 0.0012 USDT",
                 super_btn_locked: "🔒 COMPLETE ALL TASKS FIRST",
+                super_btn_cooldown: "⏳ CHECKING VIEWS... {val}s",
                 super_btn_ready: "🎁 CLAIM SUPER BONUS",
                 super_btn_claimed: "🛑 BONUS ALREADY CLAIMED TODAY",
                 super_success: "🎉 Congratulations! You won Super Bonus: {val} USDT!"
@@ -591,7 +594,7 @@
                 balance_title: "Мой Баланс",
                 choose_platform: "⚡️ ВЫ ВЫБЕРИТЕ ПЛАТФОРМУ ДЛЯ ЗАРАБОТКА:",
                 channel_title: "📢 Официальный Канал",
-                channel_desc: "Подписывайтесь, чтобы первыми узнавать об апдейтах, новых бонусах и важных новостях WoodGrow Coin!",
+                channel_desc: "Подписывайтесь, чтобы первыми узнавать об апдейтах, новые бонусы и важные новости WoodGrow Coin!",
                 btn_subscribe: "Подписаться",
                 chat_title: "💬 Наше Сообщество (Чат)",
                 chat_desc: "Общайтесь с другими игроками, делитесь реферальными ссылками, обсуждайте выводы и стратегии заработка!",
@@ -607,7 +610,7 @@
                     <li>Нажмите кнопку «Вывод на кошелек» (Минимум 5 USDT).</li>
                     <li>Подтвердите действие. Ваш баланс автоматически сбросится, а система зарегистрирует заявку на сервере.</li>
                     <li>Ожидайте перевода на ваш кошелек. Заявки обрабатываются автоматически в порядке очереди.</li>
-                    <li style="color: #ffcc00; font-weight: bold; list-style-type: '⚠️ ';">ВАЖНО: Для подключения используйте приложение <u>Tonkeeper</u>. Официальный Telegram Wallet внутри приложений может работать с перебоями!</li>
+                    <li style="color: #ffcc00; font-weight: bold; list-style-type: '⚠️ ';">ВАСЖНО: Для подключения используйте приложение <u>Tonkeeper</u>. Официальный Telegram Wallet внутри приложений может работать с перебоями!</li>
                 `,
                 min_sum_label: "Минимальная сумма:",
                 withdraw_action: "💸 Вывести на кошелек",
@@ -634,14 +637,15 @@
                 alert_confirm: "Вы уверены, що хотите вывести {val} USDT?\n\nПосле нажатия 'ОК' ваш баланс будет списано, а заявка автоматически поступит админу.",
                 not_connected: "Не подключено",
                 checking: "⏳ ПРОВЕРКА...",
-                claim_bonus: "🎁 ЗА БОНУС",
+                claim_bonus: "🎁 ЗАБРАТЬ БОНУС",
                 ads_error: "Реклама не засчитана.",
                 support_thanks: "Спасибо! ❤️",
-                video_interrupted: "Видео прервано.",
+                video_interrupted: "Видео перервано.",
                 db_error: "Ошибка связи с сервером базы данных.",
                 req_error: "Не удалось выполнить запрос на вывод.",
                 super_hint: "Посмотрите всю рекламу и получите возможность получить бонус от 0.0003 до 0.0012 USDT",
                 super_btn_locked: "🔒 СНАЧАЛА ВЫПОЛНИТЕ ВСЕ ЗАДАНИЯ",
+                super_btn_cooldown: "⏳ ПРОВЕРКА ПРОСМОТРОВ... {val}s",
                 super_btn_ready: "🎁 ЗАБРАТЬ СУПЕР БОНУС",
                 super_btn_claimed: "🛑 БОНУС УЖЕ ПОЛУЧЕН СЕГОДНЯ",
                 super_success: "🎉 Поздравляем! Вы выиграли Супер Бонус: {val} USDT!"
@@ -748,6 +752,7 @@
         if (todayStr !== lastSavedDay) {
             services.forEach(srv => localStorage.setItem(`wg_views_${srv}`, '0'));
             localStorage.setItem('wg_super_bonus_claimed', 'false'); 
+            localStorage.removeItem('wg_super_bonus_expire'); // Скидаємо таймер очікування нового дня
             localStorage.setItem('wg_last_active_day', todayStr);
             viewCounts = { service1: 0, service2: 0, service3: 0, service4: 0, support: 0 };
         }
@@ -893,6 +898,7 @@
             const t = translations[currentLang];
 
             if (isSuperBonusClaimed) {
+                if (superBonusIntervalId) clearInterval(superBonusIntervalId);
                 superBtn.disabled = true;
                 superBtn.innerText = t.super_btn_claimed;
                 superBtn.style.background = "#27272a";
@@ -903,11 +909,49 @@
             const isAllCompleted = (viewCounts.service1 >= MAX_VIEWS && viewCounts.service2 >= MAX_VIEWS && viewCounts.service3 >= MAX_VIEWS && viewCounts.service4 >= MAX_VIEWS);
 
             if (isAllCompleted) {
-                superBtn.disabled = false;
-                superBtn.innerText = t.super_btn_ready;
-                superBtn.style.background = "linear-gradient(135deg, #0df25d 0%, #0aa63f 100%)";
-                superBtn.style.color = "#000000";
+                let expireTime = localStorage.getItem('wg_super_bonus_expire');
+                
+                // Якщо завдання виконані вперше, ініціюємо таймер на 120 секунд
+                if (!expireTime) {
+                    expireTime = (Date.now() + 120000).toString();
+                    localStorage.setItem('wg_super_bonus_expire', expireTime);
+                }
+
+                const remaining = Math.ceil((expireTime - Date.now()) / 1000);
+
+                if (remaining > 0) {
+                    superBtn.disabled = true;
+                    superBtn.innerText = t.super_btn_cooldown.replace('{val}', remaining);
+                    superBtn.style.background = "#27272a";
+                    superBtn.style.color = "#71717a";
+
+                    if (!superBonusIntervalId) {
+                        superBonusIntervalId = setInterval(() => {
+                            const curRemaining = Math.ceil((localStorage.getItem('wg_super_bonus_expire') - Date.now()) / 1000);
+                            if (curRemaining <= 0) {
+                                clearInterval(superBonusIntervalId);
+                                superBonusIntervalId = null;
+                                updateSuperBonusUI();
+                            } else {
+                                superBtn.innerText = t.super_btn_cooldown.replace('{val}', curRemaining);
+                            }
+                        }, 1000);
+                    }
+                } else {
+                    if (superBonusIntervalId) {
+                        clearInterval(superBonusIntervalId);
+                        superBonusIntervalId = null;
+                    }
+                    superBtn.disabled = false;
+                    superBtn.innerText = t.super_btn_ready;
+                    superBtn.style.background = "linear-gradient(135deg, #0df25d 0%, #0aa63f 100%)";
+                    superBtn.style.color = "#000000";
+                }
             } else {
+                if (superBonusIntervalId) {
+                    clearInterval(superBonusIntervalId);
+                    superBonusIntervalId = null;
+                }
                 superBtn.disabled = true;
                 superBtn.innerText = t.super_btn_locked;
                 superBtn.style.background = "#27272a";
@@ -996,14 +1040,16 @@
             }, 1000);
         }
 
-        // МИТТЄВИЙ КЛІК НА СУПЕР БОНУС БЕЗ ТАЙМЕРА
         function claimSuperBonusDirect(url) {
             if (isSuperBonusClaimed) return;
+            
+            const superBtn = document.getElementById('btn-super-bonus');
+            if (superBtn) superBtn.disabled = true; // Захист інтерфейсу від спаму під час запиту
             
             // 1. Паралельно відкриваємо рекламне посилання
             tg.openLink(url);
             
-            // 2. Одразу шлемо запит на сервер
+            // 2. Шлемо запит на сервер
             rewardSuperBonusServer();
         }
 
@@ -1051,9 +1097,6 @@
         }
 
         async function rewardSuperBonusServer() {
-            const superBtn = document.getElementById('btn-super-bonus');
-            if (superBtn) superBtn.disabled = true; // Захист від подвійного кліку
-
             try {
                 const response = await fetch('/api/super-bonus', {
                     method: 'POST',
@@ -1072,8 +1115,9 @@
                     
                     isSuperBonusClaimed = true;
                     localStorage.setItem('wg_super_bonus_claimed', 'true');
+                    localStorage.removeItem('wg_super_bonus_expire'); // Очищуємо кулдаун бонусу після успіху
                     
-                    // Обнуляємо локальні лічильники, бо сервер їх теж скинув
+                    // Обнуляємо локальні лічильники
                     services.forEach(srv => {
                         if (srv !== 'support') {
                             viewCounts[srv] = 0;
