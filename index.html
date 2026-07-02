@@ -528,7 +528,7 @@
                 super_btn_cooldown: "⏳ ПЕРЕВІРКА ПЕРЕГЛЯДІВ... {val}s",
                 super_btn_ready: "🎁 ЗАБРАТИ СУПЕР БОНУС",
                 super_btn_claimed: "🛑 БОНУС УЖЕ ОТРИМАНО СЬОГОДНІ",
-                super_success: "🎉 Вітаємо! Ви виграли㹮 Супер Бонус: {val} USDT!"
+                super_success: "🎉 Вітаємо! Ви виграли Супер Бонус: {val} USDT!"
             },
             en: {
                 balance_title: "My Balance",
@@ -752,7 +752,7 @@
         if (todayStr !== lastSavedDay) {
             services.forEach(srv => localStorage.setItem(`wg_views_${srv}`, '0'));
             localStorage.setItem('wg_super_bonus_claimed', 'false'); 
-            localStorage.removeItem('wg_super_bonus_expire'); // Скидаємо таймер очікування нового дня
+            localStorage.removeItem('wg_super_bonus_expire'); 
             localStorage.setItem('wg_last_active_day', todayStr);
             viewCounts = { service1: 0, service2: 0, service3: 0, service4: 0, support: 0 };
         }
@@ -764,6 +764,10 @@
         function handleBtnClick(serviceKey, actionFunction) {
             if (isClickBlocked) return;
             if (serviceKey !== 'super_bonus' && serviceKey !== 'support' && viewCounts[serviceKey] >= MAX_VIEWS) return;
+
+            // Перевірка кулдауну перед кліком (для додаткового захисту)
+            const expireTime = localStorage.getItem(`wg_cooldown_${serviceKey}`);
+            if (expireTime && Date.now() < expireTime && !document.getElementById(`btn-${serviceKey}`).classList.contains('ready-claim')) return;
 
             isClickBlocked = true;
             setTimeout(() => { isClickBlocked = false; }, 1000);
@@ -886,7 +890,9 @@
                 limitSpan.className = 'limit-indicator';
                 const expireTime = localStorage.getItem(`wg_cooldown_${serviceKey}`);
                 if (!expireTime || Date.now() >= expireTime) {
-                    btn.disabled = false;
+                    if (!btn.classList.contains('ready-claim')) {
+                        btn.disabled = false;
+                    }
                 }
             }
             updateSuperBonusUI(); 
@@ -911,7 +917,6 @@
             if (isAllCompleted) {
                 let expireTime = localStorage.getItem('wg_super_bonus_expire');
                 
-                // Якщо завдання виконані вперше, ініціюємо таймер на 120 секунд
                 if (!expireTime) {
                     expireTime = (Date.now() + 120000).toString();
                     localStorage.setItem('wg_super_bonus_expire', expireTime);
@@ -927,7 +932,14 @@
 
                     if (!superBonusIntervalId) {
                         superBonusIntervalId = setInterval(() => {
-                            const curRemaining = Math.ceil((localStorage.getItem('wg_super_bonus_expire') - Date.now()) / 1000);
+                            const savedExpire = localStorage.getItem('wg_super_bonus_expire');
+                            if (!savedExpire) {
+                                clearInterval(superBonusIntervalId);
+                                superBonusIntervalId = null;
+                                updateSuperBonusUI();
+                                return;
+                            }
+                            const curRemaining = Math.ceil((savedExpire - Date.now()) / 1000);
                             if (curRemaining <= 0) {
                                 clearInterval(superBonusIntervalId);
                                 superBonusIntervalId = null;
@@ -1010,6 +1022,12 @@
             const btn = document.getElementById(`btn-${serviceKey}`);
             const t = translations[currentLang];
 
+            // Виправлено: якщо діє глобальний кулдаун сервісу, не запускаємо таймер редиректу
+            const globalCooldown = localStorage.getItem(`wg_cooldown_${serviceKey}`);
+            if (globalCooldown && Date.now() < globalCooldown && !btn.classList.contains('ready-claim')) {
+                return;
+            }
+
             if (btn.classList.contains('ready-claim')) {
                 btn.classList.remove('ready-claim');
                 
@@ -1044,12 +1062,9 @@
             if (isSuperBonusClaimed) return;
             
             const superBtn = document.getElementById('btn-super-bonus');
-            if (superBtn) superBtn.disabled = true; // Захист інтерфейсу від спаму під час запиту
+            if (superBtn) superBtn.disabled = true; 
             
-            // 1. Паралельно відкриваємо рекламне посилання
             tg.openLink(url);
-            
-            // 2. Шлемо запит на сервер
             rewardSuperBonusServer();
         }
 
@@ -1115,9 +1130,8 @@
                     
                     isSuperBonusClaimed = true;
                     localStorage.setItem('wg_super_bonus_claimed', 'true');
-                    localStorage.removeItem('wg_super_bonus_expire'); // Очищуємо кулдаун бонусу після успіху
+                    localStorage.removeItem('wg_super_bonus_expire'); 
                     
-                    // Обнуляємо локальні лічильники
                     services.forEach(srv => {
                         if (srv !== 'support') {
                             viewCounts[srv] = 0;
