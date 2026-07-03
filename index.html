@@ -376,7 +376,7 @@
         <div id="tab-missions" class="tab-content">
             <div class="card" style="padding: 30px 15px;">
                 <div style="font-size: 40px; margin-bottom: 10px;">🎯</div>
-                <h3>Нові завдання</h3>
+                <h3>🎯 Нові завдання</h3>
                 <p style="color: #a1a1aa; font-size: 14px; line-height: 1.6; margin: 0;">
                     Розділ знаходиться в розробці. Незабаром тут з'являться унікальні квести та нові можливості для заробітку!
                 </p>
@@ -531,7 +531,9 @@
                 modal_success_desc: "Ваш баланс успішно списано. Заявка на виведення автоматично надійшла в систему. Очікуйте виплату на ваш підключений гаманець протягом 24 годин.",
                 nav_main: "🏠Головна",
                 nav_tasks: "ℹ️Інфо",
-                nav_wallet: "💼Гаманець",
+                nav_missions: "🎯Завдання",
+                mission_title: "🎯 Нові завдання",
+                mission_desc: "Розділ знаходиться в розробці. Незабаром тут з'являться унікальні квести та нові можливості для заробітку!",
                 nav_profile: "🖥️Кабінет",
                 btn_support: "🍿 Підтримати WoodGrow (+0 USDT)",
                 loading: "Завантаження...",
@@ -593,7 +595,9 @@
                 modal_success_desc: "Your balance has been successfully debited. The withdrawal request has been automatically sent to the system. Expect payment to your connected wallet within 24 hours.",
                 nav_main: "🏠Main",
                 nav_tasks: "ℹ️Info",
-                nav_wallet: "💼Wallet",
+                nav_missions: "🎯Missions",
+                mission_title: "🎯 New Missions",
+                mission_desc: "This section is under development. Unique quests and new opportunities to earn will appear here soon!",
                 nav_profile: "🖥️Profile",
                 btn_support: "🍿 Support WoodGrow (+0 USDT)",
                 loading: "Loading...",
@@ -655,7 +659,9 @@
                 modal_success_desc: "Ваш баланс успешно списан. Заявка на вывод автоматически поступила в систему. Очируйте выплату на ваш подключенный кошелек в течение 24 часов.",
                 nav_main: "🏠Главная",
                 nav_tasks: "ℹ️Инфо",
-                nav_wallet: "💼Кошелек",
+                nav_missions: "🎯Задания",
+                mission_title: "🎯 Новые задания",
+                mission_desc: "Раздел находится в разработке. Вскоре здесь появятся уникальные квесты и новые возможности для заработка!",
                 nav_profile: "🖥️Кабинет",
                 btn_support: "🍿 Поддержать WoodGrow (+0 USDT)",
                 loading: "Загрузка...",
@@ -747,7 +753,14 @@
 
             document.getElementById('nav-btn-main').innerHTML = `<span class="nav-icon">🏠</span>${t.nav_main.replace('🏠','')}`;
             document.getElementById('nav-btn-tasks').innerHTML = `<span class="nav-icon">ℹ️</span>${t.nav_tasks.replace('ℹ️','')}`;
+            document.getElementById('nav-btn-missions').innerHTML = `<span class="nav-icon">🎯</span>${t.nav_missions.replace('🎯','')}`;
             document.getElementById('nav-btn-profile').innerHTML = `<span class="nav-icon">🖥️</span>${t.nav_profile.replace('🖥️','')}`;
+
+            const missionTab = document.getElementById('tab-missions');
+            if (missionTab) {
+                missionTab.querySelector('h3').innerText = t.mission_title;
+                missionTab.querySelector('p').innerText = t.mission_desc;
+            }
 
             const btnSupport = document.getElementById('btn-support');
             if (btnSupport && !btnSupport.classList.contains('ready-claim') && !btnSupport.disabled) {
