@@ -306,7 +306,7 @@
                     <span id="timer-service1" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
                     <span id="limit-service1" class="limit-indicator">0 / 20</span>
                 </div>
-                <button class="btn" id="btn-service1" onclick="handleBtnClick('service1', watchAdsgram)">Service 1 (+0.0004)</button>
+                <button class="btn" id="btn-service1" onclick="handleBtnClick('service1', watchAdsgramVideo)">Service 1 (+0.0004)</button>
             </div>
 
             <div style="margin-bottom: 15px;">
@@ -315,7 +315,7 @@
                     <span id="timer-service2" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
                     <span id="limit-service2" class="limit-indicator">0 / 20</span>
                 </div>
-                <button class="btn" id="btn-service2" onclick="handleBtnClick('service2', watchMonetagVignette)">Service 2 (+0.0002)</button>
+                <button class="btn" id="btn-service2" onclick="handleBtnClick('service2', watchAdsgramTask)">Service 2 (+0.0002)</button>
             </div>
 
             <div style="margin-bottom: 15px;">
@@ -333,7 +333,7 @@
                     <span id="timer-service4" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
                     <span id="limit-service4" class="limit-indicator">0 / 20</span>
                 </div>
-                <button class="btn" id="btn-service4" onclick="handleBtnClick('service4', () => startDirectLinkTimer('service4', 'https://omg10.com/4/11217998'))">Service 4 (+0.0004)</button>
+                <button class="btn" id="btn-service4" onclick="handleBtnClick('service4', watchMonetagVignette)">Service 4 (+0.0004)</button>
             </div>
 
             <div class="card super-bonus-card" style="margin-top: 25px;">
@@ -658,7 +658,7 @@
                 modal_success_title: "ЗАЯВКА СОЗДАНА!",
                 modal_success_desc: "Ваш баланс успешно списан. Заявка на вывод автоматически поступила в систему. Очируйте выплату на ваш подключенный кошелек в течение 24 часов.",
                 nav_main: "🏠Главная",
-                nav_tasks: "ℹ️Инфо",
+                nav_tasks: "ℹ freeze Инфо",
                 nav_missions: "🎯Задания",
                 mission_title: "🎯 Новые задания",
                 mission_desc: "Раздел находится в разработке. Вскоре здесь появятся уникальные квесты и новые возможности для заработка!",
@@ -1042,26 +1042,23 @@
             }
         });
 
-        const AdController = window.Adsgram ? window.Adsgram.init({ blockId: "35910" }) : null;
+        // Ініціалізація рекламних блоків Adsgram
+        const AdVideoController = window.Adsgram ? window.Adsgram.init({ blockId: "35910" }) : null;
+        const AdTaskController = window.Adsgram ? window.Adsgram.init({ blockId: "task-36297" }) : null;
 
-        function watchAdsgram() {
-            if (!AdController) return;
-            AdController.show().then(() => rewardUserServer('service1')).catch(() => alert(translations[currentLang].ads_error));
+        // Service 1: Adsgram Video
+        function watchAdsgramVideo() {
+            if (!AdVideoController) return;
+            AdVideoController.show().then(() => rewardUserServer('service1')).catch(() => alert(translations[currentLang].ads_error));
         }
 
-        function watchMonetagVignette() {
-            if (typeof show_11189906 === 'function') {
-                try {
-                    show_11189906();
-                    rewardUserServer('service2');
-                } catch(e) {
-                    console.error("Monetag launch error.", e);
-                }
-            } else {
-                alert(translations[currentLang].ads_error);
-            }
+        // Service 2: Adsgram Task (Новий блок)
+        function watchAdsgramTask() {
+            if (!AdTaskController) return;
+            AdTaskController.show().then(() => rewardUserServer('service2')).catch(() => alert(translations[currentLang].ads_error));
         }
 
+        // Service 3: Monetag Popup
         function watchMonetagPopup() {
             if (typeof show_11189906 === 'function') {
                 try {
@@ -1075,6 +1072,21 @@
             }
         }
 
+        // Service 4: Monetag Vignette (Чистий перегляд без 20с таймера перевірки)
+        function watchMonetagVignette() {
+            if (typeof show_11189906 === 'function') {
+                try {
+                    show_11189906();
+                    rewardUserServer('service4');
+                } catch(e) {
+                    console.error("Monetag Vignette launch error.", e);
+                }
+            } else {
+                alert(translations[currentLang].ads_error);
+            }
+        }
+
+        // Залишається для підтримки проєкту в Інфо (Добровільний лінк із таймером)
         function startDirectLinkTimer(serviceKey, url) {
             const btn = document.getElementById(`btn-${serviceKey}`);
             const t = translations[currentLang];
@@ -1086,10 +1098,7 @@
 
             if (btn.classList.contains('ready-claim')) {
                 btn.classList.remove('ready-claim');
-                
-                if (serviceKey === 'service4') btn.innerText = "Service 4 (+0.0004)";
                 if (serviceKey === 'support') btn.innerText = t.btn_support;
-                
                 rewardUserServer(serviceKey);
                 return;
             }
@@ -1114,6 +1123,7 @@
             }, 1000);
         }
 
+        // Для Супер Бонусу (Вхід за редиректом смартлінку)
         function claimSuperBonusDirect(url) {
             if (isSuperBonusClaimed) return;
             
