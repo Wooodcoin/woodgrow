@@ -94,7 +94,7 @@
             transform: scale(0.95);
         }
 
-        .container { padding: 20px; }
+        .container { padding: 15px; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
@@ -102,8 +102,8 @@
             background: var(--card-bg);
             border: 2px solid var(--gold-color);
             border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
+            padding: 15px;
+            margin-bottom: 15px;
             text-align: center;
             box-shadow: 0 0 15px rgba(212, 175, 55, 0.3), inset 0 0 10px rgba(13, 242, 93, 0.2);
             backdrop-filter: blur(10px);
@@ -161,6 +161,19 @@
             border: 1px solid #3f3f46;
         }
 
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .btn-row .btn {
+            margin-top: 0;
+            flex: 1;
+            padding: 12px 8px;
+            font-size: 13px;
+        }
+
         .super-bonus-card {
             background: var(--super-bonus-bg);
             border: 2px dashed var(--neon-green);
@@ -216,9 +229,9 @@
 
         .nav-item.active .nav-icon { transform: scale(1.15); }
 
-        #ton-connect-btn { display: flex; justify-content: center; margin: 20px 0; }
-        h3 { color: var(--gold-color); margin-top: 0; text-transform: uppercase; font-size: 18px; }
-        .instruction-list { text-align: left; font-size: 13px; color: #a1a1aa; line-height: 1.6; padding-left: 20px; margin: 15px 0; }
+        #ton-connect-btn { display: flex; justify-content: center; margin: 15px 0; }
+        h3 { color: var(--gold-color); margin-top: 0; text-transform: uppercase; font-size: 16px; }
+        .instruction-list { text-align: left; font-size: 12px; color: #a1a1aa; line-height: 1.5; padding-left: 18px; margin: 10px 0; }
 
         .lang-select-btn {
             display: flex;
@@ -269,10 +282,10 @@
             box-shadow: 0 0 35px rgba(13, 242, 93, 0.4);
         }
 
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .stat-box { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; border: 1px solid rgba(212, 175, 55, 0.2); text-align: center; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .stat-box { background: rgba(255,255,255,0.05); padding: 8px; border-radius: 8px; border: 1px solid rgba(212, 175, 55, 0.2); text-align: center; }
         .stat-box-title { font-size: 11px; color: #a1a1aa; text-transform: uppercase; }
-        .stat-box-value { font-size: 16px; font-weight: bold; color: var(--neon-green); margin-top: 5px; }
+        .stat-box-value { font-size: 15px; font-weight: bold; color: var(--neon-green); margin-top: 3px; }
     </style>
 </head>
 <body>
@@ -360,34 +373,20 @@
             </div>
         </div>
 
-        <div id="tab-wallet" class="tab-content">
-            <div class="card">
-                <h3 id="txt-wallet-connect-title">Підключення гаманця</h3>
-                <p style="color: #a1a1aa; font-size: 14px;" id="txt-wallet-connect-desc">Підключіть свій TON-гаманець для фіксавої адреси в заявках.</p>
-                <div id="ton-connect-btn"></div>
-            </div>
-
-            <div class="card">
-                <h3 id="txt-withdraw-title">Виведення коштів</h3>
-                <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 10px; border: 1px solid rgba(212,175,55,0.3);">
-                    <h4 style="margin: 0; font-size: 14px; color: var(--gold-color); text-align: left;" id="txt-inst-header">💡 Інструкція з виведення коштів:</h4>
-                    <ol class="instruction-list" id="txt-inst-list">
-                        <li>Підключіть свій TON-гаманець вище.</li>
-                        <li>Натисніть кнопку «Вивести на гаманець» (Мін. 5 USDT).</li>
-                        <li>Підтвердіть дію. Ваш баланс автоматично скинеться, а система зареєструє заявку на сервері.</li>
-                        <li>Очікуйте переказу на ваш гаманець. Заявки обробляються автоматично в порядку черги.</li>
-                        <li style="color: #ffcc00; font-weight: bold; list-style-type: '⚠️ ';">ВАЖЛИВО: Для підключення використовуйте додаток <u>Tonkeeper</u>. Офіційний Telegram Wallet всередині апок може працювати з перебоями!</li>
-                    </ol>
-                </div>
-                <p style="font-size: 14px; text-align: left; color: #a1a1aa; margin-top: 15px;"><span id="txt-min-sum-label">Мінімальна сума:</span> <span style="color: var(--neon-green); font-weight: bold;">5 USDT</span></p>
-                <button class="btn" onclick="withdrawFunds()" id="btn-withdraw-action">💸 Вивести на гаманець</button>
+        <div id="tab-missions" class="tab-content">
+            <div class="card" style="padding: 30px 15px;">
+                <div style="font-size: 40px; margin-bottom: 10px;">🎯</div>
+                <h3>Нові завдання</h3>
+                <p style="color: #a1a1aa; font-size: 14px; line-height: 1.6; margin: 0;">
+                    Розділ знаходиться в розробці. Незабаром тут з'являться унікальні квести та нові можливості для заробітку!
+                </p>
             </div>
         </div>
 
         <div id="tab-profile" class="tab-content">
             <div class="card" style="text-align: left;">
                 <h3 style="text-align: center;" id="txt-cabinet-title">👤 Мій кабінет</h3>
-                <p><strong id="txt-tgid-label">Ваш Telegram ID:</strong> <span id="user-id" style="color: var(--neon-green);">Завантаження...</span></p>
+                <p style="margin: 5px 0 10px 0; font-size: 14px;"><strong id="txt-tgid-label">Ваш Telegram ID:</strong> <span id="user-id" style="color: var(--neon-green);">Завантаження...</span></p>
                 <div class="stats-grid">
                     <div class="stat-box">
                         <div class="stat-box-title" id="txt-stat-ref">Реферали</div>
@@ -401,11 +400,37 @@
             </div>
 
             <div class="card">
+                <h3 id="txt-wallet-connect-title">Підключення гаманця</h3>
+                <p style="color: #a1a1aa; font-size: 13px; margin: 5px 0;" id="txt-wallet-connect-desc">Підключіть свій TON-гаманець для фіксавої адреси в заявках.</p>
+                <div id="ton-connect-btn"></div>
+            </div>
+
+            <div class="card">
                 <h3 id="txt-partner-title">Партнерська програма</h3>
-                <p style="color: #a1a1aa; font-size: 14px;" id="txt-partner-desc">Отримуйте фіксовані +10% від кожного перегляду реклами вашими друзями!</p>
-                <div class="ref-box" id="ref-link" style="background-color: rgba(0, 0, 0, 0.4); padding: 12px; border-radius: 8px; font-size: 14px; color: var(--neon-green); word-break: break-all; margin: 15px 0; border: 1px dashed var(--neon-green);">Завантаження посилання...</div>
-                <button class="btn btn-secondary" style="background: none; border: 2px solid var(--gold-color); color: var(--gold-color);" onclick="copyRefLink()" id="btn-copy-link">📋 Скопіювати лінк</button>
-                <button class="btn" onclick="shareBot()" id="btn-invite-friend">🔗 Запросити друга</button>
+                <p style="color: #a1a1aa; font-size: 13px; margin: 5px 0;" id="txt-partner-desc">Отримуйте фіксовані +10% від кожного перегляду реклами вашими друзями!</p>
+                <div class="ref-box" id="ref-link" style="background-color: rgba(0, 0, 0, 0.4); padding: 10px; border-radius: 8px; font-size: 13px; color: var(--neon-green); word-break: break-all; margin: 10px 0; border: 1px dashed var(--neon-green);">Завантаження посилання...</div>
+                
+                <div class="btn-row">
+                    <button class="btn" style="background: none; border: 2px solid var(--gold-color); color: var(--gold-color);" onclick="copyRefLink()" id="btn-copy-link">📋 Скопіювати лінк</button>
+                    <button class="btn" onclick="shareBot()" id="btn-invite-friend">🔗 Запросити друга</button>
+                </div>
+            </div>
+
+            <div class="card" style="margin-bottom: 25px;">
+                <h3 id="txt-withdraw-title">Виведення коштів</h3>
+                <p style="font-size: 14px; text-align: center; color: #a1a1aa; margin: 10px 0;"><span id="txt-min-sum-label">Мінімальна сума:</span> <span style="color: var(--neon-green); font-weight: bold;">5 USDT</span></p>
+                <button class="btn" onclick="withdrawFunds()" id="btn-withdraw-action">💸 Вивести на гаманець</button>
+                
+                <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 10px; border: 1px solid rgba(212,175,55,0.2); margin-top: 15px;">
+                    <h4 style="margin: 0; font-size: 13px; color: var(--gold-color); text-align: left;" id="txt-inst-header">💡 Інструкція з виведення коштів:</h4>
+                    <ol class="instruction-list" id="txt-inst-list">
+                        <li>Підключіть свій TON-гаманець вище.</li>
+                        <li>Натисніть кнопку «Вивести на гаманець» (Мін. 5 USDT).</li>
+                        <li>Підтвердіть дію. Ваш баланс автоматично скинеться, а система зареєструє заявку на сервері.</li>
+                        <li>Очікуйте переказу на ваш гаманець. Заявки обробляються автоматично в порядку черги.</li>
+                        <li style="color: #ffcc00; font-weight: bold; list-style-type: '⚠️ ';">ВАЖЛИВО: Для підключення використовуйте додаток <u>Tonkeeper</u>. Офіційний Telegram Wallet всередині апок може працювати з перебоями!</li>
+                    </ol>
+                </div>
             </div>
         </div>
     </div>
@@ -433,13 +458,13 @@
 
     <div class="nav-bar">
         <div class="nav-item active" onclick="switchTab('main', this)" id="nav-btn-main">
-            <span class="nav-icon">⚙️</span>Головна
+            <span class="nav-icon">🏠</span>Головна
         </div>
         <div class="nav-item" onclick="switchTab('tasks', this)" id="nav-btn-tasks">
-            <span class="nav-icon">⚡️</span>Реклама
+            <span class="nav-icon">ℹ️</span>Інфо
         </div>
-        <div class="nav-item" onclick="switchTab('wallet', this)" id="nav-btn-wallet">
-            <span class="nav-icon">💼</span>Гаманець
+        <div class="nav-item" onclick="switchTab('missions', this)" id="nav-btn-missions">
+            <span class="nav-icon">🎯</span>Завдання
         </div>
         <div class="nav-item" onclick="switchTab('profile', this)" id="nav-btn-profile">
             <span class="nav-icon">🖥️</span>Кабінет
@@ -504,8 +529,8 @@
                 invite_friend: "🔗 Запросити друга",
                 modal_success_title: "ЗАЯВКУ СТВОРЕНО!",
                 modal_success_desc: "Ваш баланс успішно списано. Заявка на виведення автоматично надійшла в систему. Очікуйте виплату на ваш підключений гаманець протягом 24 годин.",
-                nav_main: "⚙️Головна",
-                nav_tasks: "⚡️Реклама",
+                nav_main: "🏠Головна",
+                nav_tasks: "ℹ️Інфо",
                 nav_wallet: "💼Гаманець",
                 nav_profile: "🖥️Кабінет",
                 btn_support: "🍿 Підтримати WoodGrow (+0 USDT)",
@@ -566,8 +591,8 @@
                 invite_friend: "🔗 Invite a friend",
                 modal_success_title: "REQUEST CREATED!",
                 modal_success_desc: "Your balance has been successfully debited. The withdrawal request has been automatically sent to the system. Expect payment to your connected wallet within 24 hours.",
-                nav_main: "⚙️Main",
-                nav_tasks: "⚡️Ads",
+                nav_main: "🏠Main",
+                nav_tasks: "ℹ️Info",
                 nav_wallet: "💼Wallet",
                 nav_profile: "🖥️Profile",
                 btn_support: "🍿 Support WoodGrow (+0 USDT)",
@@ -628,8 +653,8 @@
                 invite_friend: "🔗 Пригласить друга",
                 modal_success_title: "ЗАЯВКА СОЗДАНА!",
                 modal_success_desc: "Ваш баланс успешно списан. Заявка на вывод автоматически поступила в систему. Очируйте выплату на ваш подключенный кошелек в течение 24 часов.",
-                nav_main: "⚙️Главная",
-                nav_tasks: "⚡️Реклама",
+                nav_main: "🏠Главная",
+                nav_tasks: "ℹ️Инфо",
                 nav_wallet: "💼Кошелек",
                 nav_profile: "🖥️Кабинет",
                 btn_support: "🍿 Поддержать WoodGrow (+0 USDT)",
@@ -644,7 +669,7 @@
                 claim_bonus: "🎁 ЗАБРАТЬ БОНУС",
                 ads_error: "Реклама не засчитана.",
                 support_thanks: "Спасибо! ❤️",
-                video_interrupted: "Видео перервано.",
+                video_interrupted: "Video прервано.",
                 db_error: "Ошибка связи с сервером базы данных.",
                 req_error: "Не удалось выполнить запрос на вывод.",
                 super_hint: "Посмотрите всю рекламу и получите возможность получить бонус от 0.0003 до 0.0012 USDT",
@@ -720,9 +745,8 @@
             
             document.getElementById('txt-super-hint').innerText = t.super_hint;
 
-            document.getElementById('nav-btn-main').innerHTML = `<span class="nav-icon">⚙️</span>${t.nav_main.replace('⚙️','')}`;
-            document.getElementById('nav-btn-tasks').innerHTML = `<span class="nav-icon">⚡️</span>${t.nav_tasks.replace('⚡️','')}`;
-            document.getElementById('nav-btn-wallet').innerHTML = `<span class="nav-icon">💼</span>${t.nav_wallet.replace('💼','')}`;
+            document.getElementById('nav-btn-main').innerHTML = `<span class="nav-icon">🏠</span>${t.nav_main.replace('🏠','')}`;
+            document.getElementById('nav-btn-tasks').innerHTML = `<span class="nav-icon">ℹ️</span>${t.nav_tasks.replace('ℹ️','')}`;
             document.getElementById('nav-btn-profile').innerHTML = `<span class="nav-icon">🖥️</span>${t.nav_profile.replace('🖥️','')}`;
 
             const btnSupport = document.getElementById('btn-support');
@@ -759,7 +783,7 @@
             services.forEach(srv => localStorage.setItem(`wg_views_${srv}`, '0'));
             localStorage.setItem('wg_super_bonus_claimed', 'false'); 
             localStorage.removeItem('wg_super_bonus_expire'); 
-            localStorage.removeItem('wg_super_redirect_expire'); // Очищуємо таймер редиректу супербонусу
+            localStorage.removeItem('wg_super_redirect_expire'); 
             localStorage.setItem('wg_last_active_day', todayStr);
             viewCounts = { service1: 0, service2: 0, service3: 0, service4: 0, support: 0 };
         }
@@ -922,12 +946,10 @@
             const isAllCompleted = (viewCounts.service1 >= MAX_VIEWS && viewCounts.service2 >= MAX_VIEWS && viewCounts.service3 >= MAX_VIEWS && viewCounts.service4 >= MAX_VIEWS);
 
             if (isAllCompleted) {
-                // Якщо вже запущено 20-секундний таймер перевірки переходу
                 if (superBtn.classList.contains('verifying-redirect')) {
                     return; 
                 }
                 
-                // Якщо рекламу вже переглянуто і очікується фінальний клік підтвердження
                 if (superBtn.classList.contains('ready-claim')) {
                     superBtn.disabled = false;
                     superBtn.innerText = t.super_btn_confirm;
@@ -1086,7 +1108,6 @@
             if (!superBtn) return;
             const t = translations[currentLang];
 
-            // ПРАВКА: Якщо активовано стан готовності (20 секунд пройшло), виконуємо фінальне отримання
             if (superBtn.classList.contains('ready-claim')) {
                 superBtn.classList.remove('ready-claim');
                 superBtn.disabled = true;
@@ -1094,7 +1115,6 @@
                 return;
             }
 
-            // Перший клік: відкриваємо посилання та запускаємо 20-секундний відлік
             tg.openLink(url);
             superBtn.disabled = true;
             superBtn.classList.add('verifying-redirect');
