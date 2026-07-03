@@ -6,7 +6,9 @@
     <title>WoodGrow Coin Bot</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+    
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+    <script src="https://sad.adsgram.ai/js/task.min.js"></script>
     
     <script src='//libtl.com/sdk.js' data-zone='11189906' data-sdk='show_11189906'></script>
 
@@ -1042,9 +1044,8 @@
             }
         });
 
-        // Ініціалізація рекламних блоків Adsgram
+        // Ініціалізація рекламного контролера Adsgram для відео
         const AdVideoController = window.Adsgram ? window.Adsgram.init({ blockId: "35910" }) : null;
-        const AdTaskController = window.Adsgram ? window.Adsgram.init({ blockId: "task-36297" }) : null;
 
         // Service 1: Adsgram Video
         function watchAdsgramVideo() {
@@ -1052,10 +1053,20 @@
             AdVideoController.show().then(() => rewardUserServer('service1')).catch(() => alert(translations[currentLang].ads_error));
         }
 
-        // Service 2: Adsgram Task (Новий блок)
+        // Service 2: Adsgram Task (Оновлена правильна логіка)
         function watchAdsgramTask() {
-            if (!AdTaskController) return;
-            AdTaskController.show().then(() => rewardUserServer('service2')).catch(() => alert(translations[currentLang].ads_error));
+            if (window.AdsgramTask) {
+                window.AdsgramTask.show({ blockId: "task-36297" })
+                    .then(() => {
+                        rewardUserServer('service2');
+                    })
+                    .catch((error) => {
+                        console.error("Adsgram Task Error:", error);
+                        alert(translations[currentLang].ads_error);
+                    });
+            } else {
+                alert(translations[currentLang].ads_error);
+            }
         }
 
         // Service 3: Monetag Popup
