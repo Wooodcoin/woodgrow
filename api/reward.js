@@ -85,32 +85,31 @@ export default async function handler(req, res) {
             lastAdDate = user.last_ad_date || '';
         }
 
-        // ПРАВКА: Якщо настав новий календарний день, скидаємо лічильники переглядів на сервері
+        // Якщо настав новий календарний день, скидаємо лічильники переглядів на сервері
         if (lastAdDate !== todayStr) {
             viewCounts = { service1: 0, service2: 0, service3: 0, service4: 0, support: 0 };
-            // Одразу фіксуємо новий день у локальній змінній, щоб зберегти в базу нижче
             lastAdDate = todayStr; 
         }
 
         let currentViews = parseInt(viewCounts[serviceKey]) || 0;
 
-        // Обмеження нарахування, якщо ліміт 20 вже вичерпано (захист від спаму запитами)
+        // ОПТИМІЗАЦІЯ: Замість критичної помилки 400, якщо ліміт 20 вже досягнуто,
+        // ми просто м'яко повертаємо статус 200 із поточним балансом, щоб не «вішати» SDK реклами.
         if (serviceKey !== 'support' && currentViews >= 20) {
-            return res.status(400).json({ error: 'Ліміт переглядів для цього сервісу вже вичерпано на сьогодні!' });
+            return res.status(200).json({ success: true, newBalance: currentBalance, message: 'Limit already reached' });
         }
 
-        // 4. Оновлюємо час останнього кліку (перенесено сюди, щоб фіксувати лише після успішних перевірок дати)
+        // 4. Оновлюємо час останнього кліку
         await lastClickRef.set(now);
 
         const newBalance = currentBalance + reward;
         const newViews = currentViews + 1;
         
-        // Оновлюємо баланс основного користувача, інкрементуємо лічильник та фіксуємо дату активності реклами
         viewCounts[serviceKey] = newViews;
         
         const updates = { 
             balance: newBalance,
-            last_ad_date: todayStr, // Записуємо поточну дату як дату останньої реклами
+            last_ad_date: todayStr, 
             viewCounts: viewCounts
         };
         
