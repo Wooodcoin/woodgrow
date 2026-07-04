@@ -7,9 +7,7 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     
-    <!-- Скрипти реклами: залишено тільки стабільне відео Adsgram -->
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
-    
     <script src='//libtl.com/sdk.js' data-zone='11189906' data-sdk='show_11189906'></script>
 
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -295,7 +293,6 @@
     <div class="lang-top-btn" onclick="openLangModal()">🌐</div>
 
     <div class="container">
-        <!-- ГОЛОВНА ВКЛАДКА -->
         <div id="tab-main" class="tab-content active">
             <div class="card">
                 <div class="balance-title" id="txt-balance-title">Мій Баланс</div>
@@ -318,7 +315,6 @@
                     <span id="timer-service2" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
                     <span id="limit-service2" class="limit-indicator">0 / 20</span>
                 </div>
-                <!-- Зміна: тепер Service 2 працює через Direct Link таймер як стабільна альтернатива -->
                 <button class="btn" id="btn-service2" onclick="handleBtnClick('service2', () => startDirectLinkTimer('service2', 'https://omg10.com/4/11233766'))">Service 2 (+0.0002)</button>
             </div>
 
@@ -342,11 +338,10 @@
 
             <div class="card super-bonus-card" style="margin-top: 25px;">
                 <div class="super-bonus-hint" id="txt-super-hint">Перегляньте всю рекламу та отримайте можливість отримати бонус від 0.0003 до 0.0012 USDT</div>
-                <button class="btn" id="btn-super-bonus" disabled onclick="claimSuperBonusDirect('https://omg10.com/4/11217998')">🔒 СПОЧАТКУ ВИКОНАЙТЕ ВСІ ЗАВДАННЯ</button>
+                <button class="btn" id="btn-super-bonus" disabled onclick="claimSuperBonusDirect()">🔒 СПОЧАТКУ ВИКОНАЙТЕ ВСІ ЗАВДАННЯ</button>
             </div>
         </div>
 
-        <!-- ВКЛАДКА ІНФО (КОЛИШНЯ РЕКЛАМА) -->
         <div id="tab-tasks" class="tab-content">
             <div class="card" style="border: 2px dashed var(--gold-color);">
                 <h3 id="txt-support-title">🎁 Підтримка проєкту</h3>
@@ -378,7 +373,6 @@
             </div>
         </div>
 
-        <!-- НОВА ВКЛАДКА ЗАВДАННЯ -->
         <div id="tab-missions" class="tab-content">
             <div class="card" style="padding: 30px 15px;">
                 <div style="font-size: 40px; margin-bottom: 10px;">🎯</div>
@@ -389,7 +383,6 @@
             </div>
         </div>
 
-        <!-- ОБ'ЄДНАНА ВКЛАДКА КАБІНЕТ + ГАМАНЕЦЬ -->
         <div id="tab-profile" class="tab-content">
             <div class="card" style="text-align: left;">
                 <h3 style="text-align: center;" id="txt-cabinet-title">👤 Мій кабінет</h3>
@@ -442,7 +435,6 @@
         </div>
     </div>
 
-    <!-- МОДАЛЬНІ ВІКНА -->
     <div class="modal-overlay" id="lang-modal">
         <div class="modal-window" style="border-color: var(--gold-color); box-shadow: 0 0 25px rgba(212, 175, 55, 0.4);">
             <h3 style="margin-bottom: 20px;">🌐 Choose Language / Мова</h3>
@@ -464,7 +456,6 @@
         </div>
     </div>
 
-    <!-- МЕНЮ НАВІГАЦІЇ -->
     <div class="nav-bar">
         <div class="nav-item active" onclick="switchTab('main', this)" id="nav-btn-main">
             <span class="nav-icon">🏠</span>Головна
@@ -501,7 +492,6 @@
         let isSuperBonusClaimed = false; 
         let activeLinkTimers = {};
         let currentLang = 'en';
-        let superBonusIntervalId = null;
 
         const translations = {
             uk: {
@@ -561,12 +551,9 @@
                 req_error: "Не вдалося виконати запит на виведення.",
                 super_hint: "Перегляньте всю рекламу та отримайте можливість отримати бонус від 0.0003 до 0.0012 USDT",
                 super_btn_locked: "🔒 СПОЧАТКУ ВИКОНАЙТЕ ВСІ ЗАВДАННЯ",
-                super_btn_cooldown: "⏳ ПЕРЕВІРКА ПЕРЕГЛЯДІВ... {val}s",
                 super_btn_ready: "🎁 ЗАБРАТИ СУПЕР БОНУС",
                 super_btn_claimed: "🛑 БОНУС УЖЕ ОТРИМАНО СЬОГОДНІ",
-                super_success: "🎉 Вітаємо! Ви виграли Супер Бонус: {val} USDT!",
-                super_btn_verifying: "⏳ ПЕРЕВІРКА ПЕРЕХОДУ... {val}s",
-                super_btn_confirm: "🎁 ПІДТВЕРДИТИ ОТРИМАННЯ"
+                super_success: "🎉 Вітаємо! Ви виграли Супер Бонус: {val} USDT!"
             },
             en: {
                 balance_title: "My Balance",
@@ -625,12 +612,9 @@
                 req_error: "Failed to process withdrawal request.",
                 super_hint: "Watch all ads and get a chance to receive a bonus from 0.0003 to 0.0012 USDT",
                 super_btn_locked: "🔒 COMPLETE ALL TASKS FIRST",
-                super_btn_cooldown: "⏳ CHECKING VIEWS... {val}s",
                 super_btn_ready: "🎁 CLAIM SUPER BONUS",
                 super_btn_claimed: "🛑 BONUS ALREADY CLAIMED TODAY",
-                super_success: "🎉 Congratulations! You won Super Bonus: {val} USDT!",
-                super_btn_verifying: "⏳ VERIFYING CLICK... {val}s",
-                super_btn_confirm: "🎁 CONFIRM CLAIM"
+                super_success: "🎉 Congratulations! You won Super Bonus: {val} USDT!"
             },
             ru: {
                 balance_title: "Мой Баланс",
@@ -658,7 +642,7 @@
                 withdraw_action: "💸 Вывести на кошелек",
                 cabinet_title: "👤 Мой кабинет",
                 tgid_label: "Ваш Telegram ID:",
-                stat_ref: "Рефералы",
+                stat_ref: "Referrals",
                 stat_bonus: "Ref Бонус",
                 partner_title: "Партнерська программа",
                 partner_desc: "Получайте фиксированные +10% от каждого просмотра рекламы вашими друзми!",
@@ -689,12 +673,9 @@
                 req_error: "Не удалось выполнить запрос на вывод.",
                 super_hint: "Посмотрите всю рекламу и получите возможность получить бонус от 0.0003 до 0.0012 USDT",
                 super_btn_locked: "🔒 СНАЧАЛА ВЫПОЛНИТЕ ВСЕ ЗАДАНИЯ",
-                super_btn_cooldown: "⏳ ПРОВЕРКА ПРОСМОТРОВ... {val}s",
                 super_btn_ready: "🎁 ЗАБРАТЬ СУПЕР БОНУС",
                 super_btn_claimed: "🛑 БОНУС УЖЕ ПОЛУЧЕН СЕГОДНЯ",
-                super_success: "🎉 Поздравляем! Вы выиграли Супер Бонус: {val} USDT!",
-                super_btn_verifying: "⏳ ПРОВЕРКА ПЕРЕХОДА... {val}s",
-                super_btn_confirm: "🎁 ПОДТВЕРДИТЬ ПОЛУЧЕНИЕ"
+                super_success: "🎉 Поздравляем! Вы выиграли Супер Бонус: {val} USDT!"
             }
         };
 
@@ -804,8 +785,6 @@
         if (todayStr !== lastSavedDay) {
             services.forEach(srv => localStorage.setItem(`wg_views_${srv}`, '0'));
             localStorage.setItem('wg_super_bonus_claimed', 'false'); 
-            localStorage.removeItem('wg_super_bonus_expire'); 
-            localStorage.removeItem('wg_super_redirect_expire'); 
             localStorage.setItem('wg_last_active_day', todayStr);
             viewCounts = { service1: 0, service2: 0, service3: 0, service4: 0, support: 0 };
         }
@@ -956,84 +935,25 @@
             const t = translations[currentLang];
 
             if (isSuperBonusClaimed) {
-                if (superBonusIntervalId) clearInterval(superBonusIntervalId);
                 superBtn.disabled = true;
                 superBtn.innerText = t.super_btn_claimed;
                 superBtn.style.background = "#27272a";
                 superBtn.style.color = "#71717a";
-                superBtn.classList.remove('ready-claim');
                 return;
             }
 
             const isAllCompleted = (viewCounts.service1 >= MAX_VIEWS && viewCounts.service2 >= MAX_VIEWS && viewCounts.service3 >= MAX_VIEWS && viewCounts.service4 >= MAX_VIEWS);
 
             if (isAllCompleted) {
-                if (superBtn.classList.contains('verifying-redirect')) {
-                    return; 
-                }
-                
-                if (superBtn.classList.contains('ready-claim')) {
-                    superBtn.disabled = false;
-                    superBtn.innerText = t.super_btn_confirm;
-                    superBtn.style.background = "linear-gradient(135deg, #ffe066 0%, #d4af37 100%)";
-                    superBtn.style.color = "#000000";
-                    return;
-                }
-
-                let expireTime = localStorage.getItem('wg_super_bonus_expire');
-                
-                if (!expireTime) {
-                    expireTime = (Date.now() + 120000).toString();
-                    localStorage.setItem('wg_super_bonus_expire', expireTime);
-                }
-
-                const remaining = Math.ceil((expireTime - Date.now()) / 1000);
-
-                if (remaining > 0) {
-                    superBtn.disabled = true;
-                    superBtn.innerText = t.super_btn_cooldown.replace('{val}', remaining);
-                    superBtn.style.background = "#27272a";
-                    superBtn.style.color = "#71717a";
-
-                    if (!superBonusIntervalId) {
-                        superBonusIntervalId = setInterval(() => {
-                            const savedExpire = localStorage.getItem('wg_super_bonus_expire');
-                            if (!savedExpire) {
-                                clearInterval(superBonusIntervalId);
-                                superBonusIntervalId = null;
-                                updateSuperBonusUI();
-                                return;
-                            }
-                            const curRemaining = Math.ceil((savedExpire - Date.now()) / 1000);
-                            if (curRemaining <= 0) {
-                                clearInterval(superBonusIntervalId);
-                                superBonusIntervalId = null;
-                                updateSuperBonusUI();
-                            } else {
-                                superBtn.innerText = t.super_btn_cooldown.replace('{val}', curRemaining);
-                            }
-                        }, 1000);
-                    }
-                } else {
-                    if (superBonusIntervalId) {
-                        clearInterval(superBonusIntervalId);
-                        superBonusIntervalId = null;
-                    }
-                    superBtn.disabled = false;
-                    superBtn.innerText = t.super_btn_ready;
-                    superBtn.style.background = "linear-gradient(135deg, #0df25d 0%, #0aa63f 100%)";
-                    superBtn.style.color = "#000000";
-                }
+                superBtn.disabled = false;
+                superBtn.innerText = t.super_btn_ready;
+                superBtn.style.background = "linear-gradient(135deg, #0df25d 0%, #0aa63f 100%)";
+                superBtn.style.color = "#000000";
             } else {
-                if (superBonusIntervalId) {
-                    clearInterval(superBonusIntervalId);
-                    superBonusIntervalId = null;
-                }
                 superBtn.disabled = true;
                 superBtn.innerText = t.super_btn_locked;
                 superBtn.style.background = "#27272a";
                 superBtn.style.color = "#71717a";
-                superBtn.classList.remove('ready-claim');
             }
         }
 
@@ -1051,16 +971,13 @@
             }
         });
 
-        // Ініціалізація рекламного контролера Adsgram для відео
         const AdVideoController = window.Adsgram ? window.Adsgram.init({ blockId: "35910" }) : null;
 
-        // Service 1: Adsgram Video
         function watchAdsgramVideo() {
             if (!AdVideoController) return;
             AdVideoController.show().then(() => rewardUserServer('service1')).catch(() => alert(translations[currentLang].ads_error));
         }
 
-        // Service 3: Monetag Popup
         function watchMonetagPopup() {
             if (typeof show_11189906 === 'function') {
                 try {
@@ -1074,7 +991,6 @@
             }
         }
 
-        // Service 4: Monetag Vignette
         function watchMonetagVignette() {
             if (typeof show_11189906 === 'function') {
                 try {
@@ -1088,7 +1004,6 @@
             }
         }
 
-        // Універсальний таймер перевірки для прямих лінків (для Service 2 та для Support)
         function startDirectLinkTimer(serviceKey, url) {
             const btn = document.getElementById(`btn-${serviceKey}`);
             const t = translations[currentLang];
@@ -1126,49 +1041,59 @@
             }, 1000);
         }
 
-        // Для Супер Бонусу (Вхід за редиректом смартлінку)
-        function claimSuperBonusDirect(url) {
+        // Чистий запит на отримання Супер Бонусу без перенаправлень
+        async function claimSuperBonusDirect() {
             if (isSuperBonusClaimed) return;
             
             const superBtn = document.getElementById('btn-super-bonus');
             if (!superBtn) return;
-            const t = translations[currentLang];
-
-            if (superBtn.classList.contains('ready-claim')) {
-                superBtn.classList.remove('ready-claim');
-                superBtn.disabled = true;
-                rewardSuperBonusServer();
-                return;
-            }
-
-            tg.openLink(url);
-            superBtn.disabled = true;
-            superBtn.classList.add('verifying-redirect');
             
-            let timeLeft = 20;
-            superBtn.innerText = t.super_btn_verifying.replace('{val}', timeLeft);
-            superBtn.style.background = "#27272a";
-            superBtn.style.color = "#71717a";
+            // Миттєве жорстке блокування кнопки від повторних тапів
+            superBtn.disabled = true;
 
-            if (superBonusIntervalId) clearInterval(superBonusIntervalId);
+            try {
+                const response = await fetch('/api/super-bonus', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: userId,
+                        initData: window.Telegram.WebApp.initData
+                    })
+                });
 
-            superBonusIntervalId = setInterval(() => {
-                timeLeft--;
-                if (timeLeft <= 0) {
-                    clearInterval(superBonusIntervalId);
-                    superBonusIntervalId = null;
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    balance = data.newBalance;
+                    document.getElementById('user-balance').innerText = balance.toFixed(4);
                     
-                    superBtn.classList.remove('verifying-redirect');
-                    superBtn.classList.add('ready-claim');
-                    superBtn.disabled = false;
+                    isSuperBonusClaimed = true;
+                    localStorage.setItem('wg_super_bonus_claimed', 'true');
                     
-                    superBtn.innerText = t.super_btn_confirm;
-                    superBtn.style.background = "linear-gradient(135deg, #ffe066 0%, #d4af37 100%)";
-                    superBtn.style.color = "#000000";
+                    services.forEach(srv => {
+                        if (srv !== 'support') {
+                            viewCounts[srv] = 0;
+                            localStorage.setItem(`wg_views_${srv}`, '0');
+                        }
+                    });
+
+                    updateSuperBonusUI();
+                    services.forEach(srv => updateLimitUI(srv));
+
+                    if (typeof firebase !== 'undefined' && firebase.analytics) {
+                        firebase.analytics().logEvent('super_bonus_success', { win_amount: data.winAmount });
+                    }
+
+                    alert(translations[currentLang].super_success.replace('{val}', data.winAmount.toFixed(4)));
+                    updateRefCounter();
                 } else {
-                    superBtn.innerText = t.super_btn_verifying.replace('{val}', timeLeft);
+                    alert("Error: " + (data.error || "Rejected"));
+                    updateSuperBonusUI();
                 }
-            }, 1000);
+            } catch (err) {
+                alert(translations[currentLang].db_error);
+                updateSuperBonusUI();
+            }
         }
 
         async function rewardUserServer(serviceKey) {
@@ -1211,53 +1136,6 @@
                 }
             } catch (err) {
                 alert(translations[currentLang].db_error);
-            }
-        }
-
-        async function rewardSuperBonusServer() {
-            try {
-                const response = await fetch('/api/super-bonus', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        userId: userId,
-                        initData: window.Telegram.WebApp.initData
-                    })
-                });
-
-                const data = await response.json();
-
-                if (response.ok && data.success) {
-                    balance = data.newBalance;
-                    document.getElementById('user-balance').innerText = balance.toFixed(4);
-                    
-                    isSuperBonusClaimed = true;
-                    localStorage.setItem('wg_super_bonus_claimed', 'true');
-                    localStorage.removeItem('wg_super_bonus_expire'); 
-                    
-                    services.forEach(srv => {
-                        if (srv !== 'support') {
-                            viewCounts[srv] = 0;
-                            localStorage.setItem(`wg_views_${srv}`, '0');
-                        }
-                    });
-
-                    updateSuperBonusUI();
-                    services.forEach(srv => updateLimitUI(srv));
-
-                    if (typeof firebase !== 'undefined' && firebase.analytics) {
-                        firebase.analytics().logEvent('super_bonus_success', { win_amount: data.winAmount });
-                    }
-
-                    alert(translations[currentLang].super_success.replace('{val}', data.winAmount.toFixed(4)));
-                    updateRefCounter();
-                } else {
-                    alert("Error: " + (data.error || "Rejected"));
-                    updateSuperBonusUI();
-                }
-            } catch (err) {
-                alert(translations[currentLang].db_error);
-                updateSuperBonusUI();
             }
         }
 
