@@ -675,7 +675,7 @@
                 super_btn_locked: "🔒 СНАЧАЛА ВЫПОЛНИТЕ ВСЕ ЗАДАНИЯ",
                 super_btn_ready: "🎁 ЗАБРАТЬ СУПЕР БОНУС",
                 super_btn_claimed: "🛑 БОНУС УЖЕ ПОЛУЧЕН СЕГОДНЯ",
-                super_success: "🎉 Поздравляем! Вы выиграли Супер Бонус: {val} USDT!"
+                super_success: "🎉 Поздравляем! Вы выиграли ... Супер Бонус: {val} USDT!"
             }
         };
 
@@ -834,6 +834,7 @@
                     const pCountText = translations[currentLang].people_count;
                     document.getElementById('ref-count').innerText = `${data.ref_count} ${pCountText}`;
                     
+                    // Жорстка синхронізація з сервером (Пункт 5)
                     if (data.viewCounts) {
                         services.forEach(srv => {
                             if (data.viewCounts[srv] !== undefined) {
@@ -913,10 +914,6 @@
                 limitSpan.innerText = "20 / 20 🛑";
                 btn.disabled = true;
                 btn.className = "btn";
-                if(serviceKey === 'service2') btn.innerText = "Service 2 (+0.0002)";
-                if(serviceKey === 'service3') btn.innerText = "Service 3 (+0.0002)";
-                if(serviceKey === 'service4') btn.innerText = "Service 4 (+0.0004)";
-                if(serviceKey === 'support') btn.innerText = translations[currentLang].btn_support;
             } else {
                 limitSpan.className = 'limit-indicator';
                 const expireTime = localStorage.getItem(`wg_cooldown_${serviceKey}`);
@@ -1041,14 +1038,12 @@
             }, 1000);
         }
 
-        // Чистий запит на отримання Супер Бонусу без перенаправлень
         async function claimSuperBonusDirect() {
             if (isSuperBonusClaimed) return;
             
             const superBtn = document.getElementById('btn-super-bonus');
             if (!superBtn) return;
             
-            // Миттєве жорстке блокування кнопки від повторних тапів
             superBtn.disabled = true;
 
             try {
@@ -1070,13 +1065,7 @@
                     isSuperBonusClaimed = true;
                     localStorage.setItem('wg_super_bonus_claimed', 'true');
                     
-                    services.forEach(srv => {
-                        if (srv !== 'support') {
-                            viewCounts[srv] = 0;
-                            localStorage.setItem(`wg_views_${srv}`, '0');
-                        }
-                    });
-
+                    // Прибрано друге коло (Пункт 4). Лічильники залишаються на 20/20.
                     updateSuperBonusUI();
                     services.forEach(srv => updateLimitUI(srv));
 
@@ -1151,11 +1140,7 @@
                 if(activeLinkTimers[serviceKey]) clearInterval(activeLinkTimers[serviceKey]);
                 btn.classList.remove('ready-claim');
                 
-                if (serviceKey === 'service2') btn.innerText = "Service 2 (+0.0002)";
-                if (serviceKey === 'service3') btn.innerText = "Service 3 (+0.0002)";
-                if (serviceKey === 'service4') btn.innerText = "Service 4 (+0.0004)";
-                if (serviceKey === 'support') btn.innerText = translations[currentLang].btn_support;
-                
+                // Вичищено залишки 20-секундного відліку (Пункт 2). Кнопка просто блокується під час коулдауну.
                 btn.disabled = true;
                 timerBox.style.display = 'inline';
                 timerBox.querySelector('.sec').innerText = remaining;
