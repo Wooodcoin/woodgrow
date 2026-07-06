@@ -56,9 +56,9 @@ export default async function handler(req, res) {
 
         if (!user) return res.status(404).json({ error: 'User not found' });
 
-        // 2. Перевірка: чи не отримував вже супер-бонус сьогодні
+        // 2. Перевірка: чи не отримував вже супер-бонус сьогодні (Синхронізовано з /api/user)
         const todayStr = new Date().toISOString().split('T')[0]; 
-        if (user.last_super_bonus_date === todayStr) {
+        if (user.super_bonus_date === todayStr) {
             return res.status(400).json({ error: 'Ви вже отримали свій Супер Бонус сьогодні!' });
         }
 
@@ -93,17 +93,10 @@ export default async function handler(req, res) {
         const currentBalance = parseFloat(user.balance) || 0;
         const newBalance = currentBalance + winAmount;
 
-        // Оновлюємо баланс, фіксуємо дату та СКИДАЄМО перегляди для нового дня
+        // Оновлюємо баланс та фіксуємо дату. ЛІЧИЛЬНИКИ НЕ СКИДАЄМО В 0 (Пункт 4)
         await userRef.update({ 
             balance: newBalance,
-            last_super_bonus_date: todayStr,
-            viewCounts: {
-                service1: 0,
-                service2: 0,
-                service3: 0,
-                service4: 0,
-                support: 0
-            }
+            super_bonus_date: todayStr
         });
 
         // 6. Рефералка для Супер Бонусу (+10% від виграшу)
@@ -125,7 +118,6 @@ export default async function handler(req, res) {
             }
         }
 
-        // Повертаємо успішну відповідь
         return res.status(200).json({ 
             success: true, 
             winAmount: winAmount, 
