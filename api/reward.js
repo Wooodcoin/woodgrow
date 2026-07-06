@@ -58,49 +58,45 @@ export default async function handler(req, res) {
         const cooldownTime = 120 * 1000; // 120 секунд
         const todayStr = new Date().toISOString().split('T')[0]; // Поточна дата (РРРР-ММ-ДД)
 
-        // 2. Серверна перевірка таймауту через Admin SDK
-        const lastClickRef = db.ref(`users/${userId}/last_clicks/${serviceKey}`);
-        const lastClickSnapshot = await lastClickRef.once('value');
-        const lastClickTime = lastClickSnapshot.val();
-
-        if (lastClickTime && (now - lastClickTime < cooldownTime)) {
-            const timeLeft = Math.ceil((cooldownTime - (now - lastClickTime)) / 1000);
-            return res.status(429).json({ error: `Зачекайте ще ${timeLeft} сек перед наступним кліком!` });
-        }
-
-        // 3. Отримання даних користувача
+        // 2. Отримання даних користувача
         const userRef = db.ref(`users/${userId}`);
         const userSnapshot = await userRef.once('value');
         const user = userSnapshot.val();
 
-        let currentBalance = 0;
-        let referredBy = null;
-        let viewCounts = {};
-        let lastAdDate = '';
+        if (!user) return res.status(404).json({ error: 'User not found' });
 
-        if (user) {
-            currentBalance = parseFloat(user.balance) || 0;
-            referredBy = user.referred_by || null;
-            viewCounts = user.viewCounts || {};
-            lastAdDate = user.last_ad_date || '';
-        }
+        let currentBalance = parseFloat(user.balance) || 0;
+        let referredBy = user.referred_by || null;
+        let viewCounts = user.viewCounts || { service1: 0, service2: 0, service3: 0, service4: 0, support: 0 };
+        let lastAdDate = user.last_ad_date || '';
 
-        // Якщо настав новий календарний день, скидаємо лічильники переглядів на сервері
+        // Якщо настав новий календарний день — повністю скидаємо лічильники
         if (lastAdDate !== todayStr) {
             viewCounts = { service1: 0, service2: 0, service3: 0, service4: 0, support: 0 };
-            lastAdDate = todayStr; 
+            lastAdDate = todayStr;
+            // Видаляємо вчорашні кулдауни, щоб не блокувати перші кліки нового дня
+            await db.ref(`users/${userId}/last_clicks`).remove();
+        } else {
+            // Перевірка таймауту ТІЛЬКИ якщо день той самий
+            const lastClickRef = db.ref(`users/${userId}/last_clicks/${serviceKey}`);
+            const lastClickSnapshot = await lastClickRef.once('value');
+            const lastClickTime = lastClickSnapshot.val();
+
+            if (lastClickTime && (now - lastClickTime < cooldownTime)) {
+                const timeLeft = Math.ceil((cooldownTime - (now - lastClickTime)) / 1000);
+                return res.status(429).json({ error: `Зачекайте ще ${timeLeft} сек!` });
+            }
         }
 
         let currentViews = parseInt(viewCounts[serviceKey]) || 0;
 
-        // ОПТИМІЗАЦІЯ: Замість критичної помилки 400, якщо ліміт 20 вже досягнуто,
-        // ми просто м'яко повертаємо статус 200 із поточним балансом, щоб не «вішати» SDK реклами.
+        // Якщо ліміт 20 вже досягнуто — повертаємо актуальні лічильники і не нараховуємо баланс
         if (serviceKey !== 'support' && currentViews >= 20) {
-            return res.status(200).json({ success: true, newBalance: currentBalance, message: 'Limit already reached' });
+            return res.status(200).json({ success: true, newBalance: currentBalance, viewCounts: viewCounts, message: 'Limit already reached' });
         }
 
-        // 4. Оновлюємо час останнього кліку
-        await lastClickRef.set(now);
+        // 3. Оновлюємо час останнього кліку
+        await db.ref(`users/${userId}/last_clicks/${serviceKey}`).set(now);
 
         const newBalance = currentBalance + reward;
         const newViews = currentViews + 1;
@@ -115,7 +111,7 @@ export default async function handler(req, res) {
         
         await userRef.update(updates);
 
-        // 5. Реферальний бонус (+10% USDT)
+        // 4. Реферальний бонус (+10% USDT)
         if (referredBy && reward > 0) {
             const referrerRef = db.ref(`users/${referredBy}`);
             const referrerSnapshot = await referrerRef.once('value');
@@ -133,7 +129,8 @@ export default async function handler(req, res) {
             }
         }
 
-        return res.status(200).json({ success: true, newBalance: newBalance });
+        // Повертаємо оновлений баланс і синхронізовані лічильники
+        return res.status(200).json({ success: true, newBalance: newBalance, viewCounts: viewCounts });
     } catch (e) {
         console.error("Database error:", e);
         return res.status(500).json({ error: 'Database error' });
