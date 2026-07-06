@@ -654,7 +654,7 @@
                 nav_tasks: "ℹ freeze Инфо",
                 nav_missions: "🎯Задания",
                 mission_title: "🎯 Новые задания",
-                mission_desc: "Раздел находится в разработке. Вскоре здесь появятся уникальные квесты и новые возможности для заработка!",
+                mission_desc: "Раздел находится в разработке. Вскоре здесь появятся уникальные квести и новые возможности для заработка!",
                 nav_profile: "🖥️Кабинет",
                 btn_support: "🍿 Поддержать WoodGrow (+0 USDT)",
                 loading: "Загрузка...",
@@ -807,6 +807,12 @@
                 firebase.analytics().logEvent('click_ad_service', { service: serviceKey });
             }
 
+            // Якщо клікнули на Service 1, записуємо кулдаун миттєво в момент старту (Пункт 1)
+            if (serviceKey === 'service1') {
+                localStorage.setItem('wg_cooldown_service1', (Date.now() + 120000).toString());
+                checkSingleCooldown('service1');
+            }
+
             actionFunction();
         }
 
@@ -834,7 +840,6 @@
                     const pCountText = translations[currentLang].people_count;
                     document.getElementById('ref-count').innerText = `${data.ref_count} ${pCountText}`;
                     
-                    // Жорстка синхронізація з сервером (Пункт 5)
                     if (data.viewCounts) {
                         services.forEach(srv => {
                             if (data.viewCounts[srv] !== undefined) {
@@ -972,7 +977,20 @@
 
         function watchAdsgramVideo() {
             if (!AdVideoController) return;
-            AdVideoController.show().then(() => rewardUserServer('service1')).catch(() => alert(translations[currentLang].ads_error));
+            AdVideoController.show()
+                .then(() => {
+                    rewardUserServer('service1');
+                })
+                .catch(() => {
+                    // Страховка (Пункт 2): якщо Adsgram не завантажився або юзер закрив вікно - знімаємо кулдаун
+                    localStorage.removeItem('wg_cooldown_service1');
+                    const timerBox = document.getElementById('timer-service1');
+                    if (timerBox) timerBox.style.display = 'none';
+                    const btn = document.getElementById('btn-service1');
+                    if (btn && viewCounts.service1 < MAX_VIEWS) btn.disabled = false;
+                    
+                    alert(translations[currentLang].ads_error);
+                });
         }
 
         function watchMonetagPopup() {
@@ -1065,7 +1083,6 @@
                     isSuperBonusClaimed = true;
                     localStorage.setItem('wg_super_bonus_claimed', 'true');
                     
-                    // Прибрано друге коло (Пункт 4). Лічильники залишаються на 20/20.
                     updateSuperBonusUI();
                     services.forEach(srv => updateLimitUI(srv));
 
@@ -1115,15 +1132,29 @@
                         alert(translations[currentLang].support_thanks);
                     }
 
-                    if (viewCounts[serviceKey] < MAX_VIEWS) {
+                    // Для Service 1 таймаут вже створено на початку handleBtnClick, для решти - створюємо тут
+                    if (serviceKey !== 'service1' && viewCounts[serviceKey] < MAX_VIEWS) {
                         localStorage.setItem(`wg_cooldown_${serviceKey}`, (Date.now() + 120000).toString());
                         checkSingleCooldown(serviceKey);
                     }
                     updateRefCounter();
                 } else {
+                    // Якщо сервер відхилив нарахування для Service 1, скидаємо таймер
+                    if (serviceKey === 'service1') {
+                        localStorage.removeItem('wg_cooldown_service1');
+                        const timerBox = document.getElementById('timer-service1');
+                        if (timerBox) timerBox.style.display = 'none';
+                        updateLimitUI('service1');
+                    }
                     alert("Security Error: " + (data.error || "Rejected"));
                 }
             } catch (err) {
+                if (serviceKey === 'service1') {
+                    localStorage.removeItem('wg_cooldown_service1');
+                    const timerBox = document.getElementById('timer-service1');
+                    if (timerBox) timerBox.style.display = 'none';
+                    updateLimitUI('service1');
+                }
                 alert(translations[currentLang].db_error);
             }
         }
@@ -1140,7 +1171,6 @@
                 if(activeLinkTimers[serviceKey]) clearInterval(activeLinkTimers[serviceKey]);
                 btn.classList.remove('ready-claim');
                 
-                // Вичищено залишки 20-секундного відліку (Пункт 2). Кнопка просто блокується під час коулдауну.
                 btn.disabled = true;
                 timerBox.style.display = 'inline';
                 timerBox.querySelector('.sec').innerText = remaining;
