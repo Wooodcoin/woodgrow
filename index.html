@@ -377,16 +377,17 @@
         <div id="tab-missions" class="tab-content">
             <div class="card" style="border: 2px solid var(--neon-aqua); background: rgba(0, 245, 212, 0.05); box-shadow: 0 0 15px rgba(0, 245, 212, 0.2);">
                 <h3 style="color: var(--neon-aqua);" id="txt-adv-section-title">💼 Кабінет рекламодавця</h3>
-                <p style="color: #a1a1aa; font-size: 13px;" id="txt-adv-section-desc">Тут ви можете замовити реакції на телеграм пости від реальних користувачів.</p>
+                <p style="color: #a1a1aa; font-size: 13px;" id="txt-adv-section-desc">Тут вы можете замовити реакції на телеграм пости від реальних користувачів.</p>
                 <button class="btn" style="background: linear-gradient(135deg, #00f5d4 0%, #00bbf9 100%); color: #000000; font-weight: 900;" onclick="tg.openTelegramLink('https://t.me/WoodGrow_task_bot/WoodGrowTask')" id="btn-go-advertiser">💼 Замовити завдання</button>
             </div>
 
-            <div class="card" style="padding: 30px 15px;">
+            <div class="card" style="padding: 20px 15px;">
                 <div style="font-size: 40px; margin-bottom: 10px;">🎯</div>
                 <h3 id="txt-new-missions-title">🎯 Нові завдання</h3>
-                <p style="color: #a1a1aa; font-size: 14px; line-height: 1.6; margin: 0;" id="txt-new-missions-desc">
-                    Тут ви можете замовити реакції на ваші пости
-                </p>
+                
+                <div id="tasks-container" style="margin-top: 15px; display: flex; flex-direction: column; gap: 12px;">
+                    <p style="color: #a1a1aa; font-size: 14px;" id="tasks-loading-status">Завантаження завдань...</p>
+                </div>
             </div>
         </div>
 
@@ -547,7 +548,7 @@
                 copied: "Скопіювано!",
                 alert_wallet: "❌ Спочатку підключіть ваш TON-гаманець!",
                 alert_min: "❌ Мінімальна сума для виведення: 5 USDT (У вас {val})",
-                alert_confirm: "Ви впевнені, що хочете вивести {val} USDT?\n\nПісля натискання 'ОК' ваш баланс буде списано, а заявка автоматично надійде адміну.",
+                alert_confirm: "Ви впевнені, що хочете вивести {val} USDT?\n\nПісля натискання 'ОК' ваш баланс буде списано, а заявка автоматично надійшла адміну.",
                 not_connected: "Не підключено",
                 checking: "⏳ ПЕРЕВІРКА...",
                 claim_bonus: "🎁 ЗАБРАТИ БОНУС",
@@ -689,7 +690,7 @@
                 super_btn_ready: "🎁 ЗАБРАТЬ СУПЕР БОНУС",
                 super_btn_claimed: "🛑 БОНУС УЖЕ ПОЛУЧЕН СЕГОДНЯ",
                 super_success: "🎉 Поздравляем! Вы выиграли ... Супер Бонус: {val} USDT!",
-                adv_title: "💼 Кабинет рекламодателя",
+                adv_title: "💼 Кабинет рекламодавтеля",
                 adv_desc: "Здесь вы можете заказать реакции на телеграм посты от реальных пользователей.",
                 adv_btn: "💼 Заказать задание"
             }
@@ -771,7 +772,6 @@
 
             if (document.getElementById('txt-new-missions-title')) {
                 document.getElementById('txt-new-missions-title').innerText = t.mission_title;
-                document.getElementById('txt-new-missions-desc').innerText = t.mission_desc;
             }
 
             const btnSupport = document.getElementById('btn-support');
@@ -914,9 +914,10 @@
             }
         }
 
+        // ОНОВЛЕНА ФУНКЦІЯ ПЕРЕМИКАННЯ ВКЛАДОК (ВКЛЮЧАЄ ЗАВАНТАЖЕННЯ ЗАВДАНЬ)
         function switchTab(tabName, element) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(item => item.className = 'nav-item');
             document.getElementById('tab-' + tabName).classList.add('active');
             element.classList.add('active');
 
@@ -925,6 +926,11 @@
             }
 
             if (tabName === 'profile') updateRefCounter();
+            
+            // Якщо активовано вкладку місій — завантажуємо завдання замовників
+            if (tabName === 'missions') {
+                loadCustomerTasks();
+            }
         }
 
         function updateLimitUI(serviceKey) {
@@ -1153,7 +1159,7 @@
                     }
 
                     if (serviceKey === 'service1') {
-                        // Кулдаун для service1 вже обролено у handleBtnClick
+                        // Кулдаун для service1
                     } else if (viewCounts[serviceKey] < MAX_VIEWS) {
                         localStorage.setItem(`wg_cooldown_${serviceKey}`, (Date.now() + 120000).toString());
                         checkSingleCooldown(serviceKey);
@@ -1275,6 +1281,53 @@
                 }
             } catch (err) {
                 alert(t.req_error);
+            }
+        }
+
+        // НОВА ФУНКЦІЯ: ВИКЛИК СЕРВЕРНОГО МІСТКА ТА МАЛЮВАННЯ КНОПОК ЗАВДАНЬ
+        async function loadCustomerTasks() {
+            const container = document.getElementById('tasks-container');
+            const statusText = document.getElementById('tasks-loading-status');
+            
+            if (!container) return;
+            
+            try {
+                if (statusText) statusText.innerText = currentLang === 'uk' ? "Завантаження..." : (currentLang === 'ru' ? "Загрузка..." : "Loading...");
+                
+                const response = await fetch('/api/get-tasks');
+                const data = await response.json();
+                
+                container.innerHTML = '';
+                
+                if (data.success && data.tasks && data.tasks.length > 0) {
+                    data.tasks.forEach(task => {
+                        const taskBtn = document.createElement('button');
+                        taskBtn.className = 'btn';
+                        taskBtn.style.background = 'var(--gold-gradient)';
+                        taskBtn.style.marginTop = '0';
+                        
+                        let btnText = `👍 Поставити реакцію (+${task.reward} USDT)`;
+                        if (currentLang === 'en') btnText = `👍 Give Reaction (+${task.reward} USDT)`;
+                        if (currentLang === 'ru') btnText = `👍 Поставить реакцию (+${task.reward} USDT)`;
+                        
+                        taskBtn.innerText = btnText;
+                        
+                        taskBtn.onclick = () => {
+                            if (window.Telegram && window.Telegram.WebApp) {
+                                window.Telegram.WebApp.openTelegramLink(task.link);
+                            } else {
+                                window.open(task.link, '_blank');
+                            }
+                        };
+                        
+                        container.appendChild(taskBtn);
+                    });
+                } else {
+                    container.innerHTML = `<p style="color: #a1a1aa; font-size: 14px;">${currentLang === 'uk' ? "Немає активних завдань" : (currentLang === 'ru' ? "Нет активных заданий" : "No active tasks")}</p>`;
+                }
+            } catch (err) {
+                console.error("Помилка завантаження завдань:", err);
+                container.innerHTML = `<p style="color: #ff4444; font-size: 14px;">Помилка з'єднання з сервером</p>`;
             }
         }
 
