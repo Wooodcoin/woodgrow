@@ -383,9 +383,9 @@
 
             <div class="card" style="padding: 30px 15px;">
                 <div style="font-size: 40px; margin-bottom: 10px;">🎯</div>
-                <h3>🎯 Нові завдання</h3>
-                <p style="color: #a1a1aa; font-size: 14px; line-height: 1.6; margin: 0;">
-                    Розділ знаходиться в розробці. Незабаром тут з'являться унікальні квести та нові можливості для заробітку!
+                <h3 id="txt-new-missions-title">🎯 Нові завдання</h3>
+                <p style="color: #a1a1aa; font-size: 14px; line-height: 1.6; margin: 0;" id="txt-new-missions-desc">
+                    Тут ви можете замовити реакції на ваші пости
                 </p>
             </div>
         </div>
@@ -539,7 +539,7 @@
                 nav_tasks: "ℹ️Інфо",
                 nav_missions: "🎯Завдання",
                 mission_title: "🎯 Нові завдання",
-                mission_desc: "Розділ знаходиться в розробці. Незабаром тут з'являться унікальні квести та нові можливості для заробітку!",
+                mission_desc: "Тут ви можете замовити реакції на ваші пости",
                 nav_profile: "🖥️Кабінет",
                 btn_support: "🍿 Підтримати WoodGrow (+0 USDT)",
                 loading: "Завантаження...",
@@ -603,7 +603,7 @@
                 nav_tasks: "ℹ️Info",
                 nav_missions: "🎯Missions",
                 mission_title: "🎯 New Missions",
-                mission_desc: "This section is under development. Unique quests and new opportunities to earn will appear here soon!",
+                mission_desc: "Here you can order reactions for your posts",
                 nav_profile: "🖥️Profile",
                 btn_support: "🍿 Support WoodGrow (+0 USDT)",
                 loading: "Loading...",
@@ -648,7 +648,7 @@
                     <li>Подключите свой TON-кошелек выше.</li>
                     <li>Нажмите кнопку «Вывод на кошелек» (Минимум 5 USDT).</li>
                     <li>Подтвердите действие. Ваш баланс автоматически сбросится, а система зарегистрирует заявку на сервере.</li>
-                    <li>Ожидайте перевода на ваш кошелек. Заявки обрабатываются автоматически в порядке очереди.</li>
+                    <li>Очите перевода на ваш кошелек. Заявки обрабатываются автоматически в порядке очереди.</li>
                     <li style="color: #ffcc00; font-weight: bold; list-style-type: '⚠️ ';">ВАСЖНО: Для подключения используйте приложение <u>Tonkeeper</u>. Официальный Telegram Wallet внутри приложений может работать с перебоями!</li>
                 `,
                 min_sum_label: "Минимальная сумма:",
@@ -667,7 +667,7 @@
                 nav_tasks: "ℹ freeze Инфо",
                 nav_missions: "🎯Задания",
                 mission_title: "🎯 Новые задания",
-                mission_desc: "Раздел находится в разработке. Вскоре здесь появятся уникальные квести и новые возможности для заработка!",
+                mission_desc: "Здесь вы можете заказать реакции на ваши посты",
                 nav_profile: "🖥️Кабинет",
                 btn_support: "🍿 Поддержать WoodGrow (+0 USDT)",
                 loading: "Загрузка...",
@@ -766,10 +766,9 @@
             document.getElementById('nav-btn-missions').innerHTML = `<span class="nav-icon">🎯</span>${t.nav_missions.replace('🎯','')}`;
             document.getElementById('nav-btn-profile').innerHTML = `<span class="nav-icon">🖥️</span>${t.nav_profile.replace('🖥️','')}`;
 
-            const missionTab = document.getElementById('tab-missions');
-            if (missionTab) {
-                missionTab.querySelector('h3').innerText = t.mission_title;
-                missionTab.querySelector('p').innerText = t.mission_desc;
+            if (document.getElementById('txt-new-missions-title')) {
+                document.getElementById('txt-new-missions-title').innerText = t.mission_title;
+                document.getElementById('txt-new-missions-desc').innerText = t.mission_desc;
             }
 
             const btnSupport = document.getElementById('btn-support');
@@ -1151,7 +1150,7 @@
                     }
 
                     if (serviceKey === 'service1') {
-                        // Кулдаун для service1 вже оброблено у handleBtnClick
+                        // Кулдаун для service1 вже обролено у handleBtnClick
                     } else if (viewCounts[serviceKey] < MAX_VIEWS) {
                         localStorage.setItem(`wg_cooldown_${serviceKey}`, (Date.now() + 120000).toString());
                         checkSingleCooldown(serviceKey);
