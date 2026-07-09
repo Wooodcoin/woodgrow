@@ -17,11 +17,24 @@ if (!admin.apps.length) {
 const db = admin.database();
 
 export default async function handler(req, res) {
-    // Дозволяємо лише GET запити для отримання даних
+    // Дозволяємо лише GET запити
     if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
+    // Отримуємо ID користувача з query-параметрів (запиту)
+    const { userId } = req.query;
+
     try {
-        // 1. Беремо всі завдання з гілки "tasks"
+        // 1. Спочатку витягуємо список виконаних завдань саме ЦЬОГО користувача
+        let completedTaskIds = [];
+        if (userId) {
+            const completedSnapshot = await db.ref(`users/${userId}/completed_tasks`).once('value');
+            if (completedSnapshot.exists()) {
+                // Отримуємо ключі (ID завдань), де значення є true
+                completedTaskIds = Object.keys(completedSnapshot.val());
+            }
+        }
+
+        // 2. Беремо всі глобальні завдання з гілки "tasks"
         const snapshot = await db.ref('tasks').once('value');
         if (!snapshot.exists()) {
             return res.status(200).json({ success: true, tasks: [] });
@@ -30,15 +43,19 @@ export default async function handler(req, res) {
         const allTasks = snapshot.val();
         const activeTasks = [];
 
-        // 2. Фільтруємо завдання: залишаємо лише активні та з лімітом переглядів
+        // 3. Фільтруємо завдання за твоїми правилами + додаємо перевірку на виконання
         for (const key in allTasks) {
             const task = allTasks[key];
             
+            // ПЕРЕВІРКА: чи є ID цього завдання в списку вже виконаних юзером
+            const isAlreadyCompleted = completedTaskIds.includes(task.id);
+
             if (
                 task.status === 'active' && 
+                !isAlreadyCompleted && // <--- НОВА УМОВА: Пропускаємо, якщо вже виконано
                 parseInt(task.current_views || 0) < parseInt(task.required_views || 26)
             ) {
-                // Віддаємо на фронтенд тільки безпечні дані, без ID творця
+                // Віддаємо на фронтенд тільки безпечні дані
                 activeTasks.push({
                     id: task.id,
                     link: task.link,
@@ -47,7 +64,7 @@ export default async function handler(req, res) {
             }
         }
 
-        // Повертаємо масив активних завдань
+        // Повертаємо масив тільки тих активних завдань, які юзер ще НЕ робив
         return res.status(200).json({ success: true, tasks: activeTasks });
 
     } catch (error) {
