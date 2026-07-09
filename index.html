@@ -52,6 +52,7 @@
             --text-light: #ffffff;
             --card-bg: rgba(212, 175, 55, 0.15);
             --super-bonus-bg: rgba(13, 242, 93, 0.1);
+            --neon-aqua: #00f5d4;
         }
 
         body {
@@ -374,6 +375,12 @@
         </div>
 
         <div id="tab-missions" class="tab-content">
+            <div class="card" style="border: 2px solid var(--neon-aqua); background: rgba(0, 245, 212, 0.05); box-shadow: 0 0 15px rgba(0, 245, 212, 0.2);">
+                <h3 style="color: var(--neon-aqua);" id="txt-adv-section-title">💼 Кабінет рекламодавця</h3>
+                <p style="color: #a1a1aa; font-size: 13px;" id="txt-adv-section-desc">Бажаєте просунути свій власний Telegram-канал або групу? Запустіть завдання для тисяч реальних користувачів прямо зараз!</p>
+                <button class="btn" style="background: linear-gradient(135deg, #00f5d4 0%, #00bbf9 100%); color: #000000; font-weight: 900;" onclick="tg.openLink('https://wood-grow-task.vercel.app/')" id="btn-go-advertiser">💼 Замовити завдання</button>
+            </div>
+
             <div class="card" style="padding: 30px 15px;">
                 <div style="font-size: 40px; margin-bottom: 10px;">🎯</div>
                 <h3>🎯 Нові завдання</h3>
@@ -553,7 +560,10 @@
                 super_btn_locked: "🔒 СПОЧАТКУ ВИКОНАЙТЕ ВСІ ЗАВДАННЯ",
                 super_btn_ready: "🎁 ЗАБРАТИ СУПЕР БОНУС",
                 super_btn_claimed: "🛑 БОНУС УЖЕ ОТРИМАНО СЬОГОДНІ",
-                super_success: "🎉 Вітаємо! Ви виграли Супер Бонус: {val} USDT!"
+                super_success: "🎉 Вітаємо! Ви виграли Супер Бонус: {val} USDT!",
+                adv_title: "💼 Кабінет рекламодавця",
+                adv_desc: "Бажаєте просунути свій власний Telegram-канал або групу? Запустіть завдання для тисяч реальних користувачів прямо зараз!",
+                adv_btn: "💼 Замовити завдання"
             },
             en: {
                 balance_title: "My Balance",
@@ -614,7 +624,10 @@
                 super_btn_locked: "🔒 COMPLETE ALL TASKS FIRST",
                 super_btn_ready: "🎁 CLAIM SUPER BONUS",
                 super_btn_claimed: "🛑 BONUS ALREADY CLAIMED TODAY",
-                super_success: "🎉 Congratulations! You won Super Bonus: {val} USDT!"
+                super_success: "🎉 Congratulations! You won Super Bonus: {val} USDT!",
+                adv_title: "💼 Advertiser Cabinet",
+                adv_desc: "Want to promote your own Telegram channel or group? Launch a task for thousands of real users right now!",
+                adv_btn: "💼 Order Task"
             },
             ru: {
                 balance_title: "Мой Баланс",
@@ -741,6 +754,13 @@
             
             document.getElementById('txt-super-hint').innerText = t.super_hint;
 
+            // Локалізація кабінету рекламодавця
+            if(document.getElementById('txt-adv-section-title')) {
+                document.getElementById('txt-adv-section-title').innerText = t.adv_title || "💼 Кабінет рекламодавця";
+                document.getElementById('txt-adv-section-desc').innerText = t.adv_desc || "Бажаєте просунути свій власний Telegram-канал або групу?";
+                document.getElementById('btn-go-advertiser').innerText = t.adv_btn || "💼 Замовити завдання";
+            }
+
             document.getElementById('nav-btn-main').innerHTML = `<span class="nav-icon">🏠</span>${t.nav_main.replace('🏠','')}`;
             document.getElementById('nav-btn-tasks').innerHTML = `<span class="nav-icon">ℹ️</span>${t.nav_tasks.replace('ℹ️','')}`;
             document.getElementById('nav-btn-missions').innerHTML = `<span class="nav-icon">🎯</span>${t.nav_missions.replace('🎯','')}`;
@@ -807,7 +827,6 @@
                 firebase.analytics().logEvent('click_ad_service', { service: serviceKey });
             }
 
-            // Якщо клікнули на Service 1, записуємо кулдаун миттєво в момент старту (Пункт 1)
             if (serviceKey === 'service1') {
                 localStorage.setItem('wg_cooldown_service1', (Date.now() + 120000).toString());
                 checkSingleCooldown('service1');
@@ -982,7 +1001,6 @@
                     rewardUserServer('service1');
                 })
                 .catch(() => {
-                    // Страховка (Пункт 2): якщо Adsgram не завантажився або юзер закрив вікно - знімаємо кулдаун
                     localStorage.removeItem('wg_cooldown_service1');
                     const timerBox = document.getElementById('timer-service1');
                     if (timerBox) timerBox.style.display = 'none';
@@ -1132,14 +1150,14 @@
                         alert(translations[currentLang].support_thanks);
                     }
 
-                    // Для Service 1 таймаут вже створено на початку handleBtnClick, для решти - створюємо тут
-                    if (serviceKey !== 'service1' && viewCounts[serviceKey] < MAX_VIEWS) {
+                    if (serviceKey === 'service1') {
+                        // Кулдаун для service1 вже оброблено у handleBtnClick
+                    } else if (viewCounts[serviceKey] < MAX_VIEWS) {
                         localStorage.setItem(`wg_cooldown_${serviceKey}`, (Date.now() + 120000).toString());
                         checkSingleCooldown(serviceKey);
                     }
                     updateRefCounter();
                 } else {
-                    // Якщо сервер відхилив нарахування для Service 1, скидаємо таймер
                     if (serviceKey === 'service1') {
                         localStorage.removeItem('wg_cooldown_service1');
                         const timerBox = document.getElementById('timer-service1');
