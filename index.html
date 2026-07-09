@@ -548,7 +548,7 @@
                 copied: "Скопіювано!",
                 alert_wallet: "❌ Спочатку підключіть ваш TON-гаманець!",
                 alert_min: "❌ Мінімальна сума для виведення: 5 USDT (У вас {val})",
-                alert_confirm: "Ви впевнені, що хочете вивести {val} USDT?\n\nПісля натискання 'ОК' ваш баланс буде списано, а заявка автоматично надійшла адміну.",
+                alert_confirm: "Ви впевнені, що хотите вивести {val} USDT?\n\nПісля натискання 'ОК' ваш баланс буде списано, а заявка автоматично надійшла адміну.",
                 not_connected: "Не підключено",
                 checking: "⏳ ПЕРЕВІРКА...",
                 claim_bonus: "🎁 ЗАБРАТИ БОНУС",
@@ -561,10 +561,16 @@
                 super_btn_locked: "🔒 СПОЧАТКУ ВИКОНАЙТЕ ВСІ ЗАВДАННЯ",
                 super_btn_ready: "🎁 ЗАБРАТИ СУПЕР БОНУС",
                 super_btn_claimed: "🛑 БОНУС УЖЕ ОТРИМАНО СЬОГОДНІ",
-                super_success: "🎉 Вітаємо! Ви виграли Супер Бонус: {val} USDT!",
+                super_success: "🎉 Вітаємо! Ви виграли... Супер Бонус: {val} USDT!",
                 adv_title: "💼 Кабінет рекламодавця",
                 adv_desc: "Тут ви можете замовити реакції на телеграм пости від реальних користувачів.",
-                adv_btn: "💼 Замовити завдання"
+                adv_btn: "💼 Заказать задание",
+                task_reaction_btn: "👍 Поставити реакцію",
+                task_waiting_btn: "⏳ Зачекайте",
+                task_claim_btn: "🎁 Забрати",
+                task_claiming_process: "Обробка...",
+                task_no_active: "Немає активних завдань",
+                task_conn_error: "Помилка з'єднання з сервером"
             },
             en: {
                 balance_title: "My Balance",
@@ -628,7 +634,13 @@
                 super_success: "🎉 Congratulations! You won Super Bonus: {val} USDT!",
                 adv_title: "💼 Advertiser Cabinet",
                 adv_desc: "Here you can order reactions to Telegram posts from real users.",
-                adv_btn: "💼 Order Task"
+                adv_btn: "💼 Order Task",
+                task_reaction_btn: "👍 Give Reaction",
+                task_waiting_btn: "⏳ Wait",
+                task_claim_btn: "🎁 Claim",
+                task_claiming_process: "Processing...",
+                task_no_active: "No active tasks",
+                task_conn_error: "Server connection error"
             },
             ru: {
                 balance_title: "Мой Баланс",
@@ -689,10 +701,16 @@
                 super_btn_locked: "🔒 СНАЧАЛА ВЫПОЛНИТЕ ВСЕ ЗАДАНИЯ",
                 super_btn_ready: "🎁 ЗАБРАТЬ СУПЕР БОНУС",
                 super_btn_claimed: "🛑 БОНУС УЖЕ ПОЛУЧЕН СЕГОДНЯ",
-                super_success: "🎉 Поздравляем! Вы выиграли ... Супер Бонус: {val} USDT!",
+                super_success: "🎉 Поздравляем! Вы выиграли... Супер Бонус: {val} USDT!",
                 adv_title: "💼 Кабинет рекламодавтеля",
                 adv_desc: "Здесь вы можете заказать реакции на телеграм посты от реальных пользователей.",
-                adv_btn: "💼 Заказать задание"
+                adv_btn: "💼 Заказать задание",
+                task_reaction_btn: "👍 Поставить реакцию",
+                task_waiting_btn: "⏳ Подождите",
+                task_claim_btn: "🎁 Забрать",
+                task_claiming_process: "Обработка...",
+                task_no_active: "Нет активных заданий",
+                task_conn_error: "Ошибка соединения с сервером"
             }
         };
 
@@ -1284,50 +1302,131 @@
             }
         }
 
-        // НОВА ФУНКЦІЯ: ВИКЛИК СЕРВЕРНОГО МІСТКА ТА МАЛЮВАННЯ КНОПОК ЗАВДАНЬ
+        // МОДИФІКОВАНА ФУНКЦІЯ: ВИКЛИК СЕРВЕРНОГО МІСТКА ТА МАЛЮВАННЯ КНОПОК ІЗ ТАЙМЕРОМ ЗАХИСТУ
         async function loadCustomerTasks() {
             const container = document.getElementById('tasks-container');
             const statusText = document.getElementById('tasks-loading-status');
+            const t = translations[currentLang];
             
             if (!container) return;
             
             try {
-                if (statusText) statusText.innerText = currentLang === 'uk' ? "Завантаження..." : (currentLang === 'ru' ? "Загрузка..." : "Loading...");
+                if (statusText) statusText.innerText = t.loading;
                 
-                const response = await fetch('/api/get-tasks');
+                // Надсилаємо userId на бекенд, щоб відфільтрувати вже виконані завдання
+                const response = await fetch(`/api/get-tasks?userId=${userId}`);
                 const data = await response.json();
                 
                 container.innerHTML = '';
                 
                 if (data.success && data.tasks && data.tasks.length > 0) {
                     data.tasks.forEach(task => {
+                        // Локальні стани таймера для кожної окремої таски
+                        let isTimerStarted = false;
+                        let isTimerFinished = false;
+                        let countdown = 20;
+                        let timerInterval = null;
+
                         const taskBtn = document.createElement('button');
                         taskBtn.className = 'btn';
                         taskBtn.style.background = 'var(--gold-gradient)';
                         taskBtn.style.marginTop = '0';
+                        taskBtn.innerText = `${t.task_reaction_btn} (+${task.reward} USDT)`;
                         
-                        let btnText = `👍 Поставити реакцію (+${task.reward} USDT)`;
-                        if (currentLang === 'en') btnText = `👍 Give Reaction (+${task.reward} USDT)`;
-                        if (currentLang === 'ru') btnText = `👍 Поставить реакцию (+${task.reward} USDT)`;
-                        
-                        taskBtn.innerText = btnText;
-                        
-                        taskBtn.onclick = () => {
-                            if (window.Telegram && window.Telegram.WebApp) {
-                                window.Telegram.WebApp.openTelegramLink(task.link);
-                            } else {
-                                window.open(task.link, '_blank');
+                        taskBtn.onclick = async () => {
+                            const initDataStr = window.Telegram?.WebApp?.initData || "";
+
+                            // ЕТАП 1: Перший клік — Відкриваємо лінк і запускаємо 20с таймер
+                            if (!isTimerStarted && !isTimerFinished) {
+                                isTimerStarted = true;
+
+                                if (window.Telegram && window.Telegram.WebApp) {
+                                    window.Telegram.WebApp.openTelegramLink(task.link);
+                                } else {
+                                    window.open(task.link, '_blank');
+                                }
+
+                                // Візуально блокуємо та міняємо текст
+                                taskBtn.disabled = true;
+                                taskBtn.style.background = '#27272a';
+                                taskBtn.style.color = '#71717a';
+                                taskBtn.innerText = `${t.task_waiting_btn} ${countdown}s`;
+
+                                timerInterval = setInterval(() => {
+                                    countdown--;
+                                    if (countdown > 0) {
+                                        taskBtn.innerText = `${t.task_waiting_btn} ${countdown}s`;
+                                    } else {
+                                        // Таймер вийшов, перетворюємо кнопку на зелену "Забрати"
+                                        clearInterval(timerInterval);
+                                        isTimerFinished = true;
+                                        taskBtn.disabled = false;
+                                        taskBtn.style.background = 'linear-gradient(135deg, #4caf50 0%, #388e3c 100%)';
+                                        taskBtn.style.color = '#ffffff';
+                                        taskBtn.innerText = t.task_claim_btn;
+                                    }
+                                }, 1000);
+                                return;
+                            }
+
+                            // ЕТАП 2: Другий клік — Забираємо гроші через новий ендпоінт
+                            if (isTimerFinished) {
+                                taskBtn.disabled = true;
+                                taskBtn.innerText = t.task_claiming_process;
+
+                                try {
+                                    const claimRes = await fetch('/api/claim-task', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({
+                                            userId: userId,
+                                            taskId: task.id,
+                                            initData: initDataStr
+                                        })
+                                    });
+
+                                    const claimData = await claimRes.json();
+
+                                    if (claimData.success) {
+                                        // Оновлюємо глобальний баланс на сторінці
+                                        balance = claimData.newBalance;
+                                        document.getElementById('user-balance').innerText = balance.toFixed(4);
+
+                                        if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.showAlert) {
+                                            window.Telegram.WebApp.showAlert('🎉 USDT credited successfully!');
+                                        } else {
+                                            alert('🎉 USDT credited successfully!');
+                                        }
+
+                                        // Видаляємо виконану кнопку зі списку
+                                        taskBtn.remove();
+
+                                        // Якщо це була остання таска — виводимо напис, що пусто
+                                        if (container.children.length === 0) {
+                                            container.innerHTML = `<p style="color: #a1a1aa; font-size: 14px;">${t.task_no_active}</p>`;
+                                        }
+                                    } else {
+                                        alert(`Error: ${claimData.error || 'Verification failed'}`);
+                                        taskBtn.disabled = false;
+                                        taskBtn.innerText = t.task_claim_btn;
+                                    }
+                                } catch (err) {
+                                    console.error("Error claiming reward:", err);
+                                    alert('Server error while claiming reward.');
+                                    taskBtn.disabled = false;
+                                    taskBtn.innerText = t.task_claim_btn;
+                                }
                             }
                         };
                         
                         container.appendChild(taskBtn);
                     });
                 } else {
-                    container.innerHTML = `<p style="color: #a1a1aa; font-size: 14px;">${currentLang === 'uk' ? "Немає активних завдань" : (currentLang === 'ru' ? "Нет активных заданий" : "No active tasks")}</p>`;
+                    container.innerHTML = `<p style="color: #a1a1aa; font-size: 14px;">${t.task_no_active}</p>`;
                 }
             } catch (err) {
                 console.error("Помилка завантаження завдань:", err);
-                container.innerHTML = `<p style="color: #ff4444; font-size: 14px;">Помилка з'єднання з сервером</p>`;
+                container.innerHTML = `<p style="color: #ff4444; font-size: 14px;">${t.task_conn_error}</p>`;
             }
         }
 
