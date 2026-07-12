@@ -63,13 +63,14 @@ export default async function handler(req, res) {
         // Перебираємо користувачів у пачці та відправляємо повідомлення
         for (const userId in users) {
             try {
-                // Відправляємо запит до Telegram API
+                // Відправляємо запит до Telegram API з підтримкою HTML
                 await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
                         chat_id: userId, 
-                        text: task.text 
+                        text: task.text,
+                        parse_mode: 'HTML' // Дозволяє використовувати <b>, <i>, <a href='...'>
                     })
                 });
             } catch (e) {
