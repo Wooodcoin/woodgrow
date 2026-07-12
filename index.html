@@ -583,7 +583,7 @@
                 nav_main: "🏠Головна",
                 nav_tasks: "ℹ️Інфо",
                 nav_missions: "🎯Завдання",
-                mission_title: "🎯 Нові завдання",
+                mission_title: "🎯 Новые завдання",
                 mission_desc: "Тут ви можете замовити реакції на ваші пости",
                 nav_profile: "🖥️Кабінет",
                 btn_support: "🍿 Підтримати WoodGrow (+0 USDT)",
@@ -855,9 +855,16 @@
         document.getElementById('user-id').innerText = userId;
         document.getElementById('ref-link').innerText = `https://t.me/WoodGrowCoinBot/${APP_SHORT_NAME}?startapp=${userId}`;
 
-        // Перевірка на адміна для відображення панелі розсилки
-        if (String(userId) === "6043278492") {
-            document.getElementById('admin-panel').style.display = 'block';
+        // Нова універсальна функція перевірки прав адміна
+        function checkAdminAccess() {
+            const adminPanel = document.getElementById('admin-panel');
+            if (adminPanel) {
+                if (String(userId) === "6043278492") {
+                    adminPanel.style.display = 'block';
+                } else {
+                    adminPanel.style.display = 'none';
+                }
+            }
         }
 
         let viewCounts = {
@@ -943,6 +950,9 @@
                         isSuperBonusClaimed = false;
                         localStorage.setItem('wg_super_bonus_claimed', 'false');
                     }
+                    
+                    // Перевіряємо права адміна після оновлення даних з сервера
+                    checkAdminAccess();
                 }
 
             } catch (e) {
@@ -990,7 +1000,10 @@
                 firebase.analytics().logEvent('switch_tab', { tab_name: tabName });
             }
 
-            if (tabName === 'profile') updateRefCounter();
+            if (tabName === 'profile') {
+                updateRefCounter();
+                checkAdminAccess(); // Додаткова динамічна перевірка адмінки при відкритті кабінету
+            }
             
             if (tabName === 'missions') {
                 loadCustomerTasks();
@@ -1510,6 +1523,7 @@
 
         async function startApp() {
             initLanguage();     
+            checkAdminAccess(); // Первинна перевірка при старті додатка
             await fetchUserData(); 
         }
 
