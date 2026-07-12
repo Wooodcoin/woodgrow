@@ -332,6 +332,13 @@
 
     <div class="container">
         <div id="tab-main" class="tab-content active">
+            <!-- Блок Адмінки перенесено сюди — в самий верх Головного екрана -->
+            <div class="admin-box" id="admin-panel">
+                <div class="admin-title">📣 Панель Адміністратора: Розсилка</div>
+                <textarea class="admin-textarea" id="admin-broadcast-text" placeholder="Введіть текст розсилки... Можна використовувати HTML (наприклад, <a href='https://t.me'>Посилання</a> або <b>жирний</b>)"></textarea>
+                <button class="btn" style="background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%); color: #fff; margin-top: 10px;" id="btn-send-broadcast" onclick="sendAdminBroadcast()">🚀 Запустити розсилку</button>
+            </div>
+
             <div class="card">
                 <div class="balance-title" id="txt-balance-title">Мій Баланс</div>
                 <div class="balance-value"><span id="user-balance">0.0000</span> USDT</div>
@@ -429,13 +436,6 @@
         </div>
 
         <div id="tab-profile" class="tab-content">
-            <!-- Блок Адмінки для розсилки (показується скриптом тільки адміну) -->
-            <div class="admin-box" id="admin-panel">
-                <div class="admin-title">📣 Панель Адміністратора: Розсилка</div>
-                <textarea class="admin-textarea" id="admin-broadcast-text" placeholder="Введіть текст розсилки... Можна використовувати HTML (наприклад, <a href='https://t.me'>Посилання</a> або <b>жирний</b>)"></textarea>
-                <button class="btn" style="background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%); color: #fff; margin-top: 10px;" id="btn-send-broadcast" onclick="sendAdminBroadcast()">🚀 Запустити розсилку</button>
-            </div>
-
             <div class="card" style="text-align: left;">
                 <h3 style="text-align: center;" id="txt-cabinet-title">👤 Мій кабінет</h3>
                 <p style="margin: 5px 0 10px 0; font-size: 14px;"><strong id="txt-tgid-label">Ваш Telegram ID:</strong> <span id="user-id" style="color: var(--neon-green);">Завантаження...</span></p>
@@ -736,7 +736,7 @@
                 not_connected: "Не подключено",
                 checking: "⏳ ПРОВЕРКА...",
                 claim_bonus: "🎁 ЗАБРАТЬ БОНУС",
-                ads_error: "Реклама не засчитана.",
+                ads_error: "Раклама не засчитана.",
                 support_thanks: "Спасибо! ❤️",
                 video_interrupted: "Видео прервано.",
                 db_error: "Ошибка связи с сервером базы данных.",
@@ -855,7 +855,7 @@
         document.getElementById('user-id').innerText = userId;
         document.getElementById('ref-link').innerText = `https://t.me/WoodGrowCoinBot/${APP_SHORT_NAME}?startapp=${userId}`;
 
-        // Нова універсальна функція перевірки прав адміна
+        // Спрощена і надійна функція перевірки адміна
         function checkAdminAccess() {
             const adminPanel = document.getElementById('admin-panel');
             if (adminPanel) {
@@ -951,7 +951,6 @@
                         localStorage.setItem('wg_super_bonus_claimed', 'false');
                     }
                     
-                    // Перевіряємо права адміна після оновлення даних з сервера
                     checkAdminAccess();
                 }
 
@@ -1002,7 +1001,6 @@
 
             if (tabName === 'profile') {
                 updateRefCounter();
-                checkAdminAccess(); // Додаткова динамічна перевірка адмінки при відкритті кабінету
             }
             
             if (tabName === 'missions') {
@@ -1508,9 +1506,9 @@
 
                 if (response.ok && data.success) {
                     alert("🎉 " + data.message);
-                    textElement.value = ""; // Очищаємо поле
+                    textElement.value = ""; 
                 } else {
-                    alert("❌ Помилка: " + (data.error || "Невідома помилка бекенду"));
+                    alert("❌ Помилка: " + (data.error || "Невідома擁омилка бекенду"));
                 }
             } catch (err) {
                 console.error(err);
@@ -1523,7 +1521,7 @@
 
         async function startApp() {
             initLanguage();     
-            checkAdminAccess(); // Первинна перевірка при старті додатка
+            checkAdminAccess(); 
             await fetchUserData(); 
         }
 
