@@ -1,7 +1,7 @@
 {
   "crons": [
     {
-      "path": "/api/cron-broadcast",
+      "path": "/api/cron-broadcast?secret=Super5891secret7071tokeN",
       "schedule": "* * * * *"
     }
   ]
