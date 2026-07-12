@@ -287,6 +287,43 @@
         .stat-box { background: rgba(255,255,255,0.05); padding: 8px; border-radius: 8px; border: 1px solid rgba(212, 175, 55, 0.2); text-align: center; }
         .stat-box-title { font-size: 11px; color: #a1a1aa; text-transform: uppercase; }
         .stat-box-value { font-size: 15px; font-weight: bold; color: var(--neon-green); margin-top: 3px; }
+
+        /* Стилі для Адмінки */
+        .admin-box {
+            display: none;
+            background: rgba(255, 0, 0, 0.05);
+            border: 2px dashed #ff4444;
+            border-radius: 16px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 0 15px rgba(255, 68, 68, 0.2);
+        }
+        .admin-title {
+            color: #ff4444;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 14px;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+        .admin-textarea {
+            width: 100%;
+            height: 100px;
+            background: #141416;
+            border: 1px solid #ff4444;
+            border-radius: 10px;
+            color: #fff;
+            padding: 10px;
+            box-sizing: border-box;
+            resize: none;
+            font-family: inherit;
+            font-size: 14px;
+        }
+        .admin-textarea:focus {
+            outline: none;
+            border-color: #ff8888;
+            box-shadow: 0 0 8px rgba(255, 68, 68, 0.4);
+        }
     </style>
 </head>
 <body>
@@ -392,6 +429,13 @@
         </div>
 
         <div id="tab-profile" class="tab-content">
+            <!-- Блок Адмінки для розсилки (показується скриптом тільки адміну) -->
+            <div class="admin-box" id="admin-panel">
+                <div class="admin-title">📣 Панель Адміністратора: Розсилка</div>
+                <textarea class="admin-textarea" id="admin-broadcast-text" placeholder="Введіть текст розсилки... Можна використовувати HTML (наприклад, <a href='https://t.me'>Посилання</a> або <b>жирний</b>)"></textarea>
+                <button class="btn" style="background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%); color: #fff; margin-top: 10px;" id="btn-send-broadcast" onclick="sendAdminBroadcast()">🚀 Запустити розсилку</button>
+            </div>
+
             <div class="card" style="text-align: left;">
                 <h3 style="text-align: center;" id="txt-cabinet-title">👤 Мій кабінет</h3>
                 <p style="margin: 5px 0 10px 0; font-size: 14px;"><strong id="txt-tgid-label">Ваш Telegram ID:</strong> <span id="user-id" style="color: var(--neon-green);">Завантаження...</span></p>
@@ -662,7 +706,7 @@
                     <li>Нажмите кнопку «Вывод на кошелек» (Минимум 5 USDT).</li>
                     <li>Подтвердите действие. Ваш баланс автоматически сбросится, а система зарегистрирует заявку на сервере.</li>
                     <li>Ожидайте перевода на ваш кошелек. Заявки обрабатываются автоматически в порядке очереди.</li>
-                    <li style="color: #ffcc00; font-weight: bold; list-style-type: '⚠️ ';">ВАЖНО: Для подключения используйте приложение <u>Tonkeeper</u>. Официальный Telegram Wallet внутри приложений может работать с перебоями!</li>
+                    <li style="color: #ffcc00; font-weight: bold; list-style-type: '⚠️ ';">ВАЖЛИВО: Для подключения используйте приложение <u>Tonkeeper</u>. Официальный Telegram Wallet внутри приложений может работать с перебоями!</li>
                 `,
                 min_sum_label: "Минимальная сумма:",
                 withdraw_action: "💸 Вывести на кошелек",
@@ -688,7 +732,7 @@
                 copied: "Скопировано!",
                 alert_wallet: "❌ Сначала подключите ваш TON-кошелек!",
                 alert_min: "❌ Минимальная сумма для вывода: 5 USDT (У вас {val})",
-                alert_confirm: "Вы уверены, что хотите вывести {val} USDT?\n\nПосле нажатия 'ОК' ваш баланс будет списан, а заявка автоматически поступит админу.",
+                alert_confirm: "Вы уверены, что хотите вывести {val} USDT?\n\nПосле нажатия 'ОК' ваш баланс будет списано, а заявка автоматически поступит админу.",
                 not_connected: "Не подключено",
                 checking: "⏳ ПРОВЕРКА...",
                 claim_bonus: "🎁 ЗАБРАТЬ БОНУС",
@@ -702,7 +746,7 @@
                 super_btn_ready: "🎁 ЗАБРАТЬ СУПЕР БОНУС",
                 super_btn_claimed: "🛑 БОНУС УЖЕ ПОЛУЧЕН СЕГОДНЯ",
                 super_success: "🎉 Поздравляем! Вы выиграли... Супер Бонус: {val} USDT!",
-                adv_title: "💼 Кабинет рекламодателя",
+                adv_title: "💼 Кабинет рекламодавтеля",
                 adv_desc: "Здесь вы можете заказать реакции на телеграм посты от реальных пользователей.",
                 adv_btn: "💼 Заказать задание",
                 task_reaction_btn: "👍 Поставить реакцию",
@@ -776,7 +820,6 @@
             
             document.getElementById('txt-super-hint').innerText = t.super_hint;
 
-            // Локалізація кабінету рекламодавця
             if(document.getElementById('txt-adv-section-title')) {
                 document.getElementById('txt-adv-section-title').innerText = t.adv_title;
                 document.getElementById('txt-adv-section-desc').innerText = t.adv_desc;
@@ -811,6 +854,11 @@
 
         document.getElementById('user-id').innerText = userId;
         document.getElementById('ref-link').innerText = `https://t.me/WoodGrowCoinBot/${APP_SHORT_NAME}?startapp=${userId}`;
+
+        // Перевірка на адміна для відображення панелі розсилки
+        if (String(userId) === "6043278492") {
+            document.getElementById('admin-panel').style.display = 'block';
+        }
 
         let viewCounts = {
             service1: parseInt(localStorage.getItem('wg_views_service1')) || 0,
@@ -1175,7 +1223,6 @@
                     }
 
                     if (serviceKey === 'service1') {
-                        // Кулдаун для service1
                     } else if (viewCounts[serviceKey] < MAX_VIEWS) {
                         localStorage.setItem(`wg_cooldown_${serviceKey}`, (Date.now() + 120000).toString());
                         checkSingleCooldown(serviceKey);
@@ -1415,6 +1462,49 @@
             } catch (err) {
                 console.error("Помилка завантаження завдань:", err);
                 container.innerHTML = `<p style="color: #ff4444; font-size: 14px;">${t.task_conn_error}</p>`;
+            }
+        }
+
+        // Функція для відправки розсилки з адмінки
+        async function sendAdminBroadcast() {
+            const textElement = document.getElementById('admin-broadcast-text');
+            const btnElement = document.getElementById('btn-send-broadcast');
+            const text = textElement.value.trim();
+
+            if (!text) {
+                alert("❌ Введіть текст повідомлення перед відправкою!");
+                return;
+            }
+
+            if (!confirm("Запустити розсилку для всіх користувачів?")) return;
+
+            btnElement.disabled = true;
+            btnElement.innerText = "⏳ Обробка...";
+
+            try {
+                const response = await fetch('/api/create-broadcast', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: userId,
+                        messageText: text
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    alert("🎉 " + data.message);
+                    textElement.value = ""; // Очищаємо поле
+                } else {
+                    alert("❌ Помилка: " + (data.error || "Невідома помилка бекенду"));
+                }
+            } catch (err) {
+                console.error(err);
+                alert("❌ Сталася критична помилка запиту.");
+            } finally {
+                btnElement.disabled = false;
+                btnElement.innerText = "🚀 Запустити розсилку";
             }
         }
 
