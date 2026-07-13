@@ -68,6 +68,7 @@ export default async function handler(req, res) {
 
             user = { 
                 id: userId, 
+                role: 'user', // За замовчуванням новачок завжди звичайний юзер
                 balance: 0.0000, 
                 referred_by: referrerId, 
                 ref_bonus: 0.0000,
@@ -89,11 +90,9 @@ export default async function handler(req, res) {
         let lastAdDate = user.last_ad_date || '';
 
         if (lastAdDate !== todayStr) {
-            // Якщо день змінився, для фронтенду віддаємо нулі
             viewCounts = { service1: 0, service2: 0, service3: 0, service4: 0, support: 0 };
         }
 
-        // Перевіряємо, чи був задіяний Супер-Бонус сьогодні
         const superBonusDate = user.super_bonus_date || '';
         const superBonusClaimedToday = (superBonusDate === todayStr);
 
@@ -106,9 +105,13 @@ export default async function handler(req, res) {
             totalReferrals = referralsSnapshot.numChildren();
         }
 
-        // Повертаємо ПОВНИЙ набір даних на фронтенд для ідеальної синхронізації
+        // Визначаємо роль користувача (якщо в базі старого запису немає поля role, ставимо 'user')
+        const userRole = user.role || 'user';
+
+        // Повертаємо ПОВНИЙ набір даних на фронтенд
         return res.status(200).json({
             success: true,
+            role: userRole, // Передаємо роль для фронтенд-валідації адмінки
             balance: parseFloat(user.balance) || 0.0000,
             ref_bonus: parseFloat(user.ref_bonus) || 0.0000,
             ref_count: totalReferrals,
