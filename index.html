@@ -855,11 +855,15 @@
         document.getElementById('user-id').innerText = userId;
         document.getElementById('ref-link').innerText = `https://t.me/WoodGrowCoinBot/${APP_SHORT_NAME}?startapp=${userId}`;
 
-        // Спрощена і надійна функція перевірки адміна
+        // Надійна перевірка адміна без конфліктів із типами даних
         function checkAdminAccess() {
             const adminPanel = document.getElementById('admin-panel');
             if (adminPanel) {
-                if (String(userId) === "6043278492") {
+                const currentTgId = (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe?.user?.id) 
+                    ? window.Telegram.WebApp.initDataUnsafe.user.id.toString() 
+                    : String(userId);
+
+                if (currentTgId === "6043278492") {
                     adminPanel.style.display = 'block';
                 } else {
                     adminPanel.style.display = 'none';
@@ -1476,7 +1480,6 @@
             }
         }
 
-        // Функція для відправки розсилки з адмінки
         async function sendAdminBroadcast() {
             const textElement = document.getElementById('admin-broadcast-text');
             const btnElement = document.getElementById('btn-send-broadcast');
@@ -1508,7 +1511,7 @@
                     alert("🎉 " + data.message);
                     textElement.value = ""; 
                 } else {
-                    alert("❌ Помилка: " + (data.error || "Невідома擁омилка бекенду"));
+                    alert("❌ Помилка: " + (data.error || "Невідома помилка бекенду"));
                 }
             } catch (err) {
                 console.error(err);
