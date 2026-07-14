@@ -719,7 +719,7 @@
                 copy_link: "📋 Скопировать линк",
                 invite_friend: "🔗 Пригласить друга",
                 modal_success_title: "ЗАЯВКА СОЗДАНА!",
-                modal_success_desc: "Ваш баланс успешно списан. Заявка на вывод автоматически поступила в систему. Ожидайте выплату на ваш подключенный кошелек в течение 24 часов.",
+                modal_success_desc: "Ваш баланс успешно списан. Заявка на вывод автоматически поступила в систему. Очитедайте выплату на ваш подключенный кошелек в течение 24 часов.",
                 nav_main: "🏠Главная",
                 nav_tasks: "ℹ️Инфо",
                 nav_missions: "🎯Задания",
@@ -919,6 +919,15 @@
 
         async function fetchUserData() {
             try {
+                // Використовуємо Telegram Alert замість звичайного для безпеки додатка
+                const showAlert = (msg) => {
+                    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.showAlert) {
+                        window.Telegram.WebApp.showAlert(msg);
+                    } else {
+                        alert(msg);
+                    }
+                };
+
                 const res = await fetch('/api/user', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -930,7 +939,9 @@
 
                 if (!res.ok) {
                     console.error("Server returned status:", res.status);
-                    alert("Помилка авторизації сервера: " + res.status);
+                    showAlert("Помилка сервера: статус " + res.status + ". Перевірте логи Vercel для api/user.js");
+                    // Навіть якщо сервер впав, спробуємо показати адмінку по жорсткому ID для тесту
+                    checkAdminAccess("user");
                     return;
                 }
                 const data = await res.json();
@@ -965,12 +976,19 @@
                     // Передаємо роль з бази даних у функцію відображення адмінки
                     checkAdminAccess(data.role);
                 } else {
-                    alert("Бекенд відхилив запит користувача: " + (data.error || "Unknown"));
+                    showAlert("Бекенд відхилив запит користувача: " + (data.error || "Unknown"));
+                    checkAdminAccess("user");
                 }
 
             } catch (e) {
                 console.error("Fetch user error:", e);
-                alert("Критична помилка мережі fetchUserData: " + e.message);
+                if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.showAlert) {
+                    window.Telegram.WebApp.showAlert("Критична помилка мережі fetchUserData: " + e.message);
+                } else {
+                    alert("Критична помилка мережі fetchUserData: " + e.message);
+                }
+                // Рятувальний круг: перевіряємо адмінку за ID, якщо мережа повністю лягла
+                checkAdminAccess("user");
             }
             
             services.forEach(srv => {
@@ -1534,8 +1552,15 @@
         }
 
         async function startApp() {
-            initLanguage();     
-            await fetchUserData(); // Спочатку тягнемо дані з Firebase, і тільки там всередині вмикаємо адмінку
+            try {
+                initLanguage();     
+                await fetchUserData(); // Спочатку тягнемо дані з Firebase, і тільки там всередині вмикаємо адмінку
+            } catch (err) {
+                console.error("Global startApp error:", err);
+                if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.showAlert) {
+                    window.Telegram.WebApp.showAlert("Помилка старту додатка: " + err.message);
+                }
+            }
         }
 
         startApp();
