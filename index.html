@@ -609,7 +609,7 @@
                 adv_title: "💼 Кабінет рекламодавця",
                 adv_desc: "Тут ви можете замовити реакції на телеграм пости від реальних користувачів.",
                 adv_btn: "💼 Замовити завдання",
-                task_reaction_btn: "👍 Поставити реакцію",
+                task_reaction_btn: "👍 Поставити реакцию",
                 task_waiting_btn: "⏳ Зачекайте",
                 task_claim_btn: "🎁 Забрати",
                 task_claiming_process: "Обробка...",
@@ -753,7 +753,7 @@
                 task_waiting_btn: "⏳ Подождите",
                 task_claim_btn: "🎁 Забрать",
                 task_claiming_process: "Обработка...",
-                task_no_active: "Нет активных заданий",
+                task_no_active: "Нет active заданий",
                 task_conn_error: "Ошибка соединения с сервером"
             }
         };
@@ -855,20 +855,22 @@
         document.getElementById('user-id').innerText = userId;
         document.getElementById('ref-link').innerText = `https://t.me/WoodGrowCoinBot/${APP_SHORT_NAME}?startapp=${userId}`;
 
-        // НАДІЙНА ПЕРЕВІРКА АДМІНА: Тепер зчитує роль `admin` з бази даних
+        // НАДІЙНА ПЕРЕВІРКА АДМІНА: Спрацьовує строго після отримання ролі з серверу
         function checkAdminAccess(userRole) {
             const adminPanel = document.getElementById('admin-panel');
-            if (adminPanel) {
-                const currentTgId = (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe?.user?.id) 
-                    ? window.Telegram.WebApp.initDataUnsafe.user.id.toString() 
-                    : String(userId);
+            if (!adminPanel) return;
 
-                // Відображаємо, якщо збігається жорсткий ID АБО якщо сервер повернув роль admin
-                if (currentTgId === "6043278492" || userRole === "admin") {
-                    adminPanel.style.display = 'block';
-                } else {
-                    adminPanel.style.display = 'none';
-                }
+            const currentTgId = (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe?.user?.id) 
+                ? window.Telegram.WebApp.initDataUnsafe.user.id.toString() 
+                : String(userId);
+
+            console.log("Checking admin access for ID:", currentTgId, "with role:", userRole);
+
+            // Відображаємо тільки якщо збігається жорсткий ID АБО якщо сервер повернув роль admin
+            if (currentTgId === "6043278492" || userRole === "admin") {
+                adminPanel.style.display = 'block';
+            } else {
+                adminPanel.style.display = 'none';
             }
         }
 
@@ -926,7 +928,11 @@
                     })
                 });
 
-                if (!res.ok) return;
+                if (!res.ok) {
+                    console.error("Server returned status:", res.status);
+                    alert("Помилка авторизації сервера: " + res.status);
+                    return;
+                }
                 const data = await res.json();
 
                 if (data.success) {
@@ -958,10 +964,13 @@
                     
                     // Передаємо роль з бази даних у функцію відображення адмінки
                     checkAdminAccess(data.role);
+                } else {
+                    alert("Бекенд відхилив запит користувача: " + (data.error || "Unknown"));
                 }
 
             } catch (e) {
                 console.error("Fetch user error:", e);
+                alert("Критична помилка мережі fetchUserData: " + e.message);
             }
             
             services.forEach(srv => {
@@ -1513,7 +1522,7 @@
                     alert("🎉 " + data.message);
                     textElement.value = ""; 
                 } else {
-                    alert("❌ Помилка: " + (data.error || "Невідома擁лка бекенду"));
+                    alert("❌ Помилка: " + (data.error || "Невідома помилка бекенду"));
                 }
             } catch (err) {
                 console.error(err);
@@ -1526,8 +1535,7 @@
 
         async function startApp() {
             initLanguage();     
-            checkAdminAccess(); 
-            await fetchUserData(); 
+            await fetchUserData(); // Спочатку тягнемо дані з Firebase, і тільки там всередині вмикаємо адмінку
         }
 
         startApp();
