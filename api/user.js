@@ -1,4 +1,5 @@
 import admin from 'firebase-admin';
+import crypto from 'crypto';
 
 // Ініціалізуємо Firebase Admin SDK
 if (!admin.apps.length) {
@@ -29,24 +30,32 @@ export default async function handler(req, res) {
     if (!userId || !initData) return res.status(400).json({ error: 'Missing parameters' });
 
     const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-    if (!BOT_TOKEN) return res.status(500).json({ error: 'Server configuration missing' });
+    if (!BOT_TOKEN) return res.status(500).json({ error: 'Server configuration missing (BOT_TOKEN)' });
 
-    // 1. Валідація Telegram InitData
+    // 1. Валідація Telegram InitData через стандартний crypto Node.js
     try {
         const urlParams = new URLSearchParams(initData);
         const hash = urlParams.get('hash');
         urlParams.delete('hash');
-        const dataCheckString = Array.from(urlParams.entries()).map(([k, v]) => `${k}=${v}`).sort().join('\n');
-        const encoder = new TextEncoder();
-        const secretKeyMaterial = await crypto.subtle.importKey("raw", encoder.encode("WebAppData"), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
-        const secretKeyBuffer = await crypto.subtle.sign("HMAC", secretKeyMaterial, encoder.encode(BOT_TOKEN));
-        const checkKeyMaterial = await crypto.subtle.importKey("raw", secretKeyBuffer, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
-        const signatureBuffer = await crypto.subtle.sign("HMAC", checkKeyMaterial, encoder.encode(dataCheckString));
-        const calculatedHash = Array.from(new Uint8Array(signatureBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
         
-        if (calculatedHash !== hash) return res.status(403).json({ error: 'Auth failed' });
+        // Сортуємо параметри в алфавітному порядку
+        const dataCheckString = Array.from(urlParams.entries())
+            .map(([k, v]) => `${k}=${v}`)
+            .sort()
+            .join('\n');
+            
+        // Обчислюємо секретний ключ на основі токена бота
+        const secretKey = crypto.createHmac('sha256', 'WebAppData').update(BOT_TOKEN).digest();
+        // Обчислюємо фінальний хеш рядка даних
+        const calculatedHash = crypto.createHmac('sha256', secretKey).update(dataCheckString).digest('hex');
+        
+        if (calculatedHash !== hash) {
+            console.error(`Auth failed for user ${userId}. Calculated: ${calculatedHash}, received: ${hash}`);
+            return res.status(403).json({ error: 'Auth failed' });
+        }
     } catch (err) {
-        return res.status(500).json({ error: 'Telegram validation error' });
+        console.error('Telegram validation error:', err);
+        return res.status(500).json({ error: 'Telegram validation error: ' + err.message });
     }
 
     try {
@@ -68,7 +77,7 @@ export default async function handler(req, res) {
 
             user = { 
                 id: userId, 
-                role: 'user', // За замовчуванням новачок завжди звичайний юзер
+                role: 'user', 
                 balance: 0.0000, 
                 referred_by: referrerId, 
                 ref_bonus: 0.0000,
@@ -105,13 +114,13 @@ export default async function handler(req, res) {
             totalReferrals = referralsSnapshot.numChildren();
         }
 
-        // Визначаємо роль користувача (якщо в базі старого запису немає поля role, ставимо 'user')
+        // Визначаємо роль користувача з бази даних
         const userRole = user.role || 'user';
 
         // Повертаємо ПОВНИЙ набір даних на фронтенд
         return res.status(200).json({
             success: true,
-            role: userRole, // Передаємо роль для фронтенд-валідації адмінки
+            role: userRole, 
             balance: parseFloat(user.balance) || 0.0000,
             ref_bonus: parseFloat(user.ref_bonus) || 0.0000,
             ref_count: totalReferrals,
