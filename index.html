@@ -351,7 +351,7 @@
                     <span id="timer-service1" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
                     <span id="limit-service1" class="limit-indicator">0 / 20</span>
                 </div>
-                <button class="btn" id="btn-service1" onclick="handleBtnClick('service1', watchAdsgramVideo)">Service 1 (+0.0004)</button>
+                <button class="btn" id="btn-service1" onclick="handleBtnClick('service1', watchAdsgramVideo)">Service 1 (+0.0005)</button>
             </div>
 
             <div style="margin-bottom: 15px;">
@@ -360,7 +360,7 @@
                     <span id="timer-service2" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
                     <span id="limit-service2" class="limit-indicator">0 / 20</span>
                 </div>
-                <button class="btn" id="btn-service2" onclick="handleBtnClick('service2', () => startDirectLinkTimer('service2', 'https://omg10.com/4/11233766'))">Service 2 (+0.0002)</button>
+                <button class="btn" id="btn-service2" onclick="handleBtnClick('service2', () => startDirectLinkTimer('service2', 'https://omg10.com/4/11233766'))">Service 2 (+0.0003)</button>
             </div>
 
             <div style="margin-bottom: 15px;">
@@ -369,7 +369,7 @@
                     <span id="timer-service3" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
                     <span id="limit-service3" class="limit-indicator">0 / 20</span>
                 </div>
-                <button class="btn" id="btn-service3" onclick="handleBtnClick('service3', watchMonetagPopup)">Service 3 (+0.0002)</button>
+                <button class="btn" id="btn-service3" onclick="handleBtnClick('service3', watchMonetagPopup)">Service 3 (+0.0003)</button>
             </div>
 
             <div style="margin-bottom: 15px;">
@@ -378,7 +378,7 @@
                     <span id="timer-service4" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
                     <span id="limit-service4" class="limit-indicator">0 / 20</span>
                 </div>
-                <button class="btn" id="btn-service4" onclick="handleBtnClick('service4', watchMonetagVignette)">Service 4 (+0.0004)</button>
+                <button class="btn" id="btn-service4" onclick="handleBtnClick('service4', watchMonetagVignette)">Service 4 (+0.0005)</button>
             </div>
 
             <div class="card super-bonus-card" style="margin-top: 25px;">
@@ -538,7 +538,7 @@
 
         const MAX_VIEWS = 20;
         const services = ['service1', 'service2', 'service3', 'service4', 'support'];
-        const configRewards = { service1: 0.0004, service2: 0.0002, service3: 0.0002, service4: 0.0004, support: 0.0000 };
+        const configRewards = { service1: 0.0005, service2: 0.0003, service3: 0.0003, service4: 0.0005, support: 0.0000 };
 
         let balance = 0.0000;
         let isSuperBonusClaimed = false; 
@@ -1164,7 +1164,7 @@
 
             if (btn.classList.contains('ready-claim')) {
                 btn.classList.remove('ready-claim');
-                if (serviceKey === 'service2') btn.innerText = "Service 2 (+0.0002)";
+                if (serviceKey === 'service2') btn.innerText = "Service 2 (+0.0003)";
                 if (serviceKey === 'support') btn.innerText = t.btn_support;
                 rewardUserServer(serviceKey);
                 return;
