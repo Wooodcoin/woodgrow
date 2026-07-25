@@ -1,4 +1,4 @@
-Import admin from 'firebase-admin';
+import admin from 'firebase-admin';
 
 // Ініціалізуємо Firebase Admin SDK, якщо він ще не ініціалізований
 if (!admin.apps.length) {
