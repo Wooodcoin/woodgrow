@@ -1,4 +1,4 @@
-import admin from 'firebase-admin';
+Import admin from 'firebase-admin';
 
 // Ініціалізуємо Firebase Admin SDK, якщо він ще не ініціалізований
 if (!admin.apps.length) {
@@ -48,8 +48,8 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'Telegram validation error' });
     }
 
-    // Нагороди в USDT
-    const configRewards = { service1: 0.0004, service2: 0.0002, service3: 0.0002, service4: 0.0004, support: 0.0000 };
+    // Нагороди в USDT (Збільшено на +0.0001)
+    const configRewards = { service1: 0.0005, service2: 0.0003, service3: 0.0003, service4: 0.0005, support: 0.0000 };
     const reward = configRewards[serviceKey];
     if (reward === undefined) return res.status(400).json({ error: 'Invalid service' });
 
