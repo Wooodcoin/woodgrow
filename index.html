@@ -8,7 +8,6 @@
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
-    <script src='//libtl.com/sdk.js' data-zone='11189906' data-sdk='show_11189906'></script>
 
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics-compat.js"></script>
@@ -178,7 +177,7 @@
         .streak-container {
             display: flex;
             justify-content: space-between;
-            gap: 5px;
+            gap: 4px;
             margin-top: 12px;
             overflow-x: auto;
             padding-bottom: 5px;
@@ -407,14 +406,13 @@
             <div class="card" style="margin-top: 20px; padding: 12px 15px;">
                 <h3 id="txt-streak-title" style="font-size: 14px; margin-bottom: 5px;">📅 Щоденний чекін</h3>
                 <div class="streak-container" id="streak-buttons-container">
-                    <!-- Генерація 7 кнопок чекіну -->
-                    <div class="streak-day-btn claimed" data-day="1"><div class="streak-day-title">Д 1</div><div class="streak-day-reward">0.0001</div></div>
-                    <div class="streak-day-btn active-day" data-day="2"><div class="streak-day-title">Д 2</div><div class="streak-day-reward">0.0001</div></div>
-                    <div class="streak-day-btn locked" data-day="3"><div class="streak-day-title">Д 3</div><div class="streak-day-reward">0.0002</div></div>
-                    <div class="streak-day-btn locked" data-day="4"><div class="streak-day-title">Д 4</div><div class="streak-day-reward">0.0002</div></div>
-                    <div class="streak-day-btn locked" data-day="5"><div class="streak-day-title">Д 5</div><div class="streak-day-reward">0.0003</div></div>
-                    <div class="streak-day-btn locked" data-day="6"><div class="streak-day-title">Д 6</div><div class="streak-day-reward">0.0004</div></div>
-                    <div class="streak-day-btn locked" data-day="7"><div class="streak-day-title">Д 7</div><div class="streak-day-reward">0.0005</div></div>
+                    <div class="streak-day-btn" id="streak-day-1" onclick="handleStreakClick(1)"><div class="streak-day-title">Д 1</div><div class="streak-day-reward">0.0001</div></div>
+                    <div class="streak-day-btn" id="streak-day-2" onclick="handleStreakClick(2)"><div class="streak-day-title">Д 2</div><div class="streak-day-reward">0.0001</div></div>
+                    <div class="streak-day-btn" id="streak-day-3" onclick="handleStreakClick(3)"><div class="streak-day-title">Д 3</div><div class="streak-day-reward">0.0002</div></div>
+                    <div class="streak-day-btn" id="streak-day-4" onclick="handleStreakClick(4)"><div class="streak-day-title">Д 4</div><div class="streak-day-reward">0.0002</div></div>
+                    <div class="streak-day-btn" id="streak-day-5" onclick="handleStreakClick(5)"><div class="streak-day-title">Д 5</div><div class="streak-day-reward">0.0003</div></div>
+                    <div class="streak-day-btn" id="streak-day-6" onclick="handleStreakClick(6)"><div class="streak-day-title">Д 6</div><div class="streak-day-reward">0.0004</div></div>
+                    <div class="streak-day-btn" id="streak-day-7" onclick="handleStreakClick(7)"><div class="streak-day-title">Д 7</div><div class="streak-day-reward">0.0005</div></div>
                 </div>
             </div>
         </div>
@@ -573,6 +571,8 @@
         const configRewards = { service1: 0.0005, service2: 0.0005, support: 0.0000 };
 
         let balance = 0.0000;
+        let streakDay = 1;
+        let streakClaimedToday = false;
         let activeLinkTimers = {};
         let currentLang = 'en';
 
@@ -765,7 +765,7 @@
                 video_interrupted: "Видео прервано.",
                 db_error: "Ошибка связи с сервером базы данных.",
                 req_error: "Не удалось выполнить запрос на вывод.",
-                adv_title: "💼 Кабинет рекламодавтеля",
+                adv_title: "💼 Кабинет рекламодавця",
                 adv_desc: "Здесь вы можете заказать реакции на телеграм посты от реальных пользователей.",
                 adv_btn: "💼 Заказать задание",
                 task_reaction_btn: "👍 Поставить реакцию",
@@ -867,6 +867,7 @@
 
             document.getElementById('user-balance').innerText = balance.toFixed(4);
             services.forEach(srv => updateLimitUI(srv));
+            updateStreakUI();
         }
 
         document.getElementById('user-id').innerText = userId;
@@ -970,6 +971,9 @@
                             }
                         });
                     }
+
+                    if (data.streak_day !== undefined) streakDay = data.streak_day;
+                    if (data.streak_claimed_today !== undefined) streakClaimedToday = data.streak_claimed_today;
                     
                     checkAdminAccess(data.role);
                 } else {
@@ -985,6 +989,7 @@
                 updateLimitUI(srv);
                 checkSingleCooldown(srv);
             });
+            updateStreakUI();
         }
 
         async function updateRefCounter() {
@@ -1054,6 +1059,33 @@
             }
         }
 
+        function updateStreakUI() {
+            for (let i = 1; i <= 7; i++) {
+                const btn = document.getElementById(`streak-day-${i}`);
+                if (!btn) continue;
+                
+                btn.className = "streak-day-btn";
+
+                if (streakClaimedToday) {
+                    if (i < streakDay || (streakDay === 1 && i === 7)) {
+                        btn.classList.add('claimed');
+                    } else if (i === streakDay) {
+                        btn.classList.add('claimed');
+                    } else {
+                        btn.classList.add('locked');
+                    }
+                } else {
+                    if (i === streakDay) {
+                        btn.classList.add('active-day');
+                    } else if (i < streakDay) {
+                        btn.classList.add('claimed');
+                    } else {
+                        btn.classList.add('locked');
+                    }
+                }
+            }
+        }
+
         const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
             manifestUrl: 'https://woodgrow.vercel.app/tonconnect-manifest.json',
             buttonRootId: 'ton-connect-btn'
@@ -1081,10 +1113,62 @@
                     const timerBox = document.getElementById('timer-service1');
                     if (timerBox) timerBox.style.display = 'none';
                     const btn = document.getElementById('btn-service1');
-                    if (btn && viewCounts[service1] < MAX_VIEWS) btn.disabled = false;
+                    if (btn && viewCounts['service1'] < MAX_VIEWS) btn.disabled = false;
                     
                     alert(translations[currentLang].ads_error);
                 });
+        }
+
+        // Функція кліку на день чекіну з викликом Adsgram реклами
+        function handleStreakClick(dayNum) {
+            if (streakClaimedToday || dayNum !== streakDay) return;
+            if (!AdVideoController) {
+                alert("Рекламний SDK не завантажено.");
+                return;
+            }
+
+            AdVideoController.show()
+                .then(() => {
+                    claimStreakServer();
+                })
+                .catch(() => {
+                    alert(translations[currentLang].ads_error);
+                });
+        }
+
+        async function claimStreakServer() {
+            try {
+                const response = await fetch('/api/checkin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: userId,
+                        initData: window.Telegram.WebApp.initData
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    balance = data.newBalance;
+                    document.getElementById('user-balance').innerText = balance.toFixed(4);
+                    
+                    streakDay = data.nextStreakDay;
+                    streakClaimedToday = true;
+                    updateStreakUI();
+
+                    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.showAlert) {
+                        window.Telegram.WebApp.showAlert(`🎉 Бонус чекіну успішно зараховано (+${data.rewardAmount.toFixed(4)} USDT)!`);
+                    } else {
+                        alert(`🎉 Бонус чекіну успішно зараховано (+${data.rewardAmount.toFixed(4)} USDT)!`);
+                    }
+                    updateRefCounter();
+                } else {
+                    alert("Error: " + (data.error || "Rejected"));
+                }
+            } catch (err) {
+                alert(translations[currentLang].db_error);
+            }
         }
 
         function startDirectLinkTimer(serviceKey, url) {
