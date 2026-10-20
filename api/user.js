@@ -82,8 +82,9 @@ export default async function handler(req, res) {
                 referred_by: referrerId, 
                 ref_bonus: 0.0000,
                 last_ad_date: todayStr,
-                super_bonus_date: '',
-                viewCounts: { service1: 0, service2: 0, service3: 0, service4: 0, support: 0 }
+                streak_day: 1,
+                last_streak_date: '',
+                viewCounts: { service1: 0, service2: 0, support: 0 }
             };
             await userRef.set(user);
 
@@ -95,17 +96,32 @@ export default async function handler(req, res) {
         }
 
         // 3. Обробка логіки зміни дня для лічильників реклами
-        let viewCounts = user.viewCounts || { service1: 0, service2: 0, service3: 0, service4: 0, support: 0 };
+        let viewCounts = user.viewCounts || { service1: 0, service2: 0, support: 0 };
         let lastAdDate = user.last_ad_date || '';
 
         if (lastAdDate !== todayStr) {
-            viewCounts = { service1: 0, service2: 0, service3: 0, service4: 0, support: 0 };
+            viewCounts = { service1: 0, service2: 0, support: 0 };
         }
 
-        const superBonusDate = user.super_bonus_date || '';
-        const superBonusClaimedToday = (superBonusDate === todayStr);
+        // 4. Перевірка статусу щоденного чекіну
+        const lastStreakDate = user.last_streak_date || '';
+        let currentStreakDay = user.streak_day || 1;
 
-        // 4. Підрахунок кількості рефералів
+        if (lastStreakDate) {
+            const lastDate = new Date(lastStreakDate);
+            const currentDate = new Date(todayStr);
+            const diffTime = currentDate - lastDate;
+            const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+            // Якщо пропущено більше 1 дня (diffDays > 1), ланцюжок скидається на 1
+            if (diffDays > 1) {
+                currentStreakDay = 1;
+            }
+        }
+
+        const streakClaimedToday = (lastStreakDate === todayStr);
+
+        // 5. Підрахунок кількості рефералів
         const referralsRef = db.ref(`referrals/${userId}`);
         const referralsSnapshot = await referralsRef.once('value');
         let totalReferrals = 0;
@@ -125,7 +141,8 @@ export default async function handler(req, res) {
             ref_bonus: parseFloat(user.ref_bonus) || 0.0000,
             ref_count: totalReferrals,
             viewCounts: viewCounts,
-            super_bonus_claimed_today: superBonusClaimedToday
+            streak_day: currentStreakDay,
+            streak_claimed_today: streakClaimedToday
         });
 
     } catch (e) {
