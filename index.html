@@ -288,7 +288,6 @@
         .stat-box-title { font-size: 11px; color: #a1a1aa; text-transform: uppercase; }
         .stat-box-value { font-size: 15px; font-weight: bold; color: var(--neon-green); margin-top: 3px; }
 
-        /* Стилі для Адмінки */
         .admin-box {
             display: none;
             background: rgba(255, 0, 0, 0.05);
@@ -332,7 +331,6 @@
 
     <div class="container">
         <div id="tab-main" class="tab-content active">
-            <!-- Блок Адмінки перенесено сюди — в самий верх Головного екрана -->
             <div class="admin-box" id="admin-panel">
                 <div class="admin-title">📣 Панель Администратора: Розсилка</div>
                 <textarea class="admin-textarea" id="admin-broadcast-text" placeholder="Введіть текст розсилки... Можна використовувати HTML (наприклад, <a href='https://t.me'>Посилання</a> або <b>жирний</b>)"></textarea>
@@ -360,7 +358,7 @@
                     <span id="timer-service2" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
                     <span id="limit-service2" class="limit-indicator">0 / 20</span>
                 </div>
-                <button class="btn" id="btn-service2" onclick="handleBtnClick('service2', () => startDirectLinkTimer('service2', 'https://omg10.com/4/11233766'))">Service 2 (+0.0003)</button>
+                <button class="btn" id="btn-service2" onclick="handleBtnClick('service2', () => startDirectLinkTimer('service2', 'https://omg10.com/4/11233766'))">Service 2 (+0.0005)</button>
             </div>
 
             <div style="margin-bottom: 15px;">
@@ -369,7 +367,7 @@
                     <span id="timer-service3" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
                     <span id="limit-service3" class="limit-indicator">0 / 20</span>
                 </div>
-                <button class="btn" id="btn-service3" onclick="handleBtnClick('service3', watchMonetagPopup)">Service 3 (+0.0003)</button>
+                <button class="btn" id="btn-service3" onclick="handleBtnClick('service3', watchMonetagPopup)">Service 3 (+0.0005)</button>
             </div>
 
             <div style="margin-bottom: 15px;">
@@ -538,7 +536,7 @@
 
         const MAX_VIEWS = 20;
         const services = ['service1', 'service2', 'service3', 'service4', 'support'];
-        const configRewards = { service1: 0.0005, service2: 0.0003, service3: 0.0003, service4: 0.0005, support: 0.0000 };
+        const configRewards = { service1: 0.0005, service2: 0.0005, service3: 0.0005, service4: 0.0005, support: 0.0000 };
 
         let balance = 0.0000;
         let isSuperBonusClaimed = false; 
@@ -583,7 +581,7 @@
                 nav_main: "🏠Головна",
                 nav_tasks: "ℹ️Інфо",
                 nav_missions: "🎯Завдання",
-                mission_title: "🎯 Новые завдання",
+                mission_title: "🎯 Нові завдання",
                 mission_desc: "Тут ви можете замовити реакції на ваші пости",
                 nav_profile: "🖥️Кабінет",
                 btn_support: "🍿 Підтримати WoodGrow (+0 USDT)",
@@ -609,7 +607,7 @@
                 adv_title: "💼 Кабінет рекламодавця",
                 adv_desc: "Тут ви можете замовити реакції на телеграм пости від реальних користувачів.",
                 adv_btn: "💼 Замовити завдання",
-                task_reaction_btn: "👍 Поставити реакцию",
+                task_reaction_btn: "👍 Поставити реакцію",
                 task_waiting_btn: "⏳ Зачекайте",
                 task_claim_btn: "🎁 Забрати",
                 task_claiming_process: "Обробка...",
@@ -719,7 +717,7 @@
                 copy_link: "📋 Скопировать линк",
                 invite_friend: "🔗 Пригласить друга",
                 modal_success_title: "ЗАЯВКА СОЗДАНА!",
-                modal_success_desc: "Ваш баланс успешно списан. Заявка на вывод автоматически поступила в систему. Очитедайте выплату на ваш подключенный кошелек в течение 24 часов.",
+                modal_success_desc: "Ваш баланс успешно списан. Заявка на вывод автоматически поступила в систему. Ожидайте выплату на ваш подключенный кошелек в течение 24 часов.",
                 nav_main: "🏠Главная",
                 nav_tasks: "ℹ️Инфо",
                 nav_missions: "🎯Задания",
@@ -732,11 +730,11 @@
                 copied: "Скопировано!",
                 alert_wallet: "❌ Сначала подключите ваш TON-кошелек!",
                 alert_min: "❌ Минимальная сумма для вывода: 5 USDT (У вас {val})",
-                alert_confirm: "Вы уверены, что хотите вывести {val} USDT?\n\nПосле нажатия 'ОК' ваш баланс будет списано, а копия автоматически поступит админу.",
+                alert_confirm: "Вы уверены, что хотите вывести {val} USDT?\n\nПосле нажатия 'ОК' ваш баланс будет списан, а заявка автоматически поступит админу.",
                 not_connected: "Не подключено",
                 checking: "⏳ ПРОВЕРКА...",
                 claim_bonus: "🎁 ЗАБРАТЬ БОНУС",
-                ads_error: "Раклама не засчитана.",
+                ads_error: "Реклама не засчитана.",
                 support_thanks: "Спасибо! ❤️",
                 video_interrupted: "Видео прервано.",
                 db_error: "Ошибка связи с сервером базы данных.",
@@ -753,7 +751,7 @@
                 task_waiting_btn: "⏳ Подождите",
                 task_claim_btn: "🎁 Забрать",
                 task_claiming_process: "Обработка...",
-                task_no_active: "Нет active заданий",
+                task_no_active: "Нет активных заданий",
                 task_conn_error: "Ошибка соединения с сервером"
             }
         };
@@ -855,7 +853,6 @@
         document.getElementById('user-id').innerText = userId;
         document.getElementById('ref-link').innerText = `https://t.me/WoodGrowCoinBot/${APP_SHORT_NAME}?startapp=${userId}`;
 
-        // НАДІЙНА ПЕРЕВІРКА АДМІНА: Спрацьовує строго після отримання ролі з серверу
         function checkAdminAccess(userRole) {
             const adminPanel = document.getElementById('admin-panel');
             if (!adminPanel) return;
@@ -864,9 +861,6 @@
                 ? window.Telegram.WebApp.initDataUnsafe.user.id.toString() 
                 : String(userId);
 
-            console.log("Checking admin access for ID:", currentTgId, "with role:", userRole);
-
-            // Відображаємо тільки якщо збігається жорсткий ID АБО якщо сервер повернув роль admin
             if (currentTgId === "6043278492" || userRole === "admin") {
                 adminPanel.style.display = 'block';
             } else {
@@ -919,7 +913,6 @@
 
         async function fetchUserData() {
             try {
-                // Використовуємо Telegram Alert замість звичайного для безпеки додатка
                 const showAlert = (msg) => {
                     if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.showAlert) {
                         window.Telegram.WebApp.showAlert(msg);
@@ -939,8 +932,7 @@
 
                 if (!res.ok) {
                     console.error("Server returned status:", res.status);
-                    showAlert("Помилка сервера: статус " + res.status + ". Перевірте логи Vercel для api/user.js");
-                    // Навіть якщо сервер впав, спробуємо показати адмінку по жорсткому ID для тесту
+                    showAlert("Помилка сервера: статус " + res.status);
                     checkAdminAccess("user");
                     return;
                 }
@@ -973,21 +965,13 @@
                         localStorage.setItem('wg_super_bonus_claimed', 'false');
                     }
                     
-                    // Передаємо роль з бази даних у функцію відображення адмінки
                     checkAdminAccess(data.role);
                 } else {
-                    showAlert("Бекенд відхилив запит користувача: " + (data.error || "Unknown"));
                     checkAdminAccess("user");
                 }
 
             } catch (e) {
                 console.error("Fetch user error:", e);
-                if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.showAlert) {
-                    window.Telegram.WebApp.showAlert("Критична помилка мережі fetchUserData: " + e.message);
-                } else {
-                    alert("Критична помилка мережі fetchUserData: " + e.message);
-                }
-                // Рятувальний круг: перевіряємо адмінку за ID, якщо мережа повністю лягла
                 checkAdminAccess("user");
             }
             
@@ -1164,7 +1148,7 @@
 
             if (btn.classList.contains('ready-claim')) {
                 btn.classList.remove('ready-claim');
-                if (serviceKey === 'service2') btn.innerText = "Service 2 (+0.0003)";
+                if (serviceKey === 'service2') btn.innerText = "Service 2 (+0.0005)";
                 if (serviceKey === 'support') btn.innerText = t.btn_support;
                 rewardUserServer(serviceKey);
                 return;
@@ -1554,7 +1538,7 @@
         async function startApp() {
             try {
                 initLanguage();     
-                await fetchUserData(); // Спочатку тягнемо дані з Firebase, і тільки там всередині вмикаємо адмінку
+                await fetchUserData(); 
             } catch (err) {
                 console.error("Global startApp error:", err);
                 if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.showAlert) {
