@@ -174,6 +174,62 @@
             font-size: 13px;
         }
 
+        /* Стилі для Щоденного Чекіну */
+        .streak-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 5px;
+            margin-top: 12px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .streak-day-btn {
+            flex: 1;
+            min-width: 0;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            border-radius: 10px;
+            padding: 8px 2px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #fff;
+        }
+
+        .streak-day-btn.active-day {
+            border-color: var(--neon-green);
+            background: rgba(13, 242, 93, 0.15);
+            box-shadow: 0 0 10px rgba(13, 242, 93, 0.3);
+        }
+
+        .streak-day-btn.claimed {
+            background: #1c2e21;
+            border-color: #27272a;
+            color: #71717a;
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .streak-day-btn.locked {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .streak-day-title {
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: var(--gold-color);
+        }
+
+        .streak-day-reward {
+            font-size: 9px;
+            color: var(--neon-green);
+            margin-top: 3px;
+            font-weight: bold;
+        }
+
         .nav-bar {
             position: fixed;
             bottom: 0;
@@ -346,6 +402,21 @@
                 </div>
                 <button class="btn" id="btn-service2" onclick="handleBtnClick('service2', () => startDirectLinkTimer('service2', 'https://omg10.com/4/11233766'))">Service 2 (+0.0005)</button>
             </div>
+
+            <!-- Щоденний чекін (Daily Streak) -->
+            <div class="card" style="margin-top: 20px; padding: 12px 15px;">
+                <h3 id="txt-streak-title" style="font-size: 14px; margin-bottom: 5px;">📅 Щоденний чекін</h3>
+                <div class="streak-container" id="streak-buttons-container">
+                    <!-- Генерація 7 кнопок чекіну -->
+                    <div class="streak-day-btn claimed" data-day="1"><div class="streak-day-title">Д 1</div><div class="streak-day-reward">0.0001</div></div>
+                    <div class="streak-day-btn active-day" data-day="2"><div class="streak-day-title">Д 2</div><div class="streak-day-reward">0.0001</div></div>
+                    <div class="streak-day-btn locked" data-day="3"><div class="streak-day-title">Д 3</div><div class="streak-day-reward">0.0002</div></div>
+                    <div class="streak-day-btn locked" data-day="4"><div class="streak-day-title">Д 4</div><div class="streak-day-reward">0.0002</div></div>
+                    <div class="streak-day-btn locked" data-day="5"><div class="streak-day-title">Д 5</div><div class="streak-day-reward">0.0003</div></div>
+                    <div class="streak-day-btn locked" data-day="6"><div class="streak-day-title">Д 6</div><div class="streak-day-reward">0.0004</div></div>
+                    <div class="streak-day-btn locked" data-day="7"><div class="streak-day-title">Д 7</div><div class="streak-day-reward">0.0005</div></div>
+                </div>
+            </div>
         </div>
 
         <div id="tab-tasks" class="tab-content">
@@ -509,6 +580,7 @@
             uk: {
                 balance_title: "Мій Баланс",
                 choose_platform: "⚡️ ОБЕРІТЬ ПЛАТФОРМУ ДЛЯ ЗАРОБІТКУ:",
+                streak_title: "📅 Щоденний чекін",
                 channel_title: "📢 Офіційний Канал",
                 channel_desc: "Підписуйтесь, щоб першими дізнаватися про апдейти, нові бонуси та важливі новини WoodGrow Coin!",
                 btn_subscribe: "Підписатися",
@@ -574,6 +646,7 @@
             en: {
                 balance_title: "My Balance",
                 choose_platform: "⚡️ CHOOSE A PLATFORM TO EARN:",
+                streak_title: "📅 Daily Check-in",
                 channel_title: "📢 Official Channel",
                 channel_desc: "Subscribe to be the first to know about updates, new bonuses, and important WoodGrow Coin news!",
                 btn_subscribe: "Subscribe",
@@ -639,6 +712,7 @@
             ru: {
                 balance_title: "Мой Баланс",
                 choose_platform: "⚡️ ВЫБЕРИТЕ ПЛАТФОРМУ ДЛЯ ЗАРАБОТКА:",
+                streak_title: "📅 Ежедневный чекин",
                 channel_title: "📢 Официальный Канал",
                 channel_desc: "Подписывайтесь, чтобы первыми узнавать об обновлениях, новых бонусах и важных новостях WoodGrow Coin!",
                 btn_subscribe: "Подписаться",
@@ -735,6 +809,7 @@
             
             document.getElementById('txt-balance-title').innerText = t.balance_title;
             document.getElementById('txt-choose-platform').innerText = t.choose_platform;
+            document.getElementById('txt-streak-title').innerText = t.streak_title;
             
             document.getElementById('txt-channel-title').innerText = t.channel_title;
             document.getElementById('txt-channel-desc').innerText = t.channel_desc;
@@ -1006,7 +1081,7 @@
                     const timerBox = document.getElementById('timer-service1');
                     if (timerBox) timerBox.style.display = 'none';
                     const btn = document.getElementById('btn-service1');
-                    if (btn && viewCounts.service1 < MAX_VIEWS) btn.disabled = false;
+                    if (btn && viewCounts[service1] < MAX_VIEWS) btn.disabled = false;
                     
                     alert(translations[currentLang].ads_error);
                 });
