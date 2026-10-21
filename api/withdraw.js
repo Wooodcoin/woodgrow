@@ -20,8 +20,17 @@ if (!admin.apps.length) {
 
 const db = admin.database();
 
+/**
+ * Екранування спеціальних символів для Telegram MarkdownV2
+ */
+function escapeMarkdownV2(text) {
+    return String(text).replace(/[_*\[\]()~`>#+-=|{}.!]/g, '\\$&');
+}
+
 export default async function handler(req, res) {
-    if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method not allowed' });
+    }
     
     const { userId, initData, walletAddress } = req.body;
     
@@ -30,94 +39,137 @@ export default async function handler(req, res) {
     }
 
     const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-    const LOG_CHAT_ID = process.env.TELEGRAM_LOG_CHAT_ID; // Наш новий чат логів
-    if (!BOT_TOKEN) return res.status(500).json({ error: 'Server configuration missing' });
+    const LOG_CHAT_ID = process.env.TELEGRAM_LOG_CHAT_ID;
+    if (!BOT_TOKEN) {
+        return res.status(500).json({ error: 'Server configuration missing' });
+    }
 
-    // 1. Валідація Telegram InitData
+    // 1. Криптографічна валідація Telegram InitData (HMAC-SHA256)
     try {
         const urlParams = new URLSearchParams(initData);
         const hash = urlParams.get('hash');
         urlParams.delete('hash');
-        const dataCheckString = Array.from(urlParams.entries()).map(([k, v]) => `${k}=${v}`).sort().join('\n');
+        const dataCheckString = Array.from(urlParams.entries())
+            .map(([k, v]) => `${k}=${v}`)
+            .sort()
+            .join('\n');
+            
         const encoder = new TextEncoder();
-        const secretKeyMaterial = await crypto.subtle.importKey("raw", encoder.encode("WebAppData"), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+        const secretKeyMaterial = await crypto.subtle.importKey(
+            "raw", 
+            encoder.encode("WebAppData"), 
+            { name: "HMAC", hash: "SHA-256" }, 
+            false, 
+            ["sign"]
+        );
         const secretKeyBuffer = await crypto.subtle.sign("HMAC", secretKeyMaterial, encoder.encode(BOT_TOKEN));
-        const checkKeyMaterial = await crypto.subtle.importKey("raw", secretKeyBuffer, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+        const checkKeyMaterial = await crypto.subtle.importKey(
+            "raw", 
+            secretKeyBuffer, 
+            { name: "HMAC", hash: "SHA-256" }, 
+            false, 
+            ["sign"]
+        );
         const signatureBuffer = await crypto.subtle.sign("HMAC", checkKeyMaterial, encoder.encode(dataCheckString));
-        const calculatedHash = Array.from(new Uint8Array(signatureBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+        const calculatedHash = Array.from(new Uint8Array(signatureBuffer))
+            .map(b => b.toString(16).padStart(2, '0'))
+            .join('');
         
-        if (calculatedHash !== hash) return res.status(403).json({ error: 'Auth failed' });
+        if (calculatedHash !== hash) {
+            return res.status(403).json({ error: 'Auth failed' });
+        }
     } catch (err) {
         return res.status(500).json({ error: 'Telegram validation error' });
     }
 
     try {
-        // 2. Отримуємо поточні дані користувача
         const userRef = db.ref(`users/${userId}`);
-        const userSnapshot = await userRef.once('value');
-        const user = userSnapshot.val();
+        let withdrawnAmount = 0;
+        let username = "Невказано";
 
-        if (!user) return res.status(444).json({ error: 'User not found' });
+        // 2. АТОМАРНА ТРАНЗАКЦІЯ FIREBASE (Захист від Race Condition та Double Spending)
+        const transactionResult = await userRef.transaction((currentUserData) => {
+            if (!currentUserData) {
+                return currentUserData; // Користувач відсутній
+            }
 
-        const currentBalance = parseFloat(user.balance) || 0;
+            const currentBalance = parseFloat(currentUserData.balance) || 0;
 
-        if (currentBalance < 5.0) {
-            return res.status(400).json({ error: 'Insufficient balance' });
-        }
+            // Перевірка мінімального ліміту виплати
+            if (currentBalance < 5.0) {
+                return; // Скасування транзакції (повертає undefined)
+            }
 
-        const finalAmount = currentBalance.toFixed(4);
-        const username = user.username || "Невказано";
+            // Фіксація даних та атомарне обнулення
+            withdrawnAmount = currentBalance;
+            username = currentUserData.username || "Невказано";
 
-        // 3. ОБНУЛЯЄМО БАЛАНС
-        await userRef.update({ balance: 0.0000 });
-
-        // 4. СТВОРЮЄМО ЗАПИС В БАЗІ "withdraw_requests"
-        const newRequestRef = db.ref('withdraw_requests').push();
-        const timestamp = new Date().toISOString();
-
-        await newRequestRef.set({
-            requestId: newRequestRef.key,
-            userId: userId,
-            username: username,
-            amount: finalAmount,
-            wallet: walletAddress,
-            status: "pending",
-            createdAt: timestamp
+            return {
+                ...currentUserData,
+                balance: 0.0000,
+                last_withdraw_at: new Date().toISOString()
+            };
         });
 
-        // 5. НАДСИЛАЄМО МИТТЄВЕ СПОВІЩЕННЯ В ТЕЛЕГРАМ ЧАТ
+        // Перевірка успішності атомарного фіксування
+        if (!transactionResult.committed || !transactionResult.snapshot.exists()) {
+            return res.status(400).json({ 
+                error: 'Insufficient balance or user not found' 
+            });
+        }
+
+        const finalAmountStr = withdrawnAmount.toFixed(4);
+        const timestamp = new Date().toISOString();
+        const newRequestRef = db.ref('withdraw_requests').push();
+
+        // 3. ЗБЕРЕЖЕННЯ ЗАЯВКИ З АВТОМАТИЧНИМ ВІДНОВЛЕННЯМ БАЛАНСУ ПРИ ЗБОЇ
+        try {
+            await newRequestRef.set({
+                requestId: newRequestRef.key,
+                userId: String(userId),
+                username: username,
+                amount: finalAmountStr,
+                wallet: walletAddress,
+                status: "pending",
+                createdAt: timestamp
+            });
+        } catch (dbError) {
+            console.error("Критична помилка запису заявки. Відновлення балансу...", dbError);
+            // Відкат балансу користувача у разі збою запису
+            await userRef.update({ balance: withdrawnAmount });
+            return res.status(500).json({ error: 'Failed to create withdrawal request' });
+        }
+
+        // 4. НАДСИЛАННЯ СПОВІЩЕННЯ В TELEGRAM (З бекслеш-екрануванням MarkdownV2)
         if (LOG_CHAT_ID) {
             try {
-                // Формуємо красивий текст із Markdown-розміткою
-                const textMessage = `🚨 *НОВА ЗАЯВКА НА ВИВЕДЕННЯ!*\n\n` +
-                                    `👤 *Юзер:* @${username.replace(/_/g, '\\_')} (ID: \`${userId}\`)\n` +
-                                    `💰 *Сума:* \`${finalAmount}\` USDT\n` +
-                                    `👛 *Гаманець:* \`${walletAddress}\`\n\n` +
-                                    `👉 _Скопіюйте гаманець в один клік і зробіть виплату через Tonkeeper._`;
+                const textMessage = `🚨 *НОВА ЗАЯВКА НА ВИВЕДЕННЯ\!\*\n\n` +
+                                    `👤 *Юзер:* @${escapeMarkdownV2(username)} \(ID: \`${escapeMarkdownV2(userId)}\`\)\n` +
+                                    `💰 *Сума:* \`${escapeMarkdownV2(finalAmountStr)}\` USDT\n` +
+                                    `👛 *Гаманець:* \`${escapeMarkdownV2(walletAddress)}\`\n\n` +
+                                    `👉 _Скопіюйте гаманець в один клік і зробіть виплату через Tonkeeper\._`;
 
-                // Відправляємо запит до Telegram API за допомогою вбудованого fetch
                 await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         chat_id: LOG_CHAT_ID,
                         text: textMessage,
-                        parse_mode: 'Markdown'
+                        parse_mode: 'MarkdownV2'
                     })
                 });
             } catch (telegramError) {
                 console.error("Помилка відправки логу в Telegram:", telegramError);
-                // Навіть якщо Telegram дав збій, ми не зупиняємо процес, адже в базу все записалося
             }
         }
 
         return res.status(200).json({
             success: true,
-            message: 'Withdrawal request created successfully and log sent'
+            message: 'Withdrawal request created successfully'
         });
 
     } catch (e) {
         console.error("Database error during withdrawal:", e);
-        return res.status(500).json({ error: 'Database error' });
+        return res.status(500).json({ error: 'Internal server error' });
     }
 }
