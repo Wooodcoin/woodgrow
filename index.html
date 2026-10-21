@@ -173,6 +173,68 @@
             font-size: 13px;
         }
 
+        /* Стилі для Щоденного Комбо */
+        .combo-slots-container {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 12px 0;
+        }
+
+        .combo-slot {
+            width: 75px;
+            height: 75px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px dashed rgba(212, 175, 55, 0.6);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .combo-slot.filled {
+            border: 2px solid var(--neon-green);
+            background: rgba(13, 242, 93, 0.1);
+            box-shadow: 0 0 10px rgba(13, 242, 93, 0.3);
+        }
+
+        .combo-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .combo-item-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            border-radius: 12px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            height: 60px;
+        }
+
+        .combo-item-card:active {
+            transform: scale(0.95);
+            border-color: var(--neon-green);
+        }
+
+        .combo-item-card.selected-item {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .combo-item-card svg {
+            width: 38px;
+            height: 38px;
+        }
+
         /* Стилі для Щоденного Чекіну */
         .streak-container {
             display: flex;
@@ -364,6 +426,16 @@
             border-color: #ff8888;
             box-shadow: 0 0 8px rgba(255, 68, 68, 0.4);
         }
+        .admin-info {
+            color: var(--neon-green);
+            font-size: 13px;
+            margin-top: 10px;
+            font-weight: bold;
+            text-align: left;
+            background: rgba(0,0,0,0.3);
+            padding: 8px;
+            border-radius: 8px;
+        }
     </style>
 </head>
 <body>
@@ -372,16 +444,47 @@
 
     <div class="container">
         <div id="tab-main" class="tab-content active">
-            <div class="admin-box" id="admin-panel">
-                <div class="admin-title">📣 Панель Администратора: Розсилка</div>
-                <textarea class="admin-textarea" id="admin-broadcast-text" placeholder="Введіть текст розсилки... Можна використовувати HTML (наприклад, <a href='https://t.me'>Посилання</a> або <b>жирний</b>)"></textarea>
-                <button class="btn" style="background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%); color: #fff; margin-top: 10px;" id="btn-send-broadcast" onclick="sendAdminBroadcast()">🚀 Запустити розсилку</button>
-            </div>
-
             <div class="card">
                 <div class="balance-title" id="txt-balance-title">Мій Баланс</div>
                 <div class="balance-value"><span id="user-balance">0.0000</span> USDT</div>
                 <p style="color: var(--neon-green); font-size: 13px; font-weight: bold; margin-bottom: 0;" id="txt-choose-platform">⚡️ ОБЕРІТЬ ПЛАТФОРМУ ДЛЯ ЗАРОБІТКУ:</p>
+            </div>
+
+            <!-- Щоденне Комбо (Daily Combo) -->
+            <div class="card" id="combo-card-container">
+                <h3 id="txt-combo-title" style="font-size: 15px; margin-bottom: 5px;">🧩 Щоденне Комбо (+0.0002 USDT)</h3>
+                <p style="font-size: 12px; color: #a1a1aa; margin-bottom: 10px;" id="txt-combo-desc">Оберіть 3 правильні елементи та перевірте комбінацію!</p>
+                
+                <!-- 3 верхні слоти -->
+                <div class="combo-slots-container">
+                    <div class="combo-slot" id="combo-slot-0" onclick="removeFromSlot(0)"></div>
+                    <div class="combo-slot" id="combo-slot-1" onclick="removeFromSlot(1)"></div>
+                    <div class="combo-slot" id="combo-slot-2" onclick="removeFromSlot(2)"></div>
+                </div>
+
+                <!-- Сітка 3х2 з 6 футуристичними SVG іконками -->
+                <div class="combo-grid">
+                    <div class="combo-item-card" id="card-seed" onclick="selectComboItem('seed')">
+                        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="#d4af37" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="#0df25d"/></svg>
+                    </div>
+                    <div class="combo-item-card" id="card-branch" onclick="selectComboItem('branch')">
+                        <svg viewBox="0 0 24 24" fill="none"><path d="M4 20C4 14 10 10 20 4M10 10L14 14" stroke="#0df25d" stroke-width="2" stroke-linecap="round"/><circle cx="14" cy="14" r="2" fill="#d4af37"/></svg>
+                    </div>
+                    <div class="combo-item-card" id="card-bush" onclick="selectComboItem('bush')">
+                        <svg viewBox="0 0 24 24" fill="none"><circle cx="8" cy="12" r="4" stroke="#0df25d" stroke-width="2"/><circle cx="16" cy="12" r="4" stroke="#0df25d" stroke-width="2"/><circle cx="12" cy="8" r="4" stroke="#d4af37" stroke-width="2"/></svg>
+                    </div>
+                    <div class="combo-item-card" id="card-tree" onclick="selectComboItem('tree')">
+                        <svg viewBox="0 0 24 24" fill="none"><path d="M12 21V12M12 12C8 12 6 8 8 5C10 2 14 2 16 5C18 8 16 12 12 12Z" stroke="#0df25d" stroke-width="2"/><path d="M9 21H15" stroke="#d4af37" stroke-width="2" stroke-linecap="round"/></svg>
+                    </div>
+                    <div class="combo-item-card" id="card-drop" onclick="selectComboItem('drop')">
+                        <svg viewBox="0 0 24 24" fill="none"><path d="M12 3C12 3 5 11 5 15C5 18.866 8.134 22 12 22C15.866 22 19 18.866 19 15C19 11 12 3 12 3Z" stroke="#00f5d4" stroke-width="2" fill="rgba(0,245,212,0.2)"/></svg>
+                    </div>
+                    <div class="combo-item-card" id="card-spot" onclick="selectComboItem('spot')">
+                        <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="14" width="18" height="4" rx="2" stroke="#d4af37" stroke-width="2"/><path d="M6 14V8C6 6 8 4 12 4C16 4 18 6 18 8V14" stroke="#0df25d" stroke-width="2"/></svg>
+                    </div>
+                </div>
+
+                <button class="btn" id="btn-check-combo" style="margin-top: 15px;" disabled onclick="verifyCombo()">🔥 Перевірити комбо</button>
             </div>
             
             <div style="margin-bottom: 15px;">
@@ -414,6 +517,14 @@
                     <div class="streak-day-btn" id="streak-day-6" onclick="handleStreakClick(6)"><div class="streak-day-title">Д 6</div><div class="streak-day-reward">0.0004</div></div>
                     <div class="streak-day-btn" id="streak-day-7" onclick="handleStreakClick(7)"><div class="streak-day-title">Д 7</div><div class="streak-day-reward">0.0005</div></div>
                 </div>
+            </div>
+
+            <!-- Адмін-панель перенесена в самий низ головної сторінки -->
+            <div class="admin-box" id="admin-panel" style="margin-top: 25px;">
+                <div class="admin-title">📣 Панель Администратора</div>
+                <div class="admin-info" id="admin-combo-display">🔐 Комбо на сьогодні: Завантаження...</div>
+                <textarea class="admin-textarea" id="admin-broadcast-text" placeholder="Введіть текст розсилки..." style="margin-top: 10px;"></textarea>
+                <button class="btn" style="background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%); color: #fff; margin-top: 10px;" id="btn-send-broadcast" onclick="sendAdminBroadcast()">🚀 Запустити розсилку</button>
             </div>
         </div>
 
@@ -573,14 +684,27 @@
         let balance = 0.0000;
         let streakDay = 1;
         let streakClaimedToday = false;
+        let comboTriedToday = false;
+        let selectedComboSlots = [null, null, null];
         let activeLinkTimers = {};
         let currentLang = 'en';
+
+        const svgIconsMap = {
+            seed: '<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="#d4af37" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="#0df25d"/></svg>',
+            branch: '<svg viewBox="0 0 24 24" fill="none"><path d="M4 20C4 14 10 10 20 4M10 10L14 14" stroke="#0df25d" stroke-width="2" stroke-linecap="round"/><circle cx="14" cy="14" r="2" fill="#d4af37"/></svg>',
+            bush: '<svg viewBox="0 0 24 24" fill="none"><circle cx="8" cy="12" r="4" stroke="#0df25d" stroke-width="2"/><circle cx="16" cy="12" r="4" stroke="#0df25d" stroke-width="2"/><circle cx="12" cy="8" r="4" stroke="#d4af37" stroke-width="2"/></svg>',
+            tree: '<svg viewBox="0 0 24 24" fill="none"><path d="M12 21V12M12 12C8 12 6 8 8 5C10 2 14 2 16 5C18 8 16 12 12 12Z" stroke="#0df25d" stroke-width="2"/><path d="M9 21H15" stroke="#d4af37" stroke-width="2" stroke-linecap="round"/></svg>',
+            drop: '<svg viewBox="0 0 24 24" fill="none"><path d="M12 3C12 3 5 11 5 15C5 18.866 8.134 22 12 22C15.866 22 19 18.866 19 15C19 11 12 3 12 3Z" stroke="#00f5d4" stroke-width="2" fill="rgba(0,245,212,0.2)"/></svg>',
+            spot: '<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="14" width="18" height="4" rx="2" stroke="#d4af37" stroke-width="2"/><path d="M6 14V8C6 6 8 4 12 4C16 4 18 6 18 8V14" stroke="#0df25d" stroke-width="2"/></svg>'
+        };
 
         const translations = {
             uk: {
                 balance_title: "Мій Баланс",
                 choose_platform: "⚡️ ОБЕРІТЬ ПЛАТФОРМУ ДЛЯ ЗАРОБІТКУ:",
                 streak_title: "📅 Щоденний чекін",
+                combo_title: "🧩 Щоденне Комбо (+0.0002 USDT)",
+                combo_desc: "Оберіть 3 правильні елементи та перевірте комбінацію!",
                 channel_title: "📢 Офіційний Канал",
                 channel_desc: "Підписуйтесь, щоб першими дізнаватися про апдейти, нові бонуси та важливі новини WoodGrow Coin!",
                 btn_subscribe: "Підписатися",
@@ -647,6 +771,8 @@
                 balance_title: "My Balance",
                 choose_platform: "⚡️ CHOOSE A PLATFORM TO EARN:",
                 streak_title: "📅 Daily Check-in",
+                combo_title: "🧩 Daily Combo (+0.0002 USDT)",
+                combo_desc: "Choose 3 correct elements and verify the combination!",
                 channel_title: "📢 Official Channel",
                 channel_desc: "Subscribe to be the first to know about updates, new bonuses, and important WoodGrow Coin news!",
                 btn_subscribe: "Subscribe",
@@ -713,6 +839,8 @@
                 balance_title: "Мой Баланс",
                 choose_platform: "⚡️ ВЫБЕРИТЕ ПЛАТФОРМУ ДЛЯ ЗАРАБОТКА:",
                 streak_title: "📅 Ежедневный чекин",
+                combo_title: "🧩 Ежедневное Комбо (+0.0002 USDT)",
+                combo_desc: "Выберите 3 правильных элемента и проверьте комбинацию!",
                 channel_title: "📢 Официальный Канал",
                 channel_desc: "Подписывайтесь, чтобы первыми узнавать об обновлениях, новых бонусах и важных новостях WoodGrow Coin!",
                 btn_subscribe: "Подписаться",
@@ -810,6 +938,8 @@
             document.getElementById('txt-balance-title').innerText = t.balance_title;
             document.getElementById('txt-choose-platform').innerText = t.choose_platform;
             document.getElementById('txt-streak-title').innerText = t.streak_title;
+            document.getElementById('txt-combo-title').innerText = t.combo_title;
+            document.getElementById('txt-combo-desc').innerText = t.combo_desc;
             
             document.getElementById('txt-channel-title').innerText = t.channel_title;
             document.getElementById('txt-channel-desc').innerText = t.channel_desc;
@@ -868,13 +998,15 @@
             document.getElementById('user-balance').innerText = balance.toFixed(4);
             services.forEach(srv => updateLimitUI(srv));
             updateStreakUI();
+            updateComboUI();
         }
 
         document.getElementById('user-id').innerText = userId;
         document.getElementById('ref-link').innerText = `https://t.me/WoodGrowCoinBot/${APP_SHORT_NAME}?startapp=${userId}`;
 
-        function checkAdminAccess(userRole) {
+        function checkAdminAccess(userRole, adminCombo) {
             const adminPanel = document.getElementById('admin-panel');
+            const adminComboDisplay = document.getElementById('admin-combo-display');
             if (!adminPanel) return;
 
             const currentTgId = (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe?.user?.id) 
@@ -883,6 +1015,9 @@
 
             if (currentTgId === "6043278492" || userRole === "admin") {
                 adminPanel.style.display = 'block';
+                if (adminCombo && adminComboDisplay) {
+                    adminComboDisplay.innerText = `🔐 Комбо на сьогодні: [ ${adminCombo.join(', ')} ]`;
+                }
             } else {
                 adminPanel.style.display = 'none';
             }
@@ -948,7 +1083,7 @@
                 if (!res.ok) {
                     console.error("Server returned status:", res.status);
                     showAlert("Помилка сервера: статус " + res.status);
-                    checkAdminAccess("user");
+                    checkAdminAccess("user", null);
                     return;
                 }
                 const data = await res.json();
@@ -974,15 +1109,16 @@
 
                     if (data.streak_day !== undefined) streakDay = data.streak_day;
                     if (data.streak_claimed_today !== undefined) streakClaimedToday = data.streak_claimed_today;
+                    if (data.combo_tried_today !== undefined) comboTriedToday = data.combo_tried_today;
                     
-                    checkAdminAccess(data.role);
+                    checkAdminAccess(data.role, data.admin_combo);
                 } else {
-                    checkAdminAccess("user");
+                    checkAdminAccess("user", null);
                 }
 
             } catch (e) {
                 console.error("Fetch user error:", e);
-                checkAdminAccess("user");
+                checkAdminAccess("user", null);
             }
             
             services.forEach(srv => {
@@ -990,6 +1126,7 @@
                 checkSingleCooldown(srv);
             });
             updateStreakUI();
+            updateComboUI();
         }
 
         async function updateRefCounter() {
@@ -1086,6 +1223,117 @@
             }
         }
 
+        // Логіка Щоденного Комбо (Вибір карток у слоти)
+        function selectComboItem(itemKey) {
+            if (comboTriedToday) return;
+            
+            // Шукаємо перший порожній слот
+            const emptyIndex = selectedComboSlots.indexOf(null);
+            if (emptyIndex === -1) return;
+
+            selectedComboSlots[emptyIndex] = itemKey;
+            updateComboUI();
+        }
+
+        function removeFromSlot(slotIndex) {
+            if (comboTriedToday) return;
+            selectedComboSlots[slotIndex] = null;
+            updateComboUI();
+        }
+
+        function updateComboUI() {
+            const items = ['seed', 'branch', 'bush', 'tree', 'drop', 'spot'];
+            
+            // Оновлюємо 3 слоти
+            for (let i = 0; i < 3; i++) {
+                const slotEl = document.getElementById(`combo-slot-${i}`);
+                const itemKey = selectedComboSlots[i];
+                
+                if (itemKey) {
+                    slotEl.innerHTML = svgIconsMap[itemKey];
+                    slotEl.className = "combo-slot filled";
+                } else {
+                    slotEl.innerHTML = "";
+                    slotEl.className = "combo-slot";
+                }
+            }
+
+            // Оновлюємо стан сітки (якщо картка вже в слоті, робимо її темнішою)
+            items.forEach(key => {
+                const cardEl = document.getElementById(`card-${key}`);
+                if (!cardEl) return;
+                
+                if (selectedComboSlots.includes(key) || comboTriedToday) {
+                    cardEl.classList.add('selected-item');
+                } else {
+                    cardEl.classList.remove('selected-item');
+                }
+            });
+
+            // Кнопка перевірки активна тільки якщо заповнено всі 3 слоти і ще не пробували сьогодні
+            const checkBtn = document.getElementById('btn-check-combo');
+            const isFull = selectedComboSlots.every(slot => slot !== null);
+            
+            if (comboTriedToday) {
+                checkBtn.disabled = true;
+                checkBtn.innerText = "✅ Вже виконано сьогодні";
+            } else {
+                checkBtn.disabled = !isFull;
+            }
+        }
+
+        function verifyCombo() {
+            if (comboTriedToday || !selectedComboSlots.every(s => s !== null)) return;
+            
+            const AdVideoController = window.Adsgram ? window.Adsgram.init({ blockId: "35910" }) : null;
+            if (!AdVideoController) {
+                alert("Рекламний SDK не завантажено.");
+                return;
+            }
+
+            AdVideoController.show()
+                .then(() => {
+                    sendComboToServer();
+                })
+                .catch(() => {
+                    alert(translations[currentLang].ads_error);
+                });
+        }
+
+        async function sendComboToServer() {
+            try {
+                const response = await fetch('/api/combo', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: userId,
+                        selectedCombo: selectedComboSlots,
+                        initData: window.Telegram.WebApp.initData
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    comboTriedToday = true;
+                    balance = data.newBalance;
+                    document.getElementById('user-balance').innerText = balance.toFixed(4);
+                    updateComboUI();
+
+                    if (data.isCorrect) {
+                        alert(`🎉 Вітаємо! Комбо вгадано вірно! Нараховано +${data.reward.toFixed(4)} USDT!`);
+                    } else {
+                        alert(`❌ На жаль, комбінація невірна. Спробуйте завтра!`);
+                    }
+                    updateRefCounter();
+                } else {
+                    alert("Error: " + (data.error || "Rejected"));
+                }
+            } catch (err) {
+                alert(translations[currentLang].db_error);
+            }
+        }
+
         const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
             manifestUrl: 'https://woodgrow.vercel.app/tonconnect-manifest.json',
             buttonRootId: 'ton-connect-btn'
@@ -1119,7 +1367,6 @@
                 });
         }
 
-        // Функція кліку на день чекіну з викликом Adsgram реклами
         function handleStreakClick(dayNum) {
             if (streakClaimedToday || dayNum !== streakDay) return;
             if (!AdVideoController) {
