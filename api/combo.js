@@ -1,7 +1,6 @@
 import admin from 'firebase-admin';
 import crypto from 'crypto';
 
-// Ініціалізуємо Firebase Admin SDK, якщо ще не ініціалізовано
 if (!admin.apps.length) {
     try {
         const rawKey = process.env.FIREBASE_SERVICE_ACCOUNT;
@@ -22,6 +21,7 @@ if (!admin.apps.length) {
 
 const db = admin.database();
 const COMBO_REWARD = 0.0002;
+const ADMIN_ID = "6043278492"; // Твій адмін-ID
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -77,13 +77,14 @@ export default async function handler(req, res) {
             return res.status(404).json({ error: 'User not found' });
         }
 
-        // Перевіряємо, чи користувач вже робив спробу сьогодні
-        if (user.last_combo_date === todayStr) {
+        const isAdmin = (String(userId) === ADMIN_ID || user.role === 'admin');
+
+        // Якщо це звичайний юзер і він вже пробував сьогодні — блокуємо
+        if (!isAdmin && user.last_combo_date === todayStr) {
             return res.status(400).json({ error: 'Combo already tried today' });
         }
 
         // 4. Перевіряємо правильність комбінації
-        // Порівнюємо масиви (порядок також має значення: елементи в 3 слотах зверху)
         let isCorrect = true;
         for (let i = 0; i < 3; i++) {
             if (selectedCombo[i] !== correctCombo[i]) {
@@ -94,17 +95,20 @@ export default async function handler(req, res) {
 
         let newBalance = parseFloat(user.balance) || 0.0000;
         
-        // Оновлюємо дату спроби комбо для користувача
-        let updates = {
-            last_combo_date: todayStr
-        };
+        // Для адміна НЕ оновлюємо last_combo_date, щоб він міг тестувати необмежено
+        let updates = {};
+        if (!isAdmin) {
+            updates.last_combo_date = todayStr;
+        }
 
         if (isCorrect) {
             newBalance += COMBO_REWARD;
             updates.balance = newBalance;
         }
 
-        await userRef.update(updates);
+        if (Object.keys(updates).length > 0) {
+            await userRef.update(updates);
+        }
 
         return res.status(200).json({
             success: true,
