@@ -23,6 +23,9 @@ if (!admin.apps.length) {
 
 const db = admin.database();
 
+// Список можливих елементів комбо
+const COMBO_ITEMS = ['seed', 'branch', 'bush', 'tree', 'drop', 'spot'];
+
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
     
@@ -38,15 +41,12 @@ export default async function handler(req, res) {
         const hash = urlParams.get('hash');
         urlParams.delete('hash');
         
-        // Сортуємо параметри в алфавітному порядку
         const dataCheckString = Array.from(urlParams.entries())
             .map(([k, v]) => `${k}=${v}`)
             .sort()
             .join('\n');
             
-        // Обчислюємо секретний ключ на основі токена бота
         const secretKey = crypto.createHmac('sha256', 'WebAppData').update(BOT_TOKEN).digest();
-        // Обчислюємо фінальний хеш рядка даних
         const calculatedHash = crypto.createHmac('sha256', secretKey).update(dataCheckString).digest('hex');
         
         if (calculatedHash !== hash) {
@@ -61,7 +61,19 @@ export default async function handler(req, res) {
     try {
         const todayStr = new Date().toISOString().split('T')[0]; // Поточна дата (РРРР-ММ-ДД)
 
-        // 2. Отримання даних користувача
+        // 2. Генерація або отримання системного щоденного комбо на сьогодні
+        const dailyComboRef = db.ref(`system_combo/${todayStr}`);
+        const comboSnapshot = await dailyComboRef.once('value');
+        let currentDailyCombo = comboSnapshot.val();
+
+        if (!currentDailyCombo) {
+            // Рандомно обираємо 3 унікальні елементи з 6
+            let shuffled = [...COMBO_ITEMS].sort(() => 0.5 - Math.random());
+            currentDailyCombo = shuffled.slice(0, 3);
+            await dailyComboRef.set(currentDailyCombo);
+        }
+
+        // 3. Отримання даних користувача
         const userRef = db.ref(`users/${userId}`);
         const userSnapshot = await userRef.once('value');
         let user = userSnapshot.val();
@@ -84,6 +96,7 @@ export default async function handler(req, res) {
                 last_ad_date: todayStr,
                 streak_day: 1,
                 last_streak_date: '',
+                last_combo_date: '',
                 viewCounts: { service1: 0, service2: 0, support: 0 }
             };
             await userRef.set(user);
@@ -95,7 +108,7 @@ export default async function handler(req, res) {
             }
         }
 
-        // 3. Обробка логіки зміни дня для лічильників реклами
+        // 4. Обробка логіки зміни дня для лічильників реклами
         let viewCounts = user.viewCounts || { service1: 0, service2: 0, support: 0 };
         let lastAdDate = user.last_ad_date || '';
 
@@ -103,7 +116,7 @@ export default async function handler(req, res) {
             viewCounts = { service1: 0, service2: 0, support: 0 };
         }
 
-        // 4. Перевірка статусу щоденного чекіну
+        // 5. Перевірка статусу щоденного чекіну
         const lastStreakDate = user.last_streak_date || '';
         let currentStreakDay = user.streak_day || 1;
 
@@ -113,7 +126,6 @@ export default async function handler(req, res) {
             const diffTime = currentDate - lastDate;
             const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
 
-            // Якщо пропущено більше 1 дня (diffDays > 1), ланцюжок скидається на 1
             if (diffDays > 1) {
                 currentStreakDay = 1;
             }
@@ -121,7 +133,11 @@ export default async function handler(req, res) {
 
         const streakClaimedToday = (lastStreakDate === todayStr);
 
-        // 5. Підрахунок кількості рефералів
+        // 6. Перевірка статусу щоденного комбо
+        const lastComboDate = user.last_combo_date || '';
+        const comboTriedToday = (lastComboDate === todayStr);
+
+        // 7. Підрахунок кількості рефералів
         const referralsRef = db.ref(`referrals/${userId}`);
         const referralsSnapshot = await referralsRef.once('value');
         let totalReferrals = 0;
@@ -133,6 +149,12 @@ export default async function handler(req, res) {
         // Визначаємо роль користувача з бази даних
         const userRole = user.role || 'user';
 
+        // Якщо користувач є адміном, передаємо йому правильне комбо на сьогодні для відображення в панелі
+        let adminDailyCombo = null;
+        if (userRole === 'admin' || userId === "6043278492") {
+            adminDailyCombo = currentDailyCombo;
+        }
+
         // Повертаємо ПОВНИЙ набір даних на фронтенд
         return res.status(200).json({
             success: true,
@@ -142,7 +164,9 @@ export default async function handler(req, res) {
             ref_count: totalReferrals,
             viewCounts: viewCounts,
             streak_day: currentStreakDay,
-            streak_claimed_today: streakClaimedToday
+            streak_claimed_today: streakClaimedToday,
+            combo_tried_today: comboTriedToday,
+            admin_combo: adminDailyCombo
         });
 
     } catch (e) {
