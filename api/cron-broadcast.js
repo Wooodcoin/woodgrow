@@ -1,4 +1,5 @@
 import admin from 'firebase-admin';
+import url from 'url';
 
 if (!admin.apps.length) {
     try {
@@ -20,12 +21,12 @@ if (!admin.apps.length) {
 
 const db = admin.database();
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const BATCH_SIZE = 20; // Кількість користувачів за одну хвилину
+const BATCH_SIZE = 20; // Кількість користувачів за один виклик
 
 export default async function handler(req, res) {
-    // Безпека: Перевіряємо наш ключ з URL-параметрів (?secret=...)
-    const { searchParams } = new URL(req.url, `https://${req.headers.get('host')}`);
-    const secret = searchParams.get('secret');
+    // Безпека: Перевіряємо наш ключ з URL-параметрів (?secret=...) за допомогою Node.js url
+    const parsedUrl = url.parse(req.url, true);
+    const secret = parsedUrl.query.secret;
 
     if (secret !== process.env.CRON_SECRET) {
         return res.status(401).json({ error: 'Unauthorized' });
@@ -70,7 +71,7 @@ export default async function handler(req, res) {
                     body: JSON.stringify({ 
                         chat_id: userId, 
                         text: task.text,
-                        parse_mode: 'HTML' // Дозволяє використовувати <b>, <i>, <a href='...'>
+                        parse_mode: 'HTML' // Дозволяє використовувати форматування
                     })
                 });
             } catch (e) {
@@ -80,7 +81,7 @@ export default async function handler(req, res) {
             lastId = userId;
         }
 
-        // Оновлюємо статус у базі, щоб наступна хвилина почалася з нового місця
+        // Оновлюємо статус у базі, щоб наступний запуск продовжив з нового місця
         await taskRef.update({ 
             last_processed_user_id: lastId,
             status: 'processing'
