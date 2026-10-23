@@ -89,7 +89,7 @@ export default async function handler(req, res) {
                 id: userId, 
                 role: 'user', 
                 balance: 0.0000, 
-                game_points: 0, // Додано ігрові бали за замовчуванням
+                game_points: 0, // Ігрові бали WGC за замовчуванням
                 referred_by: referrerId, 
                 ref_bonus: 0.0000,
                 last_ad_date: todayStr,
@@ -152,12 +152,12 @@ export default async function handler(req, res) {
             adminDailyCombo = currentDailyCombo;
         }
 
-        // Повертаємо ПОВНИЙ набір даних на фронтенд (включно з game_points)
+        // Повертаємо ПОВНИЙ набір даних на фронтенд (включно з game_points / WGC)
         return res.status(200).json({
             success: true,
             role: userRole, 
             balance: parseFloat(user.balance) || 0.0000,
-            game_points: parseInt(user.game_points) || 0, // <--- ОСЬ ЦЕЙ РЯДОК ВИРІШУЄ ПРОБЛЕМУ
+            game_points: parseInt(user.game_points) || 0,
             ref_bonus: parseFloat(user.ref_bonus) || 0.0000,
             ref_count: totalReferrals,
             viewCounts: viewCounts,
