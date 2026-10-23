@@ -90,7 +90,7 @@ export default async function handler(req, res) {
                 role: 'user', 
                 balance: 0.0000, 
                 game_points: 0, // Бали WGC
-                game_attempts: 5, // Змінна для щоденних спроб у грі
+                game_attempts: 10, // 10 безкоштовних спроб у грі за замовчуванням
                 last_game_date: todayStr,
                 referred_by: referrerId, 
                 ref_bonus: 0.0000,
@@ -109,14 +109,14 @@ export default async function handler(req, res) {
             }
         }
 
-        // 4. Перевірка оновлення спроб при наступному дні
-        let gameAttempts = user.game_attempts !== undefined ? user.game_attempts : 5;
+        // 4. Перевірка оновлення спроб при наступному дні (тепер 10 безкоштовних)
+        let gameAttempts = user.game_attempts !== undefined ? user.game_attempts : 10;
         let lastGameDate = user.last_game_date || '';
 
         if (lastGameDate !== todayStr) {
-            gameAttempts = 5; // Оновлюємо до 5 спроб на новий день
+            gameAttempts = 10; // Оновлюємо до 10 спроб на новий день
             await userRef.update({
-                game_attempts: 5,
+                game_attempts: 10,
                 last_game_date: todayStr
             });
         }
@@ -166,13 +166,13 @@ export default async function handler(req, res) {
             adminDailyCombo = currentDailyCombo;
         }
 
-        // Повертаємо ПОВНИЙ набір даних на фронтенд (включно з game_attempts)
+        // Повертаємо ПОВНИЙ набір даних на фронтенд (включно з оновленими game_attempts)
         return res.status(200).json({
             success: true,
             role: userRole, 
             balance: parseFloat(user.balance) || 0.0000,
             game_points: parseInt(user.game_points) || 0,
-            game_attempts: parseInt(gameAttempts) || 5,
+            game_attempts: parseInt(gameAttempts) || 10,
             ref_bonus: parseFloat(user.ref_bonus) || 0.0000,
             ref_count: totalReferrals,
             viewCounts: viewCounts,
