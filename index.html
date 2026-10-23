@@ -453,6 +453,7 @@
     <div class="lang-top-btn" onclick="openLangModal()">🌐</div>
 
     <div class="container">
+        <!-- Головна вкладка -->
         <div id="tab-main" class="tab-content active">
             <div class="card">
                 <div class="balance-title" id="txt-balance-title">Мій Баланс</div>
@@ -545,37 +546,26 @@
             </div>
         </div>
 
-        <div id="tab-tasks" class="tab-content">
-            <div class="card" style="border: 2px dashed var(--gold-color);">
-                <h3 id="txt-support-title">🎁 Підтримка проєкту</h3>
-                <p style="color: #a1a1aa; font-size: 13px; margin-bottom: 15px;" id="txt-support-desc">
-                    Допоможіть проєкту розвиватися! Цей перегляд добровільний, він сильно допомагає адміну формувати резерв виплат для користувачів.
+        <!-- Нова вкладка: Ігри -->
+        <div id="tab-games" class="tab-content">
+            <div class="card" style="border: 2px solid var(--neon-green); background: rgba(13, 242, 93, 0.05);">
+                <div style="font-size: 45px; margin-bottom: 5px;">🪙</div>
+                <h3 id="txt-game-title" style="font-size: 18px; color: var(--neon-green);">Flappy WoodGrow Coin</h3>
+                <p style="color: #a1a1aa; font-size: 13px; margin-bottom: 15px;" id="txt-game-desc">
+                    Керуйте монетою-паростком, оминайте дерев'яні колони, збирайте бали та отримуйте реальні USDT!
                 </p>
-                <div class="service-meta" style="margin-top: 0; margin-bottom: 5px;">
-                    <span id="txt-support-meta">Dobrovilne video</span>
-                    <span id="timer-support" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
-                    <span id="limit-support" class="limit-indicator">0 / 5</span>
+                
+                <div style="background: rgba(0,0,0,0.4); padding: 10px; border-radius: 10px; margin-bottom: 15px; border: 1px solid rgba(212,175,55,0.3);">
+                    <div style="font-size: 12px; color: var(--gold-color); font-weight: bold;" id="txt-game-points-label">Накопичені бали гри:</div>
+                    <div style="font-size: 24px; font-weight: 900; color: #fff; margin: 5px 0;"><span id="user-game-points">0</span> PTS</div>
+                    <div style="font-size: 11px; color: #a1a1aa;" id="txt-game-next-reward">Наступна нагорода: 10,000 PTS ➔ 0.01 USDT</div>
                 </div>
-                <button class="btn" id="btn-support" style="background: var(--gold-gradient);" onclick="handleBtnClick('support', () => startDirectLinkTimer('support', 'https://omg10.com/4/11217999'))">🍿 Підтримати WoodGrow (+0 USDT)</button>
-            </div>
 
-            <div class="card">
-                <h3 id="txt-channel-title">📢 Офіційний Канал</h3>
-                <p style="color: #a1a1aa; font-size: 13px; margin-bottom: 15px;" id="txt-channel-desc">
-                    Підписуйтесь, щоб першими дізнаватися про апдейти, нові бонуси та важливі новини WoodGrow Coin!
-                </p>
-                <button class="btn" onclick="tg.openTelegramLink('https://t.me/WoodGrowchannel')">🔔 <span id="txt-btn-subscribe">Підписатися</span></button>
-            </div>
-
-            <div class="card" style="margin-bottom: 25px;">
-                <h3 id="txt-chat-title">💬 Наша Спільнота (Чат)</h3>
-                <p style="color: #a1a1aa; font-size: 13px; margin-bottom: 15px;" id="txt-chat-desc">
-                    Спілкуйтеся з іншими гравцями, діліться реферальними лінками, обговорюйте виведення та стратегії заробітку!
-                </p>
-                <button class="btn" onclick="tg.openTelegramLink('https://t.me/+YMHbK3uysIwzMGI6')">💬 <span id="txt-btn-join-chat">Увійти в чат</span></button>
+                <button class="btn" style="background: var(--gold-gradient); color: #000;" onclick="openFlappyGame()" id="btn-play-game">🎮 Грати зараз</button>
             </div>
         </div>
 
+        <!-- Вкладка: Завдання -->
         <div id="tab-missions" class="tab-content">
             <div class="card" style="border: 2px solid var(--neon-aqua); background: rgba(0, 245, 212, 0.05); box-shadow: 0 0 15px rgba(0, 245, 212, 0.2);">
                 <h3 style="color: var(--neon-aqua);" id="txt-adv-section-title">💼 Кабінет рекламодавця</h3>
@@ -593,6 +583,7 @@
             </div>
         </div>
 
+        <!-- Вкладка: Кабінет -->
         <div id="tab-profile" class="tab-content">
             <div class="card" style="text-align: left;">
                 <h3 style="text-align: center;" id="txt-cabinet-title">👤 Мій кабінет</h3>
@@ -643,6 +634,38 @@
                 </div>
             </div>
         </div>
+
+        <!-- Вкладка: Інфо -->
+        <div id="tab-tasks" class="tab-content">
+            <div class="card" style="border: 2px dashed var(--gold-color);">
+                <h3 id="txt-support-title">🎁 Підтримка проєкту</h3>
+                <p style="color: #a1a1aa; font-size: 13px; margin-bottom: 15px;" id="txt-support-desc">
+                    Допоможіть проєкту розвиватися! Цей перегляд добровільний, він сильно допомагає адміну формувати резерв виплат для користувачів.
+                </p>
+                <div class="service-meta" style="margin-top: 0; margin-bottom: 5px;">
+                    <span id="txt-support-meta">Dobrovilne video</span>
+                    <span id="timer-support" class="cooldown-timer">⏳ <span class="sec">120</span>s</span>
+                    <span id="limit-support" class="limit-indicator">0 / 5</span>
+                </div>
+                <button class="btn" id="btn-support" style="background: var(--gold-gradient);" onclick="handleBtnClick('support', () => startDirectLinkTimer('support', 'https://omg10.com/4/11217999'))">🍿 Підтримати WoodGrow (+0 USDT)</button>
+            </div>
+
+            <div class="card">
+                <h3 id="txt-channel-title">📢 Офіційний Канал</h3>
+                <p style="color: #a1a1aa; font-size: 13px; margin-bottom: 15px;" id="txt-channel-desc">
+                    Підписуйтесь, щоб першими дізнаватися про апдейти, нові бонуси та важливі новини WoodGrow Coin!
+                </p>
+                <button class="btn" onclick="tg.openTelegramLink('https://t.me/WoodGrowchannel')">🔔 <span id="txt-btn-subscribe">Підписатися</span></button>
+            </div>
+
+            <div class="card" style="margin-bottom: 25px;">
+                <h3 id="txt-chat-title">💬 Наша Спільнота (Чат)</h3>
+                <p style="color: #a1a1aa; font-size: 13px; margin-bottom: 15px;" id="txt-chat-desc">
+                    Спілкуйтеся з іншими гравцями, діліться реферальними лінками, обговорюйте виведення та стратегії заробітку!
+                </p>
+                <button class="btn" onclick="tg.openTelegramLink('https://t.me/+YMHbK3uysIwzMGI6')">💬 <span id="txt-btn-join-chat">Увійти в чат</span></button>
+            </div>
+        </div>
     </div>
 
     <div class="modal-overlay" id="lang-modal">
@@ -666,18 +689,22 @@
         </div>
     </div>
 
+    <!-- Нова панель навігації у потрібному порядку -->
     <div class="nav-bar">
         <div class="nav-item active" onclick="switchTab('main', this)" id="nav-btn-main">
             <span class="nav-icon">🏠</span>Головна
         </div>
-        <div class="nav-item" onclick="switchTab('tasks', this)" id="nav-btn-tasks">
-            <span class="nav-icon">ℹ️</span>Інфо
+        <div class="nav-item" onclick="switchTab('games', this)" id="nav-btn-games">
+            <span class="nav-icon">🎮</span>Ігри
         </div>
         <div class="nav-item" onclick="switchTab('missions', this)" id="nav-btn-missions">
             <span class="nav-icon">🎯</span>Завдання
         </div>
         <div class="nav-item" onclick="switchTab('profile', this)" id="nav-btn-profile">
             <span class="nav-icon">🖥️</span>Кабінет
+        </div>
+        <div class="nav-item" onclick="switchTab('tasks', this)" id="nav-btn-tasks">
+            <span class="nav-icon">ℹ️</span>Інфо
         </div>
     </div>
 
@@ -705,6 +732,7 @@
         let selectedComboSlots = [null, null, null];
         let activeLinkTimers = {};
         let currentLang = 'en';
+        let gamePoints = 0; // Накопичені бали мініігор
 
         const comboItemDetails = {
             seed: { icon: '🌾', names: { uk: 'Зерно', en: 'Seed', ru: 'Зерно' } },
@@ -754,11 +782,17 @@
                 modal_success_title: "ЗАЯВКУ СТВОРЕНО!",
                 modal_success_desc: "Ваш баланс успішно списано. Заявка на виведення автоматично надійшла в систему. Очікуйте виплату на ваш підключений гаманець протягом 24 годин.",
                 nav_main: "🏠Головна",
+                nav_games: "🎮Ігри",
                 nav_tasks: "ℹ️Інфо",
                 nav_missions: "🎯Завдання",
                 mission_title: "🎯 Нові завдання",
                 mission_desc: "Тут ви можете замовити реакції на ваші пости",
                 nav_profile: "🖥️Кабінет",
+                game_title: "Flappy WoodGrow Coin",
+                game_desc: "Керуйте монетою-паростком, оминайте дерев'яні колони, збирайте бали та отримуйте реальні USDT!",
+                game_points_label: "Накопичені бали гри:",
+                game_next_reward: "Наступна нагорода: 10,000 PTS ➔ 0.01 USDT",
+                btn_play_game: "🎮 Грати зараз",
                 btn_support: "🍿 Підтримати WoodGrow (+0 USDT)",
                 loading: "Завантаження...",
                 people_count: "чол.",
@@ -822,11 +856,17 @@
                 modal_success_title: "REQUEST CREATED!",
                 modal_success_desc: "Your balance has been successfully debited. The withdrawal request has been automatically sent to the system. Expect payment to your connected wallet within 24 hours.",
                 nav_main: "🏠Main",
+                nav_games: "🎮Games",
                 nav_tasks: "ℹ️Info",
                 nav_missions: "🎯Missions",
                 mission_title: "🎯 New Missions",
                 mission_desc: "Here you can order reactions for your posts",
                 nav_profile: "🖥️Profile",
+                game_title: "Flappy WoodGrow Coin",
+                game_desc: "Control the sprout-coin, avoid wooden pillars, collect points and earn real USDT!",
+                game_points_label: "Accumulated Game Points:",
+                game_next_reward: "Next Reward: 10,000 PTS ➔ 0.01 USDT",
+                btn_play_game: "🎮 Play Now",
                 btn_support: "🍿 Support WoodGrow (+0 USDT)",
                 loading: "Loading...",
                 people_count: "users",
@@ -890,11 +930,17 @@
                 modal_success_title: "ЗАЯВКА СОЗДАНА!",
                 modal_success_desc: "Ваш баланс успешно списан. Заявка на вывод автоматически поступила в систему. Ожидайте выплату на ваш подключенный кошелек в течение 24 часов.",
                 nav_main: "🏠Главная",
+                nav_games: "🎮Игры",
                 nav_tasks: "ℹ️Инфо",
                 nav_missions: "🎯Задания",
                 mission_title: "🎯 Новые задания",
                 mission_desc: "Здесь вы можете заказать реакции на ваши посты",
                 nav_profile: "🖥️Кабинет",
+                game_title: "Flappy WoodGrow Coin",
+                game_desc: "Управляйте монетой-ростком, обходите деревянные колонны, собирайте баллы и получайте реальные USDT!",
+                game_points_label: "Накопленные баллы игры:",
+                game_next_reward: "Следующая награда: 10,000 PTS ➔ 0.01 USDT",
+                btn_play_game: "🎮 Играть сейчас",
                 btn_support: "🍿 Поддержать WoodGrow (+0 USDT)",
                 loading: "Загрузка...",
                 people_count: "чел.",
@@ -992,6 +1038,15 @@
             document.getElementById('txt-modal-success-title').innerText = t.modal_success_title;
             document.getElementById('txt-modal-success-desc').innerText = t.modal_success_desc;
 
+            // Переклади для вкладки Ігор
+            if(document.getElementById('txt-game-title')) {
+                document.getElementById('txt-game-title').innerText = t.game_title;
+                document.getElementById('txt-game-desc').innerText = t.game_desc;
+                document.getElementById('txt-game-points-label').innerText = t.game_points_label;
+                document.getElementById('txt-game-next-reward').innerText = t.game_next_reward;
+                document.getElementById('btn-play-game').innerText = t.btn_play_game;
+            }
+
             if(document.getElementById('txt-adv-section-title')) {
                 document.getElementById('txt-adv-section-title').innerText = t.adv_title;
                 document.getElementById('txt-adv-section-desc').innerText = t.adv_desc;
@@ -999,6 +1054,7 @@
             }
 
             document.getElementById('nav-btn-main').innerHTML = `<span class="nav-icon">🏠</span>${t.nav_main.replace('🏠','')}`;
+            document.getElementById('nav-btn-games').innerHTML = `<span class="nav-icon">🎮</span>${t.nav_games.replace('🎮','')}`;
             document.getElementById('nav-btn-tasks').innerHTML = `<span class="nav-icon">ℹ️</span>${t.nav_tasks.replace('ℹ️','')}`;
             document.getElementById('nav-btn-missions').innerHTML = `<span class="nav-icon">🎯</span>${t.nav_missions.replace('🎯','')}`;
             document.getElementById('nav-btn-profile').innerHTML = `<span class="nav-icon">🖥️</span>${t.nav_profile.replace('🖥️','')}`;
@@ -1020,6 +1076,7 @@
             }
 
             document.getElementById('user-balance').innerText = balance.toFixed(4);
+            document.getElementById('user-game-points').innerText = gamePoints;
             services.forEach(srv => updateLimitUI(srv));
             updateStreakUI();
             updateComboUI();
@@ -1115,8 +1172,10 @@
                 if (data.success) {
                     balance = data.balance;
                     let rBonus = data.ref_bonus;
+                    if (data.game_points !== undefined) gamePoints = data.game_points;
                     
                     document.getElementById('user-balance').innerText = balance.toFixed(4);
+                    document.getElementById('user-game-points').innerText = gamePoints;
                     document.getElementById('ref-bonus').innerText = `${rBonus.toFixed(4)} USDT`;
                     
                     const pCountText = translations[currentLang].people_count;
@@ -1789,6 +1848,11 @@
                 btnElement.disabled = false;
                 btnElement.innerText = "🚀 Запустити розсилку";
             }
+        }
+
+        // Заглушка для відкриття гри (реалізуємо на наступних кроках)
+        function openFlappyGame() {
+            alert("🎮 Модуль гри Flappy WoodGrow Coin розгортається на наступному етапі!");
         }
 
         async function startApp() {
