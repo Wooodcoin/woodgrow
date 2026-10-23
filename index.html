@@ -582,16 +582,17 @@
                 <div style="font-size: 45px; margin-bottom: 5px;">🪙</div>
                 <h3 id="txt-game-title" style="font-size: 18px; color: var(--neon-green);">Flappy WoodGrow Coin</h3>
                 <p style="color: #a1a1aa; font-size: 13px; margin-bottom: 15px;" id="txt-game-desc">
-                    Керуйте монетою-паростком, оминайте дерев'яні колони, збирайте бали та отримуйте реальні USDT!
+                    Керуйте монетою-паростком, оминайте дерев'яні колони, збирайте бали WGC та отримуйте реальні USDT!
                 </p>
                 
                 <div style="background: rgba(0,0,0,0.4); padding: 10px; border-radius: 10px; margin-bottom: 15px; border: 1px solid rgba(212,175,55,0.3);">
-                    <div style="font-size: 12px; color: var(--gold-color); font-weight: bold;" id="txt-game-points-label">Накопичені бали гри:</div>
-                    <div style="font-size: 24px; font-weight: 900; color: #fff; margin: 5px 0;"><span id="user-game-points">0</span> PTS</div>
-                    <div style="font-size: 11px; color: #a1a1aa;" id="txt-game-next-reward">Наступна нагорода: 10,000 PTS ➔ 0.01 USDT</div>
+                    <div style="font-size: 12px; color: var(--gold-color); font-weight: bold;" id="txt-game-points-label">Накопичені бали WGC:</div>
+                    <div style="font-size: 24px; font-weight: 900; color: #fff; margin: 5px 0;"><span id="user-game-points">0</span> WGC</div>
+                    <div style="font-size: 11px; color: #a1a1aa;" id="txt-game-next-reward">Курс: 10,000 WGC ➔ 0.01 USDT</div>
                 </div>
 
-                <button class="btn" style="background: var(--gold-gradient); color: #000;" onclick="openFlappyGame()" id="btn-play-game">🎮 Грати зараз</button>
+                <button class="btn" style="background: var(--gold-gradient); color: #000; margin-bottom: 10px;" onclick="openFlappyGame()" id="btn-play-game">🎮 Грати зараз</button>
+                <button class="btn" style="background: linear-gradient(135deg, #00f5d4 0%, #00bbf9 100%); color: #000;" onclick="exchangeGamePoints()" id="btn-exchange-points">💎 Обміняти WGC на USDT</button>
             </div>
         </div>
 
@@ -715,8 +716,8 @@
 
         <div id="flappy-gameover-screen" class="game-overlay-panel" style="display: none;">
             <h3 style="color: #ff4444; margin-bottom: 5px;">ГРУ ЗАВЕРШЕНО</h3>
-            <p style="font-size: 14px; color: #fff; margin: 5px 0;">Рахунок: <span id="flappy-final-score" style="color: var(--neon-green); font-weight: bold;">0</span></p>
-            <p style="font-size: 12px; color: var(--gold-color); margin-bottom: 15px;">Накопичено балів за сесію: +<span id="flappy-earned-pts">0</span> PTS</p>
+            <p style="font-size: 14px; color: #fff; margin: 5px 0;">Рахунок: <span id="flappy-final-score" style="color: var(--neon-green); font-weight: bold;">0</span> WGC</p>
+            <p style="font-size: 12px; color: var(--gold-color); margin-bottom: 15px;">Накопичено балів за сесію: +<span id="flappy-earned-pts">0</span> WGC</p>
             
             <button class="btn" style="background: linear-gradient(135deg, #00f5d4 0%, #00bbf9 100%); color: #000; margin-bottom: 8px;" onclick="reviveWithAd()" id="btn-revive-ad">🎥 Одне життя за рекламу</button>
             <button class="btn" style="background: var(--gold-gradient); color: #000;" onclick="resetFlappyGame()">🔄 Грати знову</button>
@@ -843,9 +844,9 @@
                 mission_desc: "Тут ви можете замовити реакції на ваші пости",
                 nav_profile: "🖥️Кабінет",
                 game_title: "Flappy WoodGrow Coin",
-                game_desc: "Керуйте монетою-паростком, оминайте дерев'яні колони, збирайте бали та отримуйте реальні USDT!",
-                game_points_label: "Накопичені бали гри:",
-                game_next_reward: "Наступна нагорода: 10,000 PTS ➔ 0.01 USDT",
+                game_desc: "Керуйте монетою-паростком, оминайте дерев'яні колони, збирайте бали WGC та отримуйте реальні USDT!",
+                game_points_label: "Накопичені бали WGC:",
+                game_next_reward: "Курс: 10,000 WGC ➔ 0.01 USDT",
                 btn_play_game: "🎮 Грати зараз",
                 btn_support: "🍿 Підтримати WoodGrow (+0 USDT)",
                 loading: "Завантаження...",
@@ -917,9 +918,9 @@
                 mission_desc: "Here you can order reactions for your posts",
                 nav_profile: "🖥️Profile",
                 game_title: "Flappy WoodGrow Coin",
-                game_desc: "Control the sprout-coin, avoid wooden pillars, collect points and earn real USDT!",
-                game_points_label: "Accumulated Game Points:",
-                game_next_reward: "Next Reward: 10,000 PTS ➔ 0.01 USDT",
+                game_desc: "Control the sprout-coin, avoid wooden pillars, collect WGC points and earn real USDT!",
+                game_points_label: "Accumulated WGC Points:",
+                game_next_reward: "Rate: 10,000 WGC ➔ 0.01 USDT",
                 btn_play_game: "🎮 Play Now",
                 btn_support: "🍿 Support WoodGrow (+0 USDT)",
                 loading: "Loading...",
@@ -991,9 +992,9 @@
                 mission_desc: "Здесь вы можете заказать реакции на ваши посты",
                 nav_profile: "🖥️Кабинет",
                 game_title: "Flappy WoodGrow Coin",
-                game_desc: "Управляйте монетой-ростком, обходите деревянные колонны, собирайте баллы и получайте реальные USDT!",
-                game_points_label: "Накопленные баллы игры:",
-                game_next_reward: "Следующая награда: 10,000 PTS ➔ 0.01 USDT",
+                game_desc: "Управляйте монетой-ростком, обходите деревянные колонны, собирайте баллы WGC и получайте реальные USDT!",
+                game_points_label: "Накопленные баллы WGC:",
+                game_next_reward: "Курс: 10,000 WGC ➔ 0.01 USDT",
                 btn_play_game: "🎮 Играть сейчас",
                 btn_support: "🍿 Поддержать WoodGrow (+0 USDT)",
                 loading: "Загрузка...",
@@ -1098,6 +1099,7 @@
                 document.getElementById('txt-game-points-label').innerText = t.game_points_label;
                 document.getElementById('txt-game-next-reward').innerText = t.game_next_reward;
                 document.getElementById('btn-play-game').innerText = t.btn_play_game;
+                document.getElementById('btn-exchange-points').innerText = t.currentLang === 'ru' ? '💎 Обменять WGC на USDT' : (t.currentLang === 'uk' ? '💎 Обміняти WGC на USDT' : '💎 Exchange WGC for USDT');
             }
 
             if(document.getElementById('txt-adv-section-title')) {
@@ -1903,15 +1905,51 @@
             }
         }
 
-        // ==========================================
-        // ЛОГІКА ІГРОВОГО РУШИЯ FLAPPY WOODGROW COIN (Зменшена швидкість)
-        // ==========================================
+        async function exchangeGamePoints() {
+            if (gamePoints < 10000) {
+                alert("❌ Потрібно мінімум 10,000 WGC для обміну!");
+                return;
+            }
+
+            if (!confirm("Бажаєте обміняти свої бали WGC на USDT за курсом 10,000 WGC = 0.01 USDT?")) {
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/exchange-game-points', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: userId,
+                        initData: window.Telegram.WebApp.initData
+                    })
+                });
+
+                const data = await res.json();
+
+                if (res.ok && data.success) {
+                    balance = data.newBalance;
+                    gamePoints = data.newGamePoints;
+
+                    document.getElementById('user-balance').innerText = balance.toFixed(4);
+                    document.getElementById('user-game-points').innerText = gamePoints;
+
+                    alert(`🎉 Успішний обмін! На ваш баланс нараховано +${data.addedUsdt.toFixed(4)} USDT.`);
+                } else {
+                    alert("Помилка обміну: " + (data.error || "Невідома помилка"));
+                }
+            } catch (err) {
+                console.error("Exchange error:", err);
+                alert("Помилка з'єднання з сервером.");
+            }
+        }
+
         let flappyCanvas, flappyCtx;
         let gameRunning = false;
         let bird = { x: 80, y: 270, radius: 20, gravity: 0.45, lift: -7.5, velocity: 0, rotation: 0 };
         let pipes = [];
         let pipeWidth = 65;
-        let pipeGap = 175; // Збільшений зручний прохід між колонами
+        let pipeGap = 175;
         let frameCount = 0;
         let currentScore = 0;
         let canRevive = true;
@@ -1991,7 +2029,6 @@
                 return;
             }
 
-            // Зменшена швидкість появи труб та їх руху
             if (frameCount % 120 === 0) {
                 let minHeight = 60;
                 let maxHeight = flappyCanvas.height - pipeGap - 100;
@@ -2006,7 +2043,7 @@
             }
 
             for (let i = pipes.length - 1; i >= 0; i--) {
-                pipes[i].x -= 1.8; // Зменшена швидкість руху колони (було 2.8, стало 1.8 для комфорту)
+                pipes[i].x -= 1.8;
 
                 drawWoodPipe(pipes[i].x, 0, pipeWidth, pipes[i].top, true);
                 drawWoodPipe(pipes[i].x, flappyCanvas.height - pipes[i].bottom, pipeWidth, pipes[i].bottom, false);
