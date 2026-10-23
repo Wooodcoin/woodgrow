@@ -588,7 +588,7 @@
                 <div style="background: rgba(0,0,0,0.4); padding: 10px; border-radius: 10px; margin-bottom: 15px; border: 1px solid rgba(212,175,55,0.3);">
                     <div style="font-size: 12px; color: var(--gold-color); font-weight: bold;" id="txt-game-points-label">Накопичені бали WGC:</div>
                     <div style="font-size: 24px; font-weight: 900; color: #fff; margin: 5px 0;"><span id="user-game-points">0</span> WGC</div>
-                    <div style="font-size: 12px; color: var(--neon-green); margin-bottom: 5px; font-weight: bold;" id="txt-game-attempts">Доступно спроб сьогодні: <span id="game-attempts-left">5</span> / 5</div>
+                    <div style="font-size: 12px; color: var(--neon-green); margin-bottom: 5px; font-weight: bold;" id="txt-game-attempts">Доступно спроб сьогодні: <span id="game-attempts-left">10</span> / 10</div>
                     <div style="font-size: 11px; color: #a1a1aa;" id="txt-game-next-reward">Курс: 10,000 WGC ➔ 0.01 USDT</div>
                 </div>
 
@@ -790,8 +790,8 @@
         let currentLang = 'en';
         let gamePoints = 0; 
 
-        // Система щоденних спроб у грі (механіка лімітів)
-        const MAX_GAME_ATTEMPTS = 5;
+        // Система щоденних спроб у грі (10 безкоштовних)
+        const MAX_GAME_ATTEMPTS = 10;
         let gameAttemptsLeft = MAX_GAME_ATTEMPTS;
         const todayKey = new Date().toDateString();
         const savedAttemptDate = localStorage.getItem('wg_game_date');
@@ -875,7 +875,7 @@
                 claim_bonus: "🎁 ЗАБРАТИ БОНУС",
                 ads_error: "Рекламу не зараховано.",
                 support_thanks: "Дякуємо! ❤️",
-                video_interrupted: "Відео перервано.",
+                video_interrupted: "Видео перервано.",
                 db_error: "Помилка зв'язку з сервером бази даних.",
                 req_error: "Не вдалося виконати запит на виведення.",
                 adv_title: "💼 Кабінет рекламодавця",
@@ -1969,36 +1969,35 @@
         }
 
         // ==========================================
-        // ЛОГІКА ІГРОВОГО РУШИЯ FLAPPY WOODGROW COIN (Надзвичайно легкий рівень + спроби + аналітика)
+        // НАДМАКСИМАЛЬНО ЛЕГКИЙ РІВЕНЬ (Ультра-плавна фізика, знижена швидкість падіння та величезний прохід)
         // ==========================================
         let flappyCanvas, flappyCtx;
         let gameRunning = false;
-        let bird = { x: 80, y: 270, radius: 20, gravity: 0.35, lift: -6.8, velocity: 0, rotation: 0 }; // Дуже м'яка гравітація та плавний стрибок
+        let bird = { x: 80, y: 270, radius: 20, gravity: 0.28, lift: -5.8, velocity: 0, rotation: 0 }; // Дуже легка гравітація та плавний невагомий стрибок
         let pipes = [];
         let pipeWidth = 65;
-        let pipeGap = 205; // Величезний, комфортний прохід між колонами для легкого проходження
+        let pipeGap = 220; // Гігантський прохід для комфортного проходження
         let frameCount = 0;
         let currentScore = 0;
         let canRevive = true;
 
         function openFlappyGame() {
             if (gameAttemptsLeft <= 0) {
-                // Якщо спроби скінчилися — пропонуємо переглянути рекламу для отримання додаткових спроб
+                // Якщо спроби вичерпано — пропонуємо 5 спроб за перегляд реклами
                 const AdVideoController = window.Adsgram ? window.Adsgram.init({ blockId: "35910" }) : null;
                 if (!AdVideoController) {
                     alert("❌ У вас закінчилися безкоштовні спроби на сьогодні. Завітайте завтра!");
                     return;
                 }
 
-                if (confirm("❌ У вас закінчилися спроби на сьогодні! Бажаєте переглянути коротку рекламу та отримати +3 додаткові спроби?")) {
+                if (confirm("❌ У вас закінчилися спроби на сьогодні! Бажаєте переглянути коротку рекламу та отримати +5 додаткових спроб?")) {
                     AdVideoController.show()
                         .then(() => {
-                            gameAttemptsLeft += 3;
+                            gameAttemptsLeft += 5;
                             localStorage.setItem('wg_game_attempts', gameAttemptsLeft.toString());
                             document.getElementById('game-attempts-left').innerText = gameAttemptsLeft;
-                            alert("🎉 Вам надано +3 додаткові спроби!");
+                            alert("🎉 Вам надано +5 додаткових спроб!");
                             
-                            // Аналітика реклами для спроб
                             if (typeof firebase !== 'undefined' && firebase.analytics) {
                                 firebase.analytics().logEvent('game_extra_attempts_ad_watched');
                             }
@@ -2064,7 +2063,6 @@
             localStorage.setItem('wg_game_attempts', gameAttemptsLeft.toString());
             document.getElementById('game-attempts-left').innerText = gameAttemptsLeft;
 
-            // Аналітика запуску гри
             if (typeof firebase !== 'undefined' && firebase.analytics) {
                 firebase.analytics().logEvent('game_started', { remaining_attempts: gameAttemptsLeft });
             }
@@ -2081,7 +2079,7 @@
             flappyCanvas.onclick = () => {
                 if (gameRunning) {
                     bird.velocity = bird.lift;
-                    bird.rotation = -0.3;
+                    bird.rotation = -0.25;
                 }
             };
             
@@ -2101,15 +2099,15 @@
 
             bird.velocity += bird.gravity;
             bird.y += bird.velocity;
-            if (bird.rotation < 0.5) bird.rotation += 0.03;
+            if (bird.rotation < 0.4) bird.rotation += 0.02;
 
             if (bird.y + bird.radius >= flappyCanvas.height - 15 || bird.y - bird.radius <= 0) {
                 gameOverFlappy();
                 return;
             }
 
-            // Повільніша поява труб та ще менша швидкість для максимального комфорту новачків
-            if (frameCount % 140 === 0) {
+            // Повільніша поява труб та низька швидкість прольоту
+            if (frameCount % 160 === 0) {
                 let minHeight = 60;
                 let maxHeight = flappyCanvas.height - pipeGap - 80;
                 let topHeight = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
@@ -2123,7 +2121,7 @@
             }
 
             for (let i = pipes.length - 1; i >= 0; i--) {
-                pipes[i].x -= 1.5; // Плавна наднизька швидкість руху колони
+                pipes[i].x -= 1.3; // Ультра-низька швидкість руху колони для легкого проходження
 
                 drawWoodPipe(pipes[i].x, 0, pipeWidth, pipes[i].top, true);
                 drawWoodPipe(pipes[i].x, flappyCanvas.height - pipes[i].bottom, pipeWidth, pipes[i].bottom, false);
@@ -2218,7 +2216,6 @@
             gameRunning = false;
             flappyCanvas.onclick = null;
 
-            // Аналітика завершення гри / рахунку
             if (typeof firebase !== 'undefined' && firebase.analytics) {
                 firebase.analytics().logEvent('game_over', { score: currentScore });
             }
@@ -2273,7 +2270,6 @@
                 .then(() => {
                     canRevive = false;
                     
-                    // Аналітика успішного відродження за рекламу
                     if (typeof firebase !== 'undefined' && firebase.analytics) {
                         firebase.analytics().logEvent('game_revive_ad_watched');
                     }
@@ -2287,7 +2283,7 @@
                     flappyCanvas.onclick = () => {
                         if (gameRunning) {
                             bird.velocity = bird.lift;
-                            bird.rotation = -0.3;
+                            bird.rotation = -0.25;
                         }
                     };
                     loopFlappy();
