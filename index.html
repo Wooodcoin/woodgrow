@@ -588,6 +588,7 @@
                 <div style="background: rgba(0,0,0,0.4); padding: 10px; border-radius: 10px; margin-bottom: 15px; border: 1px solid rgba(212,175,55,0.3);">
                     <div style="font-size: 12px; color: var(--gold-color); font-weight: bold;" id="txt-game-points-label">Накопичені бали WGC:</div>
                     <div style="font-size: 24px; font-weight: 900; color: #fff; margin: 5px 0;"><span id="user-game-points">0</span> WGC</div>
+                    <div style="font-size: 12px; color: var(--neon-green); margin-bottom: 5px; font-weight: bold;" id="txt-game-attempts">Доступно спроб сьогодні: <span id="game-attempts-left">5</span> / 5</div>
                     <div style="font-size: 11px; color: #a1a1aa;" id="txt-game-next-reward">Курс: 10,000 WGC ➔ 0.01 USDT</div>
                 </div>
 
@@ -789,6 +790,19 @@
         let currentLang = 'en';
         let gamePoints = 0; 
 
+        // Система щоденних спроб у грі (механіка лімітів)
+        const MAX_GAME_ATTEMPTS = 5;
+        let gameAttemptsLeft = MAX_GAME_ATTEMPTS;
+        const todayKey = new Date().toDateString();
+        const savedAttemptDate = localStorage.getItem('wg_game_date');
+        if (savedAttemptDate !== todayKey) {
+            localStorage.setItem('wg_game_date', todayKey);
+            localStorage.setItem('wg_game_attempts', MAX_GAME_ATTEMPTS.toString());
+            gameAttemptsLeft = MAX_GAME_ATTEMPTS;
+        } else {
+            gameAttemptsLeft = parseInt(localStorage.getItem('wg_game_attempts')) || MAX_GAME_ATTEMPTS;
+        }
+
         const comboItemDetails = {
             seed: { icon: '🌾', names: { uk: 'Зерно', en: 'Seed', ru: 'Зерно' } },
             branch: { icon: '🌿', names: { uk: 'Гілка', en: 'Branch', ru: 'Ветка' } },
@@ -846,6 +860,7 @@
                 game_title: "Flappy WoodGrow Coin",
                 game_desc: "Керуйте монетою-паростком, оминайте дерев'яні колони, збирайте бали WGC та отримуйте реальні USDT!",
                 game_points_label: "Накопичені бали WGC:",
+                game_attempts_label: "Доступно спроб сьогодні:",
                 game_next_reward: "Курс: 10,000 WGC ➔ 0.01 USDT",
                 btn_play_game: "🎮 Грати зараз",
                 btn_support: "🍿 Підтримати WoodGrow (+0 USDT)",
@@ -920,6 +935,7 @@
                 game_title: "Flappy WoodGrow Coin",
                 game_desc: "Control the sprout-coin, avoid wooden pillars, collect WGC points and earn real USDT!",
                 game_points_label: "Accumulated WGC Points:",
+                game_attempts_label: "Attempts left today:",
                 game_next_reward: "Rate: 10,000 WGC ➔ 0.01 USDT",
                 btn_play_game: "🎮 Play Now",
                 btn_support: "🍿 Support WoodGrow (+0 USDT)",
@@ -994,6 +1010,7 @@
                 game_title: "Flappy WoodGrow Coin",
                 game_desc: "Управляйте монетой-ростком, обходите деревянные колонны, собирайте баллы WGC и получайте реальные USDT!",
                 game_points_label: "Накопленные баллы WGC:",
+                game_attempts_label: "Доступно попыток сегодня:",
                 game_next_reward: "Курс: 10,000 WGC ➔ 0.01 USDT",
                 btn_play_game: "🎮 Играть сейчас",
                 btn_support: "🍿 Поддержать WoodGrow (+0 USDT)",
@@ -1097,6 +1114,7 @@
                 document.getElementById('txt-game-title').innerText = t.game_title;
                 document.getElementById('txt-game-desc').innerText = t.game_desc;
                 document.getElementById('txt-game-points-label').innerText = t.game_points_label;
+                document.getElementById('txt-game-attempts').childNodes[0].nodeValue = `${t.game_attempts_label} `;
                 document.getElementById('txt-game-next-reward').innerText = t.game_next_reward;
                 document.getElementById('btn-play-game').innerText = t.btn_play_game;
                 document.getElementById('btn-exchange-points').innerText = t.currentLang === 'ru' ? '💎 Обменять WGC на USDT' : (t.currentLang === 'uk' ? '💎 Обміняти WGC на USDT' : '💎 Exchange WGC for USDT');
@@ -1132,6 +1150,7 @@
 
             document.getElementById('user-balance').innerText = balance.toFixed(4);
             document.getElementById('user-game-points').innerText = gamePoints;
+            document.getElementById('game-attempts-left').innerText = gameAttemptsLeft;
             services.forEach(srv => updateLimitUI(srv));
             updateStreakUI();
             updateComboUI();
@@ -1934,6 +1953,11 @@
                     document.getElementById('user-balance').innerText = balance.toFixed(4);
                     document.getElementById('user-game-points').innerText = gamePoints;
 
+                    // Аналітика успішного обміну WGC
+                    if (typeof firebase !== 'undefined' && firebase.analytics) {
+                        firebase.analytics().logEvent('wgc_exchange_success', { amount_wgc: 10000 });
+                    }
+
                     alert(`🎉 Успішний обмін! На ваш баланс нараховано +${data.addedUsdt.toFixed(4)} USDT.`);
                 } else {
                     alert("Помилка обміну: " + (data.error || "Невідома помилка"));
@@ -1944,17 +1968,55 @@
             }
         }
 
+        // ==========================================
+        // ЛОГІКА ІГРОВОГО РУШИЯ FLAPPY WOODGROW COIN (Надзвичайно легкий рівень + спроби + аналітика)
+        // ==========================================
         let flappyCanvas, flappyCtx;
         let gameRunning = false;
-        let bird = { x: 80, y: 270, radius: 20, gravity: 0.45, lift: -7.5, velocity: 0, rotation: 0 };
+        let bird = { x: 80, y: 270, radius: 20, gravity: 0.35, lift: -6.8, velocity: 0, rotation: 0 }; // Дуже м'яка гравітація та плавний стрибок
         let pipes = [];
         let pipeWidth = 65;
-        let pipeGap = 175;
+        let pipeGap = 205; // Величезний, комфортний прохід між колонами для легкого проходження
         let frameCount = 0;
         let currentScore = 0;
         let canRevive = true;
 
         function openFlappyGame() {
+            if (gameAttemptsLeft <= 0) {
+                // Якщо спроби скінчилися — пропонуємо переглянути рекламу для отримання додаткових спроб
+                const AdVideoController = window.Adsgram ? window.Adsgram.init({ blockId: "35910" }) : null;
+                if (!AdVideoController) {
+                    alert("❌ У вас закінчилися безкоштовні спроби на сьогодні. Завітайте завтра!");
+                    return;
+                }
+
+                if (confirm("❌ У вас закінчилися спроби на сьогодні! Бажаєте переглянути коротку рекламу та отримати +3 додаткові спроби?")) {
+                    AdVideoController.show()
+                        .then(() => {
+                            gameAttemptsLeft += 3;
+                            localStorage.setItem('wg_game_attempts', gameAttemptsLeft.toString());
+                            document.getElementById('game-attempts-left').innerText = gameAttemptsLeft;
+                            alert("🎉 Вам надано +3 додаткові спроби!");
+                            
+                            // Аналітика реклами для спроб
+                            if (typeof firebase !== 'undefined' && firebase.analytics) {
+                                firebase.analytics().logEvent('game_extra_attempts_ad_watched');
+                            }
+
+                            document.getElementById('flappy-game-modal').classList.add('active');
+                            document.getElementById('flappy-start-screen').style.display = 'flex';
+                            document.getElementById('flappy-gameover-screen').style.display = 'none';
+                            flappyCanvas = document.getElementById('flappy-canvas');
+                            flappyCtx = flappyCanvas.getContext('2d');
+                            drawInitialScreen();
+                        })
+                        .catch(() => {
+                            alert(translations[currentLang].ads_error);
+                        });
+                }
+                return;
+            }
+
             document.getElementById('flappy-game-modal').classList.add('active');
             document.getElementById('flappy-start-screen').style.display = 'flex';
             document.getElementById('flappy-gameover-screen').style.display = 'none';
@@ -1968,6 +2030,7 @@
             gameRunning = false;
             document.getElementById('flappy-game-modal').classList.remove('active');
             document.getElementById('user-game-points').innerText = gamePoints;
+            document.getElementById('game-attempts-left').innerText = gameAttemptsLeft;
         }
 
         function drawInitialScreen() {
@@ -1990,6 +2053,22 @@
         }
 
         function startFlappyGame() {
+            if (gameAttemptsLeft <= 0) {
+                alert("❌ Спроби вичерпано!");
+                closeFlappyGame();
+                return;
+            }
+
+            // Зменшуємо кількість спроб
+            gameAttemptsLeft--;
+            localStorage.setItem('wg_game_attempts', gameAttemptsLeft.toString());
+            document.getElementById('game-attempts-left').innerText = gameAttemptsLeft;
+
+            // Аналітика запуску гри
+            if (typeof firebase !== 'undefined' && firebase.analytics) {
+                firebase.analytics().logEvent('game_started', { remaining_attempts: gameAttemptsLeft });
+            }
+
             document.getElementById('flappy-start-screen').style.display = 'none';
             bird.y = flappyCanvas.height / 2;
             bird.velocity = 0;
@@ -2029,9 +2108,10 @@
                 return;
             }
 
-            if (frameCount % 120 === 0) {
+            // Повільніша поява труб та ще менша швидкість для максимального комфорту новачків
+            if (frameCount % 140 === 0) {
                 let minHeight = 60;
-                let maxHeight = flappyCanvas.height - pipeGap - 100;
+                let maxHeight = flappyCanvas.height - pipeGap - 80;
                 let topHeight = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
                 
                 pipes.push({
@@ -2043,7 +2123,7 @@
             }
 
             for (let i = pipes.length - 1; i >= 0; i--) {
-                pipes[i].x -= 1.8;
+                pipes[i].x -= 1.5; // Плавна наднизька швидкість руху колони
 
                 drawWoodPipe(pipes[i].x, 0, pipeWidth, pipes[i].top, true);
                 drawWoodPipe(pipes[i].x, flappyCanvas.height - pipes[i].bottom, pipeWidth, pipes[i].bottom, false);
@@ -2138,6 +2218,11 @@
             gameRunning = false;
             flappyCanvas.onclick = null;
 
+            // Аналітика завершення гри / рахунку
+            if (typeof firebase !== 'undefined' && firebase.analytics) {
+                firebase.analytics().logEvent('game_over', { score: currentScore });
+            }
+
             document.getElementById('flappy-final-score').innerText = currentScore;
             document.getElementById('flappy-earned-pts').innerText = currentScore;
             
@@ -2187,6 +2272,12 @@
             AdVideoController.show()
                 .then(() => {
                     canRevive = false;
+                    
+                    // Аналітика успішного відродження за рекламу
+                    if (typeof firebase !== 'undefined' && firebase.analytics) {
+                        firebase.analytics().logEvent('game_revive_ad_watched');
+                    }
+
                     document.getElementById('flappy-gameover-screen').style.display = 'none';
                     bird.y = flappyCanvas.height / 2;
                     bird.velocity = 0;
@@ -2207,6 +2298,11 @@
         }
 
         function resetFlappyGame() {
+            if (gameAttemptsLeft <= 0) {
+                alert("❌ Спроби на сьогодні вичерпано. Перегляньте рекламу на головному екрані гри, щоб отримати додаткові спроби!");
+                closeFlappyGame();
+                return;
+            }
             document.getElementById('flappy-gameover-screen').style.display = 'none';
             startFlappyGame();
         }
