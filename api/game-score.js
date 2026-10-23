@@ -72,10 +72,10 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: 'Invalid score value' });
         }
 
-        // Додаємо нові бали до поточних у базі
+        // Додаємо нові бали WGC до поточних у базі
         currentGamePoints += parsedPoints;
 
-        // Зберігаємо оновлені бали у Firebase
+        // Зберігаємо оновлені бали WGC у Firebase
         await userRef.update({
             game_points: currentGamePoints
         });
