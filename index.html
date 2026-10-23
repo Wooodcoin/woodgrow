@@ -173,7 +173,6 @@
             font-size: 13px;
         }
 
-        /* Стилі для Щоденного Комбо */
         .combo-slots-container {
             display: flex;
             justify-content: center;
@@ -245,7 +244,6 @@
             text-transform: uppercase;
         }
 
-        /* Стилі для Щоденного Чекіну */
         .streak-container {
             display: flex;
             justify-content: space-between;
@@ -447,7 +445,6 @@
             border-radius: 8px;
         }
 
-        /* Стилі для ігрового модуля Flappy */
         #flappy-game-modal {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -501,14 +498,12 @@
                 <h3 id="txt-combo-title" style="font-size: 15px; margin-bottom: 5px;">🧩 Щоденне Комбо (+0.0002 USDT)</h3>
                 <p style="font-size: 12px; color: #a1a1aa; margin-bottom: 10px;" id="txt-combo-desc">Оберіть 3 правильні елементи та перевірте комбінацію!</p>
                 
-                <!-- 3 верхні слоти -->
                 <div class="combo-slots-container">
                     <div class="combo-slot" id="combo-slot-0" onclick="removeFromSlot(0)"></div>
                     <div class="combo-slot" id="combo-slot-1" onclick="removeFromSlot(1)"></div>
                     <div class="combo-slot" id="combo-slot-2" onclick="removeFromSlot(2)"></div>
                 </div>
 
-                <!-- Сітка 3х2 з 6 іконками та підписами -->
                 <div class="combo-grid">
                     <div class="combo-item-card" id="card-seed" onclick="selectComboItem('seed')">
                         <div class="combo-item-icon">🌾</div>
@@ -664,7 +659,7 @@
                         <li>Натисніть кнопку «Вивести на гаманець» (Мін. 5 USDT).</li>
                         <li>Підтвердіть дію. Ваш баланс автоматично скинеться, а система зареєструє заявку на сервері.</li>
                         <li>Очікуйте переказу на ваш гаманець. Заявки обробляються автоматично в порядку черги.</li>
-                        <li style="color: #ffcc00; font-weight: bold; list-style-type: '⚠️ ';">ВАЖЛИВО: Для підключення використовуйте додаток <u>Tonkeeper</u>. Официальный Telegram Wallet всередині апок може працювати з перебоями!</li>
+                        <li style="color: #ffcc00; font-weight: bold; list-style-type: '⚠️ ';">ВАЖЛИВО: Для підключення використовуйте додаток <u>Tonkeeper</u>. Офіційний Telegram Wallet всередині апок може працювати з перебоями!</li>
                     </ol>
                 </div>
             </div>
@@ -712,14 +707,12 @@
         
         <canvas id="flappy-canvas" width="360" height="540"></canvas>
 
-        <!-- Екран початку гри / Меню всередині модалки -->
         <div id="flappy-start-screen" class="game-overlay-panel">
             <h3 style="color: var(--neon-green); margin-bottom: 10px;">Flappy WoodGrow</h3>
             <p style="font-size: 13px; color: #a1a1aa; margin-bottom: 20px;">Натискайте на екран, щоб монета підстрибувала та оминала дерева!</p>
             <button class="btn" style="background: var(--gold-gradient); color: #000;" onclick="startFlappyGame()">🎮 Старт</button>
         </div>
 
-        <!-- Екран Game Over -->
         <div id="flappy-gameover-screen" class="game-overlay-panel" style="display: none;">
             <h3 style="color: #ff4444; margin-bottom: 5px;">ГРУ ЗАВЕРШЕНО</h3>
             <p style="font-size: 14px; color: #fff; margin: 5px 0;">Рахунок: <span id="flappy-final-score" style="color: var(--neon-green); font-weight: bold;">0</span></p>
@@ -751,7 +744,6 @@
         </div>
     </div>
 
-    <!-- Нова панель навігації у потрібному порядку -->
     <div class="nav-bar">
         <div class="nav-item active" onclick="switchTab('main', this)" id="nav-btn-main">
             <span class="nav-icon">🏠</span>Головна
@@ -1912,14 +1904,14 @@
         }
 
         // ==========================================
-        // ЛОГІКА ІГРОВОГО РУШИЯ FLAPPY WOODGROW COIN
+        // ЛОГІКА ІГРОВОГО РУШИЯ FLAPPY WOODGROW COIN (Зменшена швидкість)
         // ==========================================
         let flappyCanvas, flappyCtx;
         let gameRunning = false;
-        let bird = { x: 50, y: 200, radius: 18, gravity: 0.5, lift: -8, velocity: 0 };
+        let bird = { x: 80, y: 270, radius: 20, gravity: 0.45, lift: -7.5, velocity: 0, rotation: 0 };
         let pipes = [];
-        let pipeWidth = 55;
-        let pipeGap = 150;
+        let pipeWidth = 65;
+        let pipeGap = 175; // Збільшений зручний прохід між колонами
         let frameCount = 0;
         let currentScore = 0;
         let canRevive = true;
@@ -1937,17 +1929,26 @@
         function closeFlappyGame() {
             gameRunning = false;
             document.getElementById('flappy-game-modal').classList.remove('active');
-            // Оновлюємо дані на головному екрані гри
             document.getElementById('user-game-points').innerText = gamePoints;
         }
 
         function drawInitialScreen() {
             flappyCtx.clearRect(0, 0, flappyCanvas.width, flappyCanvas.height);
-            // Малюємо фон
+            
+            let bgGrad = flappyCtx.createRadialGradient(flappyCanvas.width/2, flappyCanvas.height/2, 20, flappyCanvas.width/2, flappyCanvas.height/2, 250);
+            bgGrad.addColorStop(0, "#163820");
+            bgGrad.addColorStop(1, "#07140a");
+            flappyCtx.fillStyle = bgGrad;
+            flappyCtx.fillRect(0, 0, flappyCanvas.width, flappyCanvas.height);
+
             flappyCtx.fillStyle = "#0df25d";
-            flappyCtx.font = "20px sans-serif";
+            flappyCtx.font = "bold 22px sans-serif";
             flappyCtx.textAlign = "center";
-            flappyCtx.fillText("Flappy WoodGrow Coin", flappyCanvas.width / 2, flappyCanvas.height / 2 - 40);
+            flappyCtx.fillText("Flappy WoodGrow Coin", flappyCanvas.width / 2, flappyCanvas.height / 2 - 30);
+            
+            flappyCtx.fillStyle = "#d4af37";
+            flappyCtx.font = "14px sans-serif";
+            flappyCtx.fillText("Натисніть «Старт» нижче", flappyCanvas.width / 2, flappyCanvas.height / 2 + 10);
         }
 
         function startFlappyGame() {
@@ -1960,10 +1961,10 @@
             canRevive = true;
             gameRunning = true;
             
-            // Клік по холсту для стрибка монети
             flappyCanvas.onclick = () => {
                 if (gameRunning) {
                     bird.velocity = bird.lift;
+                    bird.rotation = -0.3;
                 }
             };
             
@@ -1975,38 +1976,27 @@
 
             flappyCtx.clearRect(0, 0, flappyCanvas.width, flappyCanvas.height);
 
-            // Гравітація та рух птиці
+            let bgGrad = flappyCtx.createLinearGradient(0, 0, 0, flappyCanvas.height);
+            bgGrad.addColorStop(0, "#0e2914");
+            bgGrad.addColorStop(1, "#050f08");
+            flappyCtx.fillStyle = bgGrad;
+            flappyCtx.fillRect(0, 0, flappyCanvas.width, flappyCanvas.height);
+
             bird.velocity += bird.gravity;
             bird.y += bird.velocity;
+            if (bird.rotation < 0.5) bird.rotation += 0.03;
 
-            // Межі екрану
-            if (bird.y + bird.radius >= flappyCanvas.height - 20 || bird.y - bird.radius <= 0) {
+            if (bird.y + bird.radius >= flappyCanvas.height - 15 || bird.y - bird.radius <= 0) {
                 gameOverFlappy();
                 return;
             }
 
-            // Малюємо монету-персонажа (золотий круг із зеленим паростком)
-            flappyCtx.beginPath();
-            flappyCtx.arc(bird.x, bird.y, bird.radius, 0, Math.PI * 2);
-            flappyCtx.fillStyle = "#d4af37";
-            flappyCtx.fill();
-            flappyCtx.lineWidth = 3;
-            flappyCtx.strokeStyle = "#0df25d";
-            flappyCtx.stroke();
-            flappyCtx.closePath();
-
-            // Внутрішній значок дерева/паростка
-            flappyCtx.fillStyle = "#0a1f0f";
-            flappyCtx.font = "14px sans-serif";
-            flappyCtx.textAlign = "center";
-            flappyCtx.textBaseline = "middle";
-            flappyCtx.fillText("🌱", bird.x, bird.y);
-
-            // Генерація та рух труб (дерев'яних колон)
-            if (frameCount % 90 === 0) {
-                let minHeight = 50;
+            // Зменшена швидкість появи труб та їх руху
+            if (frameCount % 120 === 0) {
+                let minHeight = 60;
                 let maxHeight = flappyCanvas.height - pipeGap - 100;
                 let topHeight = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
+                
                 pipes.push({
                     x: flappyCanvas.width,
                     top: topHeight,
@@ -2016,20 +2006,11 @@
             }
 
             for (let i = pipes.length - 1; i >= 0; i--) {
-                pipes[i].x -= 2.5;
+                pipes[i].x -= 1.8; // Зменшена швидкість руху колони (було 2.8, стало 1.8 для комфорту)
 
-                // Малюємо верхню колону
-                flappyCtx.fillStyle = "#5c4033";
-                flappyCtx.fillRect(pipes[i].x, 0, pipeWidth, pipes[i].top);
-                flappyCtx.strokeStyle = "#0df25d";
-                flappyCtx.lineWidth = 2;
-                flappyCtx.strokeRect(pipes[i].x, 0, pipeWidth, pipes[i].top);
+                drawWoodPipe(pipes[i].x, 0, pipeWidth, pipes[i].top, true);
+                drawWoodPipe(pipes[i].x, flappyCanvas.height - pipes[i].bottom, pipeWidth, pipes[i].bottom, false);
 
-                // Малюємо нижню колону
-                flappyCtx.fillRect(pipes[i].x, flappyCanvas.height - pipes[i].bottom, pipeWidth, pipes[i].bottom);
-                flappyCtx.strokeRect(pipes[i].x, flappyCanvas.height - pipes[i].bottom, pipeWidth, pipes[i].bottom);
-
-                // Перевірка зіткнень (колізій)
                 if (
                     bird.x + bird.radius > pipes[i].x &&
                     bird.x - bird.radius < pipes[i].x + pipeWidth &&
@@ -2039,26 +2020,81 @@
                     return;
                 }
 
-                // Зарахування балів
                 if (!pipes[i].passed && pipes[i].x + pipeWidth < bird.x) {
                     currentScore++;
                     pipes[i].passed = true;
                 }
 
-                // Видалення старих труб
                 if (pipes[i].x + pipeWidth < 0) {
                     pipes.splice(i, 1);
                 }
             }
 
-            // Вивід поточного рахунку на холст
-            flappyCtx.fillStyle = "#ffffff";
-            flappyCtx.font = "bold 26px sans-serif";
+            flappyCtx.save();
+            flappyCtx.translate(bird.x, bird.y);
+            flappyCtx.rotate(bird.rotation);
+
+            flappyCtx.shadowBlur = 15;
+            flappyCtx.shadowColor = "#0df25d";
+
+            let coinGrad = flappyCtx.createRadialGradient(-5, -5, 2, 0, 0, bird.radius);
+            coinGrad.addColorStop(0, "#ffe066");
+            coinGrad.addColorStop(0.5, "#d4af37");
+            coinGrad.addColorStop(1, "#8a6508");
+            
+            flappyCtx.beginPath();
+            flappyCtx.arc(0, 0, bird.radius, 0, Math.PI * 2);
+            flappyCtx.fillStyle = coinGrad;
+            flappyCtx.fill();
+            flappyCtx.lineWidth = 2.5;
+            flappyCtx.strokeStyle = "#0df25d";
+            flappyCtx.stroke();
+            flappyCtx.closePath();
+
+            flappyCtx.shadowBlur = 0;
+            flappyCtx.font = "18px sans-serif";
             flappyCtx.textAlign = "center";
-            flappyCtx.fillText(currentScore, flappyCanvas.width / 2, 40);
+            flappyCtx.textBaseline = "middle";
+            flappyCtx.fillText("🌱", 0, 1);
+
+            flappyCtx.restore();
+
+            flappyCtx.fillStyle = "#ffffff";
+            flappyCtx.font = "900 32px sans-serif";
+            flappyCtx.textAlign = "center";
+            flappyCtx.shadowBlur = 10;
+            flappyCtx.shadowColor = "rgba(0,0,0,0.8)";
+            flappyCtx.fillText(currentScore, flappyCanvas.width / 2, 50);
+            flappyCtx.shadowBlur = 0;
 
             frameCount++;
             requestAnimationFrame(loopFlappy);
+        }
+
+        function drawWoodPipe(x, y, w, h, isTop) {
+            let woodGrad = flappyCtx.createLinearGradient(x, y, x + w, y);
+            woodGrad.addColorStop(0, "#4a2e1b");
+            woodGrad.addColorStop(0.5, "#6b4423");
+            woodGrad.addColorStop(1, "#3d2413");
+
+            flappyCtx.fillStyle = woodGrad;
+            flappyCtx.fillRect(x, y, w, h);
+
+            flappyCtx.strokeStyle = "#0df25d";
+            flappyCtx.lineWidth = 2;
+            flappyCtx.strokeRect(x, y, w, h);
+
+            flappyCtx.strokeStyle = "rgba(13, 242, 93, 0.3)";
+            flappyCtx.lineWidth = 1;
+            flappyCtx.beginPath();
+            if (isTop) {
+                flappyCtx.moveTo(x + w / 2, y + h - 20);
+                flappyCtx.lineTo(x + w / 2, y + h);
+            } else {
+                flappyCtx.moveTo(x + w / 2, y);
+                flappyCtx.lineTo(x + w / 2, y + 20);
+            }
+            flappyCtx.stroke();
         }
 
         async function gameOverFlappy() {
@@ -2077,7 +2113,6 @@
 
             document.getElementById('flappy-gameover-screen').style.display = 'flex';
 
-            // Направляємо зароблені бали на бекенд/в пул балів
             if (currentScore > 0) {
                 gamePoints += currentScore;
                 await sendGameScoreToServer(currentScore);
@@ -2106,6 +2141,7 @@
         }
 
         function reviveWithAd() {
+            const AdVideoController = window.Adsgram ? window.Adsgram.init({ blockId: "35910" }) : null;
             if (!AdVideoController) {
                 alert("Рекламний SDK не завантажено.");
                 return;
@@ -2117,11 +2153,14 @@
                     document.getElementById('flappy-gameover-screen').style.display = 'none';
                     bird.y = flappyCanvas.height / 2;
                     bird.velocity = 0;
-                    pipes = []; // Очищаємо екран від небезпечних труб
+                    pipes = []; 
                     gameRunning = true;
                     
                     flappyCanvas.onclick = () => {
-                        if (gameRunning) bird.velocity = bird.lift;
+                        if (gameRunning) {
+                            bird.velocity = bird.lift;
+                            bird.rotation = -0.3;
+                        }
                     };
                     loopFlappy();
                 })
