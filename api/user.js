@@ -67,7 +67,6 @@ export default async function handler(req, res) {
         let currentDailyCombo = comboSnapshot.val();
 
         if (!currentDailyCombo) {
-            // Рандомно обираємо 3 унікальні елементи з 6
             let shuffled = [...COMBO_ITEMS].sort(() => 0.5 - Math.random());
             currentDailyCombo = shuffled.slice(0, 3);
             await dailyComboRef.set(currentDailyCombo);
@@ -78,7 +77,6 @@ export default async function handler(req, res) {
         const userSnapshot = await userRef.once('value');
         let user = userSnapshot.val();
 
-        // Якщо користувача немає в базі, створюємо його
         if (!user) {
             let referrerId = null;
             const urlParams = new URLSearchParams(initData);
@@ -91,6 +89,7 @@ export default async function handler(req, res) {
                 id: userId, 
                 role: 'user', 
                 balance: 0.0000, 
+                game_points: 0, // Додано ігрові бали за замовчуванням
                 referred_by: referrerId, 
                 ref_bonus: 0.0000,
                 last_ad_date: todayStr,
@@ -146,20 +145,19 @@ export default async function handler(req, res) {
             totalReferrals = referralsSnapshot.numChildren();
         }
 
-        // Визначаємо роль користувача з бази даних
         const userRole = user.role || 'user';
 
-        // Якщо користувач є адміном, передаємо йому правильне комбо на сьогодні для відображення в панелі
         let adminDailyCombo = null;
         if (userRole === 'admin' || userId === "6043278492") {
             adminDailyCombo = currentDailyCombo;
         }
 
-        // Повертаємо ПОВНИЙ набір даних на фронтенд
+        // Повертаємо ПОВНИЙ набір даних на фронтенд (включно з game_points)
         return res.status(200).json({
             success: true,
             role: userRole, 
             balance: parseFloat(user.balance) || 0.0000,
+            game_points: parseInt(user.game_points) || 0, // <--- ОСЬ ЦЕЙ РЯДОК ВИРІШУЄ ПРОБЛЕМУ
             ref_bonus: parseFloat(user.ref_bonus) || 0.0000,
             ref_count: totalReferrals,
             viewCounts: viewCounts,
