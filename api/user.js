@@ -89,7 +89,9 @@ export default async function handler(req, res) {
                 id: userId, 
                 role: 'user', 
                 balance: 0.0000, 
-                game_points: 0, // Ігрові бали WGC за замовчуванням
+                game_points: 0, // Бали WGC
+                game_attempts: 5, // Змінна для щоденних спроб у грі
+                last_game_date: todayStr,
                 referred_by: referrerId, 
                 ref_bonus: 0.0000,
                 last_ad_date: todayStr,
@@ -107,7 +109,19 @@ export default async function handler(req, res) {
             }
         }
 
-        // 4. Обробка логіки зміни дня для лічильників реклами
+        // 4. Перевірка оновлення спроб при наступному дні
+        let gameAttempts = user.game_attempts !== undefined ? user.game_attempts : 5;
+        let lastGameDate = user.last_game_date || '';
+
+        if (lastGameDate !== todayStr) {
+            gameAttempts = 5; // Оновлюємо до 5 спроб на новий день
+            await userRef.update({
+                game_attempts: 5,
+                last_game_date: todayStr
+            });
+        }
+
+        // 5. Обробка логіки зміни дня для лічильників реклами
         let viewCounts = user.viewCounts || { service1: 0, service2: 0, support: 0 };
         let lastAdDate = user.last_ad_date || '';
 
@@ -115,7 +129,7 @@ export default async function handler(req, res) {
             viewCounts = { service1: 0, service2: 0, support: 0 };
         }
 
-        // 5. Перевірка статусу щоденного чекіну
+        // 6. Перевірка статусу щоденного чекіну
         const lastStreakDate = user.last_streak_date || '';
         let currentStreakDay = user.streak_day || 1;
 
@@ -132,11 +146,11 @@ export default async function handler(req, res) {
 
         const streakClaimedToday = (lastStreakDate === todayStr);
 
-        // 6. Перевірка статусу щоденного комбо
+        // 7. Перевірка статусу щоденного комбо
         const lastComboDate = user.last_combo_date || '';
         const comboTriedToday = (lastComboDate === todayStr);
 
-        // 7. Підрахунок кількості рефералів
+        // 8. Підрахунок кількості рефералів
         const referralsRef = db.ref(`referrals/${userId}`);
         const referralsSnapshot = await referralsRef.once('value');
         let totalReferrals = 0;
@@ -152,12 +166,13 @@ export default async function handler(req, res) {
             adminDailyCombo = currentDailyCombo;
         }
 
-        // Повертаємо ПОВНИЙ набір даних на фронтенд (включно з game_points / WGC)
+        // Повертаємо ПОВНИЙ набір даних на фронтенд (включно з game_attempts)
         return res.status(200).json({
             success: true,
             role: userRole, 
             balance: parseFloat(user.balance) || 0.0000,
             game_points: parseInt(user.game_points) || 0,
+            game_attempts: parseInt(gameAttempts) || 5,
             ref_bonus: parseFloat(user.ref_bonus) || 0.0000,
             ref_count: totalReferrals,
             viewCounts: viewCounts,
