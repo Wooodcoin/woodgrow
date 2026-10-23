@@ -446,6 +446,41 @@
             padding: 8px;
             border-radius: 8px;
         }
+
+        /* Стилі для ігрового модуля Flappy */
+        #flappy-game-modal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: #0a1f0f;
+            z-index: 4000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        #flappy-game-modal.active { display: flex; }
+        #flappy-canvas {
+            background: radial-gradient(circle at 50% 30%, #12351d 0%, #050d08 100%);
+            border: 2px solid var(--gold-color);
+            border-radius: 16px;
+            box-shadow: 0 0 25px rgba(13, 242, 93, 0.3);
+            cursor: pointer;
+        }
+        .game-overlay-panel {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(10, 31, 15, 0.9);
+            border: 2px solid var(--gold-color);
+            border-radius: 16px;
+            padding: 20px;
+            width: 80%;
+            max-width: 300px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.4);
+        }
     </style>
 </head>
 <body>
@@ -629,7 +664,7 @@
                         <li>Натисніть кнопку «Вивести на гаманець» (Мін. 5 USDT).</li>
                         <li>Підтвердіть дію. Ваш баланс автоматично скинеться, а система зареєструє заявку на сервері.</li>
                         <li>Очікуйте переказу на ваш гаманець. Заявки обробляються автоматично в порядку черги.</li>
-                        <li style="color: #ffcc00; font-weight: bold; list-style-type: '⚠️ ';">ВАЖЛИВО: Для підключення використовуйте додаток <u>Tonkeeper</u>. Офіційний Telegram Wallet всередині апок може працювати з перебоями!</li>
+                        <li style="color: #ffcc00; font-weight: bold; list-style-type: '⚠️ ';">ВАЖЛИВО: Для підключення використовуйте додаток <u>Tonkeeper</u>. Официальный Telegram Wallet всередині апок може працювати з перебоями!</li>
                     </ol>
                 </div>
             </div>
@@ -665,6 +700,33 @@
                 </p>
                 <button class="btn" onclick="tg.openTelegramLink('https://t.me/+YMHbK3uysIwzMGI6')">💬 <span id="txt-btn-join-chat">Увійти в чат</span></button>
             </div>
+        </div>
+    </div>
+
+    <!-- Модальне вікно гри Flappy WoodGrow Coin -->
+    <div id="flappy-game-modal">
+        <div style="position: absolute; top: 15px; left: 15px; right: 15px; display: flex; justify-content: space-between; align-items: center; z-index: 4100;">
+            <div style="color: var(--neon-green); font-weight: bold; font-size: 16px;">🪙 Flappy WoodGrow</div>
+            <button onclick="closeFlappyGame()" style="background: rgba(255,255,255,0.1); border: 1px solid var(--gold-color); color: #fff; border-radius: 50%; width: 35px; height: 35px; font-size: 18px; cursor: pointer;">✕</button>
+        </div>
+        
+        <canvas id="flappy-canvas" width="360" height="540"></canvas>
+
+        <!-- Екран початку гри / Меню всередині модалки -->
+        <div id="flappy-start-screen" class="game-overlay-panel">
+            <h3 style="color: var(--neon-green); margin-bottom: 10px;">Flappy WoodGrow</h3>
+            <p style="font-size: 13px; color: #a1a1aa; margin-bottom: 20px;">Натискайте на екран, щоб монета підстрибувала та оминала дерева!</p>
+            <button class="btn" style="background: var(--gold-gradient); color: #000;" onclick="startFlappyGame()">🎮 Старт</button>
+        </div>
+
+        <!-- Екран Game Over -->
+        <div id="flappy-gameover-screen" class="game-overlay-panel" style="display: none;">
+            <h3 style="color: #ff4444; margin-bottom: 5px;">ГРУ ЗАВЕРШЕНО</h3>
+            <p style="font-size: 14px; color: #fff; margin: 5px 0;">Рахунок: <span id="flappy-final-score" style="color: var(--neon-green); font-weight: bold;">0</span></p>
+            <p style="font-size: 12px; color: var(--gold-color); margin-bottom: 15px;">Накопичено балів за сесію: +<span id="flappy-earned-pts">0</span> PTS</p>
+            
+            <button class="btn" style="background: linear-gradient(135deg, #00f5d4 0%, #00bbf9 100%); color: #000; margin-bottom: 8px;" onclick="reviveWithAd()" id="btn-revive-ad">🎥 Одне життя за рекламу</button>
+            <button class="btn" style="background: var(--gold-gradient); color: #000;" onclick="resetFlappyGame()">🔄 Грати знову</button>
         </div>
     </div>
 
@@ -732,7 +794,7 @@
         let selectedComboSlots = [null, null, null];
         let activeLinkTimers = {};
         let currentLang = 'en';
-        let gamePoints = 0; // Накопичені бали мініігор
+        let gamePoints = 0; 
 
         const comboItemDetails = {
             seed: { icon: '🌾', names: { uk: 'Зерно', en: 'Seed', ru: 'Зерно' } },
@@ -1038,7 +1100,6 @@
             document.getElementById('txt-modal-success-title').innerText = t.modal_success_title;
             document.getElementById('txt-modal-success-desc').innerText = t.modal_success_desc;
 
-            // Переклади для вкладки Ігор
             if(document.getElementById('txt-game-title')) {
                 document.getElementById('txt-game-title').innerText = t.game_title;
                 document.getElementById('txt-game-desc').innerText = t.game_desc;
@@ -1850,9 +1911,228 @@
             }
         }
 
-        // Заглушка для відкриття гри (реалізуємо на наступних кроках)
+        // ==========================================
+        // ЛОГІКА ІГРОВОГО РУШИЯ FLAPPY WOODGROW COIN
+        // ==========================================
+        let flappyCanvas, flappyCtx;
+        let gameRunning = false;
+        let bird = { x: 50, y: 200, radius: 18, gravity: 0.5, lift: -8, velocity: 0 };
+        let pipes = [];
+        let pipeWidth = 55;
+        let pipeGap = 150;
+        let frameCount = 0;
+        let currentScore = 0;
+        let canRevive = true;
+
         function openFlappyGame() {
-            alert("🎮 Модуль гри Flappy WoodGrow Coin розгортається на наступному етапі!");
+            document.getElementById('flappy-game-modal').classList.add('active');
+            document.getElementById('flappy-start-screen').style.display = 'flex';
+            document.getElementById('flappy-gameover-screen').style.display = 'none';
+            
+            flappyCanvas = document.getElementById('flappy-canvas');
+            flappyCtx = flappyCanvas.getContext('2d');
+            drawInitialScreen();
+        }
+
+        function closeFlappyGame() {
+            gameRunning = false;
+            document.getElementById('flappy-game-modal').classList.remove('active');
+            // Оновлюємо дані на головному екрані гри
+            document.getElementById('user-game-points').innerText = gamePoints;
+        }
+
+        function drawInitialScreen() {
+            flappyCtx.clearRect(0, 0, flappyCanvas.width, flappyCanvas.height);
+            // Малюємо фон
+            flappyCtx.fillStyle = "#0df25d";
+            flappyCtx.font = "20px sans-serif";
+            flappyCtx.textAlign = "center";
+            flappyCtx.fillText("Flappy WoodGrow Coin", flappyCanvas.width / 2, flappyCanvas.height / 2 - 40);
+        }
+
+        function startFlappyGame() {
+            document.getElementById('flappy-start-screen').style.display = 'none';
+            bird.y = flappyCanvas.height / 2;
+            bird.velocity = 0;
+            pipes = [];
+            currentScore = 0;
+            frameCount = 0;
+            canRevive = true;
+            gameRunning = true;
+            
+            // Клік по холсту для стрибка монети
+            flappyCanvas.onclick = () => {
+                if (gameRunning) {
+                    bird.velocity = bird.lift;
+                }
+            };
+            
+            loopFlappy();
+        }
+
+        function loopFlappy() {
+            if (!gameRunning) return;
+
+            flappyCtx.clearRect(0, 0, flappyCanvas.width, flappyCanvas.height);
+
+            // Гравітація та рух птиці
+            bird.velocity += bird.gravity;
+            bird.y += bird.velocity;
+
+            // Межі екрану
+            if (bird.y + bird.radius >= flappyCanvas.height - 20 || bird.y - bird.radius <= 0) {
+                gameOverFlappy();
+                return;
+            }
+
+            // Малюємо монету-персонажа (золотий круг із зеленим паростком)
+            flappyCtx.beginPath();
+            flappyCtx.arc(bird.x, bird.y, bird.radius, 0, Math.PI * 2);
+            flappyCtx.fillStyle = "#d4af37";
+            flappyCtx.fill();
+            flappyCtx.lineWidth = 3;
+            flappyCtx.strokeStyle = "#0df25d";
+            flappyCtx.stroke();
+            flappyCtx.closePath();
+
+            // Внутрішній значок дерева/паростка
+            flappyCtx.fillStyle = "#0a1f0f";
+            flappyCtx.font = "14px sans-serif";
+            flappyCtx.textAlign = "center";
+            flappyCtx.textBaseline = "middle";
+            flappyCtx.fillText("🌱", bird.x, bird.y);
+
+            // Генерація та рух труб (дерев'яних колон)
+            if (frameCount % 90 === 0) {
+                let minHeight = 50;
+                let maxHeight = flappyCanvas.height - pipeGap - 100;
+                let topHeight = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
+                pipes.push({
+                    x: flappyCanvas.width,
+                    top: topHeight,
+                    bottom: flappyCanvas.height - topHeight - pipeGap,
+                    passed: false
+                });
+            }
+
+            for (let i = pipes.length - 1; i >= 0; i--) {
+                pipes[i].x -= 2.5;
+
+                // Малюємо верхню колону
+                flappyCtx.fillStyle = "#5c4033";
+                flappyCtx.fillRect(pipes[i].x, 0, pipeWidth, pipes[i].top);
+                flappyCtx.strokeStyle = "#0df25d";
+                flappyCtx.lineWidth = 2;
+                flappyCtx.strokeRect(pipes[i].x, 0, pipeWidth, pipes[i].top);
+
+                // Малюємо нижню колону
+                flappyCtx.fillRect(pipes[i].x, flappyCanvas.height - pipes[i].bottom, pipeWidth, pipes[i].bottom);
+                flappyCtx.strokeRect(pipes[i].x, flappyCanvas.height - pipes[i].bottom, pipeWidth, pipes[i].bottom);
+
+                // Перевірка зіткнень (колізій)
+                if (
+                    bird.x + bird.radius > pipes[i].x &&
+                    bird.x - bird.radius < pipes[i].x + pipeWidth &&
+                    (bird.y - bird.radius < pipes[i].top || bird.y + bird.radius > flappyCanvas.height - pipes[i].bottom)
+                ) {
+                    gameOverFlappy();
+                    return;
+                }
+
+                // Зарахування балів
+                if (!pipes[i].passed && pipes[i].x + pipeWidth < bird.x) {
+                    currentScore++;
+                    pipes[i].passed = true;
+                }
+
+                // Видалення старих труб
+                if (pipes[i].x + pipeWidth < 0) {
+                    pipes.splice(i, 1);
+                }
+            }
+
+            // Вивід поточного рахунку на холст
+            flappyCtx.fillStyle = "#ffffff";
+            flappyCtx.font = "bold 26px sans-serif";
+            flappyCtx.textAlign = "center";
+            flappyCtx.fillText(currentScore, flappyCanvas.width / 2, 40);
+
+            frameCount++;
+            requestAnimationFrame(loopFlappy);
+        }
+
+        async function gameOverFlappy() {
+            gameRunning = false;
+            flappyCanvas.onclick = null;
+
+            document.getElementById('flappy-final-score').innerText = currentScore;
+            document.getElementById('flappy-earned-pts').innerText = currentScore;
+            
+            const reviveBtn = document.getElementById('btn-revive-ad');
+            if (canRevive) {
+                reviveBtn.style.display = 'block';
+            } else {
+                reviveBtn.style.display = 'none';
+            }
+
+            document.getElementById('flappy-gameover-screen').style.display = 'flex';
+
+            // Направляємо зароблені бали на бекенд/в пул балів
+            if (currentScore > 0) {
+                gamePoints += currentScore;
+                await sendGameScoreToServer(currentScore);
+            }
+        }
+
+        async function sendGameScoreToServer(scoreEarned) {
+            try {
+                const res = await fetch('/api/game-score', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: userId,
+                        pointsEarned: scoreEarned,
+                        initData: window.Telegram.WebApp.initData
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    gamePoints = data.totalGamePoints;
+                    document.getElementById('user-game-points').innerText = gamePoints;
+                }
+            } catch (err) {
+                console.error("Error saving game score:", err);
+            }
+        }
+
+        function reviveWithAd() {
+            if (!AdVideoController) {
+                alert("Рекламний SDK не завантажено.");
+                return;
+            }
+
+            AdVideoController.show()
+                .then(() => {
+                    canRevive = false;
+                    document.getElementById('flappy-gameover-screen').style.display = 'none';
+                    bird.y = flappyCanvas.height / 2;
+                    bird.velocity = 0;
+                    pipes = []; // Очищаємо екран від небезпечних труб
+                    gameRunning = true;
+                    
+                    flappyCanvas.onclick = () => {
+                        if (gameRunning) bird.velocity = bird.lift;
+                    };
+                    loopFlappy();
+                })
+                .catch(() => {
+                    alert(translations[currentLang].ads_error);
+                });
+        }
+
+        function resetFlappyGame() {
+            document.getElementById('flappy-gameover-screen').style.display = 'none';
+            startFlappyGame();
         }
 
         async function startApp() {
