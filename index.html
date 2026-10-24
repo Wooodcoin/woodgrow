@@ -2040,6 +2040,7 @@
         let frameCount = 0;
         let currentScore = 0;
         let canRevive = true;
+        let flappyStartTime = 0;
 
         function openFlappyGame() {
             if (gameAttemptsLeft <= 0) {
@@ -2121,6 +2122,7 @@
             localStorage.setItem('wg_game_attempts', gameAttemptsLeft.toString());
             document.getElementById('game-attempts-left').innerText = gameAttemptsLeft;
 
+            flappyStartTime = Date.now();
             if (typeof firebase !== 'undefined' && firebase.analytics) {
                 firebase.analytics().logEvent('game_started', { remaining_attempts: gameAttemptsLeft });
             }
@@ -2289,13 +2291,14 @@
 
             document.getElementById('flappy-gameover-screen').style.display = 'flex';
 
+            let durationSec = Math.floor((Date.now() - flappyStartTime) / 1000);
             if (currentScore > 0) {
                 gamePoints += currentScore;
-                await sendGameScoreToServer(currentScore);
+                await sendGameScoreToServer(currentScore, durationSec, 'flappy');
             }
         }
 
-        async function sendGameScoreToServer(scoreEarned) {
+        async function sendGameScoreToServer(scoreEarned, durationSec, gameName) {
             try {
                 const res = await fetch('/api/game-score', {
                     method: 'POST',
@@ -2303,6 +2306,8 @@
                     body: JSON.stringify({
                         userId: userId,
                         pointsEarned: scoreEarned,
+                        durationSeconds: durationSec,
+                        gameName: gameName,
                         initData: window.Telegram.WebApp.initData
                     })
                 });
@@ -2548,10 +2553,11 @@
             document.getElementById('snake-final-score').innerText = snakeScore;
             document.getElementById('snake-gameover-screen').style.display = 'flex';
 
+            let durationSec = Math.floor((Date.now() - snakeGameStartTime) / 1000);
             if (snakeScore > 0) {
                 gamePoints += snakeScore;
                 document.getElementById('user-game-points').innerText = gamePoints;
-                await sendGameScoreToServer(snakeScore); 
+                await sendGameScoreToServer(snakeScore, durationSec, 'snake'); 
             }
         }
 
