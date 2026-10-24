@@ -1,7 +1,7 @@
 import admin from 'firebase-admin';
 import crypto from 'crypto';
 
-// Ініціалізуємо Firebase Admin SDK (як і в інших файлах)
+// Ініціалізуємо Firebase Admin SDK
 if (!admin.apps.length) {
     try {
         const rawKey = process.env.FIREBASE_SERVICE_ACCOUNT;
@@ -25,7 +25,7 @@ const db = admin.database();
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
     
-    const { userId, pointsEarned, initData } = req.body;
+    const { userId, pointsEarned, durationSeconds, gameName, initData } = req.body;
     if (!userId || pointsEarned === undefined || !initData) {
         return res.status(400).json({ error: 'Missing parameters' });
     }
@@ -65,24 +65,34 @@ export default async function handler(req, res) {
 
         const userData = userSnapshot.val();
         let currentGamePoints = userData.game_points || 0;
+        let totalPlayTime = userData.total_play_time_seconds || 0;
+        let totalGamesPlayed = userData.total_games_played || 0;
         
         // Захист від неадекватних великих накруток за один запит
         const parsedPoints = parseInt(pointsEarned, 10);
-        if (isNaN(parsedPoints) || parsedPoints <= 0 || parsedPoints > 500) {
+        if (isNaN(parsedPoints) || parsedPoints < 0 || parsedPoints > 500) {
             return res.status(400).json({ error: 'Invalid score value' });
         }
 
-        // Додаємо нові бали WGC до поточних у базі
         currentGamePoints += parsedPoints;
+        totalGamesPlayed += 1;
 
-        // Зберігаємо оновлені бали WGC у Firebase
+        if (durationSeconds && !isNaN(durationSeconds)) {
+            totalPlayTime += parseInt(durationSeconds, 10);
+        }
+
+        // Зберігаємо оновлені бали WGC та статистику ігор у Firebase
         await userRef.update({
-            game_points: currentGamePoints
+            game_points: currentGamePoints,
+            total_play_time_seconds: totalPlayTime,
+            total_games_played: totalGamesPlayed,
+            last_game_played_at: Date.now()
         });
 
         return res.status(200).json({
             success: true,
-            totalGamePoints: currentGamePoints
+            totalGamePoints: currentGamePoints,
+            totalPlayTimeSeconds: totalPlayTime
         });
 
     } catch (e) {
