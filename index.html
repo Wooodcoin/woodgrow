@@ -595,6 +595,21 @@
                 <button class="btn" style="background: var(--gold-gradient); color: #000; margin-bottom: 10px;" onclick="openFlappyGame()" id="btn-play-game">🎮 Грати зараз</button>
                 <button class="btn" style="background: linear-gradient(135deg, #00f5d4 0%, #00bbf9 100%); color: #000;" onclick="exchangeGamePoints()" id="btn-exchange-points">💎 Обміняти WGC на USDT</button>
             </div>
+
+            <!-- Карточка гри: Snake -->
+            <div class="card" style="border: 2px solid var(--neon-aqua); background: rgba(0, 245, 212, 0.05); margin-top: 15px;">
+                <div style="font-size: 45px; margin-bottom: 5px;">🐍</div>
+                <h3 id="txt-snake-title" style="font-size: 18px; color: var(--neon-aqua);">WoodGrow Snake</h3>
+                <p style="color: #a1a1aa; font-size: 13px; margin-bottom: 15px;" id="txt-snake-desc">
+                    Класична змійка у сучасному стилі! Збирайте смаколики, зростайте та заробляйте WGC бали.
+                </p>
+                
+                <div style="background: rgba(0,0,0,0.4); padding: 10px; border-radius: 10px; margin-bottom: 15px; border: 1px solid rgba(0,245,212,0.3);">
+                    <div style="font-size: 12px; color: var(--neon-aqua); font-weight: bold;" id="txt-snake-attempts-label">Спроби у Змійку сьогодні: <span id="snake-attempts-left">5</span> / 5</div>
+                </div>
+
+                <button class="btn" style="background: linear-gradient(135deg, #00f5d4 0%, #00bbf9 100%); color: #000; margin-bottom: 10px;" onclick="openSnakeGame()" id="btn-play-snake">🎮 Грати у Змійку</button>
+            </div>
         </div>
 
         <!-- Вкладка: Завдання -->
@@ -725,6 +740,38 @@
         </div>
     </div>
 
+    <!-- Модальне вікно гри WoodGrow Snake -->
+    <div id="snake-game-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #0a1f0f; z-index: 4000; display: none; flex-direction: column; align-items: center; justify-content: center;">
+        <div style="position: absolute; top: 15px; left: 15px; right: 15px; display: flex; justify-content: space-between; align-items: center; z-index: 4100;">
+            <div style="color: var(--neon-aqua); font-weight: bold; font-size: 16px;">🐍 WoodGrow Snake</div>
+            <button onclick="closeSnakeGame()" style="background: rgba(255,255,255,0.1); border: 1px solid var(--neon-aqua); color: #fff; border-radius: 50%; width: 35px; height: 35px; font-size: 18px; cursor: pointer;">✕</button>
+        </div>
+        
+        <canvas id="snake-canvas" width="360" height="360" style="background: #050d08; border: 2px solid var(--neon-aqua); border-radius: 16px; box-shadow: 0 0 25px rgba(0, 245, 212, 0.3);"></canvas>
+
+        <!-- Екранні кнопки керування -->
+        <div style="display: grid; grid-template-columns: repeat(3, 60px); gap: 10px; margin-top: 15px;">
+            <div></div>
+            <button class="btn" style="padding: 15px; font-size: 20px; margin:0;" onclick="changeSnakeDir('UP')">⬆️</button>
+            <div></div>
+            <button class="btn" style="padding: 15px; font-size: 20px; margin:0;" onclick="changeSnakeDir('LEFT')">⬅️</button>
+            <button class="btn" style="padding: 15px; font-size: 20px; margin:0;" onclick="changeSnakeDir('DOWN')">⬇️</button>
+            <button class="btn" style="padding: 15px; font-size: 20px; margin:0;" onclick="changeSnakeDir('RIGHT')">➡️</button>
+        </div>
+
+        <div id="snake-start-screen" class="game-overlay-panel" style="border-color: var(--neon-aqua);">
+            <h3 style="color: var(--neon-aqua); margin-bottom: 10px;">WoodGrow Snake</h3>
+            <p style="font-size: 13px; color: #a1a1aa; margin-bottom: 20px;">Керуйте змійкою стрілками або свайпами на екрані!</p>
+            <button class="btn" style="background: linear-gradient(135deg, #00f5d4 0%, #00bbf9 100%); color: #000;" onclick="startSnakeGame()">🎮 Старт</button>
+        </div>
+
+        <div id="snake-gameover-screen" class="game-overlay-panel" style="display: none; border-color: var(--neon-aqua);">
+            <h3 style="color: #ff4444; margin-bottom: 5px;">ГРУ ЗАВЕРШЕНО</h3>
+            <p style="font-size: 14px; color: #fff; margin: 5px 0;">Зібрано їжі: <span id="snake-final-score" style="color: var(--neon-aqua); font-weight: bold;">0</span> WGC</p>
+            <button class="btn" style="background: linear-gradient(135deg, #00f5d4 0%, #00bbf9 100%); color: #000; margin-top: 15px;" onclick="resetSnakeGame()">🔄 Грати знову</button>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="lang-modal">
         <div class="modal-window" style="border-color: var(--gold-color); box-shadow: 0 0 25px rgba(212, 175, 55, 0.4);">
             <h3 style="margin-bottom: 20px;">🌐 Choose Language / Мова</h3>
@@ -790,7 +837,7 @@
         let currentLang = 'en';
         let gamePoints = 0; 
 
-        // Система щоденних спроб у грі (10 безкоштовних)
+        // Система щоденних спроб у грі Flappy (10 безкоштовних)
         const MAX_GAME_ATTEMPTS = 10;
         let gameAttemptsLeft = MAX_GAME_ATTEMPTS;
         const todayKey = new Date().toDateString();
@@ -801,6 +848,19 @@
             gameAttemptsLeft = MAX_GAME_ATTEMPTS;
         } else {
             gameAttemptsLeft = parseInt(localStorage.getItem('wg_game_attempts')) || MAX_GAME_ATTEMPTS;
+        }
+
+        // Система щоденних спроб у грі Snake (5 безкоштовних)
+        const MAX_SNAKE_ATTEMPTS = 5;
+        let snakeAttemptsLeft = MAX_SNAKE_ATTEMPTS;
+        const snakeDateKey = new Date().toDateString();
+        const savedSnakeDate = localStorage.getItem('wg_snake_date');
+        if (savedSnakeDate !== snakeDateKey) {
+            localStorage.setItem('wg_snake_date', snakeDateKey);
+            localStorage.setItem('wg_snake_attempts', MAX_SNAKE_ATTEMPTS.toString());
+            snakeAttemptsLeft = MAX_SNAKE_ATTEMPTS;
+        } else {
+            snakeAttemptsLeft = parseInt(localStorage.getItem('wg_snake_attempts')) || MAX_SNAKE_ATTEMPTS;
         }
 
         const comboItemDetails = {
@@ -1151,6 +1211,7 @@
             document.getElementById('user-balance').innerText = balance.toFixed(4);
             document.getElementById('user-game-points').innerText = gamePoints;
             document.getElementById('game-attempts-left').innerText = gameAttemptsLeft;
+            document.getElementById('snake-attempts-left').innerText = snakeAttemptsLeft;
             services.forEach(srv => updateLimitUI(srv));
             updateStreakUI();
             updateComboUI();
@@ -1953,7 +2014,6 @@
                     document.getElementById('user-balance').innerText = balance.toFixed(4);
                     document.getElementById('user-game-points').innerText = gamePoints;
 
-                    // Аналітика успішного обміну WGC
                     if (typeof firebase !== 'undefined' && firebase.analytics) {
                         firebase.analytics().logEvent('wgc_exchange_success', { amount_wgc: 10000 });
                     }
@@ -1969,21 +2029,20 @@
         }
 
         // ==========================================
-        // НАДМАКСИМАЛЬНО ЛЕГКИЙ РІВЕНЬ (Ультра-плавна фізика, знижена швидкість падіння та величезний прохід)
+        // FLAPPY WOODGROW COIN GAME
         // ==========================================
         let flappyCanvas, flappyCtx;
         let gameRunning = false;
-        let bird = { x: 80, y: 270, radius: 20, gravity: 0.28, lift: -5.8, velocity: 0, rotation: 0 }; // Дуже легка гравітація та плавний невагомий стрибок
+        let bird = { x: 80, y: 270, radius: 20, gravity: 0.28, lift: -5.8, velocity: 0, rotation: 0 };
         let pipes = [];
         let pipeWidth = 65;
-        let pipeGap = 220; // Гігантський прохід для комфортного проходження
+        let pipeGap = 220;
         let frameCount = 0;
         let currentScore = 0;
         let canRevive = true;
 
         function openFlappyGame() {
             if (gameAttemptsLeft <= 0) {
-                // Якщо спроби вичерпано — пропонуємо 5 спроб за перегляд реклами
                 const AdVideoController = window.Adsgram ? window.Adsgram.init({ blockId: "35910" }) : null;
                 if (!AdVideoController) {
                     alert("❌ У вас закінчилися безкоштовні спроби на сьогодні. Завітайте завтра!");
@@ -2058,7 +2117,6 @@
                 return;
             }
 
-            // Зменшуємо кількість спроб
             gameAttemptsLeft--;
             localStorage.setItem('wg_game_attempts', gameAttemptsLeft.toString());
             document.getElementById('game-attempts-left').innerText = gameAttemptsLeft;
@@ -2106,7 +2164,6 @@
                 return;
             }
 
-            // Повільніша поява труб та низька швидкість прольоту
             if (frameCount % 160 === 0) {
                 let minHeight = 60;
                 let maxHeight = flappyCanvas.height - pipeGap - 80;
@@ -2121,7 +2178,7 @@
             }
 
             for (let i = pipes.length - 1; i >= 0; i--) {
-                pipes[i].x -= 1.3; // Ультра-низька швидкість руху колони для легкого проходження
+                pipes[i].x -= 1.3;
 
                 drawWoodPipe(pipes[i].x, 0, pipeWidth, pipes[i].top, true);
                 drawWoodPipe(pipes[i].x, flappyCanvas.height - pipes[i].bottom, pipeWidth, pipes[i].bottom, false);
@@ -2301,6 +2358,222 @@
             }
             document.getElementById('flappy-gameover-screen').style.display = 'none';
             startFlappyGame();
+        }
+
+        // ==========================================
+        // WOODGROW SNAKE GAME & ANALYTICS
+        // ==========================================
+        let snakeCanvas, snakeCtx;
+        let snakeRunning = false;
+        let snake = [];
+        let food = { x: 0, y: 0 };
+        let dx = 20;
+        let dy = 0;
+        let nextDx = 20;
+        let nextDy = 0;
+        let snakeScore = 0;
+        let snakeGameStartTime = 0;
+        let snakeInterval = null;
+
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        document.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+        }, false);
+
+        document.addEventListener('touchend', e => {
+            if (!snakeRunning) return;
+            let touchEndX = e.changedTouches[0].screenX;
+            let touchEndY = e.changedTouches[0].screenY;
+            let diffX = touchEndX - touchStartX;
+            let diffY = touchEndY - touchStartY;
+
+            if (Math.abs(diffX) > Math.abs(diffY)) {
+                if (diffX > 30 && dx === 0) { nextDx = 20; nextDy = 0; }
+                else if (diffX < -30 && dx === 0) { nextDx = -20; nextDy = 0; }
+            } else {
+                if (diffY > 30 && dy === 0) { nextDx = 0; nextDy = 20; }
+                else if (diffY < -30 && dy === 0) { nextDx = 0; nextDy = -20; }
+            }
+        }, false);
+
+        function openSnakeGame() {
+            if (snakeAttemptsLeft <= 0) {
+                const AdVideoController = window.Adsgram ? window.Adsgram.init({ blockId: "35910" }) : null;
+                if (!AdVideoController) {
+                    alert("❌ У вас закінчилися спроби у Змійку на сьогодні!");
+                    return;
+                }
+
+                if (confirm("❌ Спроби вичерпано! Переглянути рекламу та отримати +5 додаткових спроб у Змійку?")) {
+                    AdVideoController.show()
+                        .then(() => {
+                            snakeAttemptsLeft += 5;
+                            localStorage.setItem('wg_snake_attempts', snakeAttemptsLeft.toString());
+                            document.getElementById('snake-attempts-left').innerText = snakeAttemptsLeft;
+                            alert("🎉 Нараховано +5 спроб у Змійку!");
+                            
+                            if (typeof firebase !== 'undefined' && firebase.analytics) {
+                                firebase.analytics().logEvent('snake_extra_attempts_watched');
+                            }
+
+                            openSnakeModalUI();
+                        })
+                        .catch(() => { alert("Рекламу не зараховано."); });
+                }
+                return;
+            }
+            openSnakeModalUI();
+        }
+
+        function openSnakeModalUI() {
+            document.getElementById('snake-game-modal').classList.add('active');
+            document.getElementById('snake-start-screen').style.display = 'flex';
+            document.getElementById('snake-gameover-screen').style.display = 'none';
+            snakeCanvas = document.getElementById('snake-canvas');
+            snakeCtx = snakeCanvas.getContext('2d');
+        }
+
+        function closeSnakeGame() {
+            if (snakeRunning) {
+                endSnakeGameSessionAnalytics();
+            }
+            snakeRunning = false;
+            clearInterval(snakeInterval);
+            document.getElementById('snake-game-modal').classList.remove('active');
+            document.getElementById('snake-attempts-left').innerText = snakeAttemptsLeft;
+        }
+
+        function changeSnakeDir(direction) {
+            if (!snakeRunning) return;
+            if (direction === 'UP' && dy === 0) { nextDx = 0; nextDy = -20; }
+            if (direction === 'DOWN' && dy === 0) { nextDx = 0; nextDy = 20; }
+            if (direction === 'LEFT' && dx === 0) { nextDx = -20; nextDy = 0; }
+            if (direction === 'RIGHT' && dx === 0) { nextDx = 20; nextDy = 0; }
+        }
+
+        function startSnakeGame() {
+            if (snakeAttemptsLeft <= 0) return;
+
+            snakeAttemptsLeft--;
+            localStorage.setItem('wg_snake_attempts', snakeAttemptsLeft.toString());
+            document.getElementById('snake-attempts-left').innerText = snakeAttemptsLeft;
+
+            snakeGameStartTime = Date.now();
+            if (typeof firebase !== 'undefined' && firebase.analytics) {
+                firebase.analytics().logEvent('snake_game_started', { user_id: userId });
+            }
+
+            document.getElementById('snake-start-screen').style.display = 'none';
+            
+            snake = [
+                { x: 160, y: 160 },
+                { x: 140, y: 160 },
+                { x: 120, y: 160 }
+            ];
+            snakeScore = 0;
+            dx = 20;
+            dy = 0;
+            nextDx = 20;
+            nextDy = 0;
+            
+            createFood();
+            snakeRunning = true;
+            
+            if (snakeInterval) clearInterval(snakeInterval);
+            snakeInterval = setInterval(mainSnakeLoop, 120);
+        }
+
+        function mainSnakeLoop() {
+            if (!snakeRunning) return;
+            dx = nextDx;
+            dy = nextDy;
+
+            let head = { x: snake[0].x + dx, y: snake[0].y + dy };
+
+            if (head.x < 0 || head.x >= snakeCanvas.width || head.y < 0 || head.y >= snakeCanvas.height || snake.slice(1).some(part => part.x === head.x && part.y === head.y)) {
+                gameOverSnake();
+                return;
+            }
+
+            snake.unshift(head);
+
+            if (head.x === food.x && head.y === food.y) {
+                snakeScore += 1; // 1 їжа = 1 WGC
+                createFood();
+            } else {
+                snake.pop();
+            }
+
+            drawSnakeScene();
+        }
+
+        function drawSnakeScene() {
+            snakeCtx.fillStyle = '#050d08';
+            snakeCtx.fillRect(0, 0, snakeCanvas.width, snakeCanvas.height);
+
+            snakeCtx.fillStyle = '#ff0055';
+            snakeCtx.shadowBlur = 10;
+            snakeCtx.shadowColor = '#ff0055';
+            snakeCtx.fillRect(food.x + 2, food.y + 2, 16, 16);
+
+            snake.forEach((part, index) => {
+                snakeCtx.fillStyle = index === 0 ? '#0df25d' : '#00f5d4';
+                snakeCtx.shadowBlur = 8;
+                snakeCtx.shadowColor = index === 0 ? '#0df25d' : '#00f5d4';
+                snakeCtx.fillRect(part.x + 1, part.y + 1, 18, 18);
+            });
+            snakeCtx.shadowBlur = 0;
+
+            snakeCtx.fillStyle = '#ffffff';
+            snakeCtx.font = "bold 16px sans-serif";
+            snakeCtx.fillText(`WGC: ${snakeScore}`, 15, 25);
+        }
+
+        function createFood() {
+            food.x = Math.floor(Math.random() * (snakeCanvas.width / 20)) * 20;
+            food.y = Math.floor(Math.random() * (snakeCanvas.height / 20)) * 20;
+            if (snake.some(part => part.x === food.x && part.y === food.y)) {
+                createFood();
+            }
+        }
+
+        async function gameOverSnake() {
+            snakeRunning = false;
+            clearInterval(snakeInterval);
+            endSnakeGameSessionAnalytics();
+
+            document.getElementById('snake-final-score').innerText = snakeScore;
+            document.getElementById('snake-gameover-screen').style.display = 'flex';
+
+            if (snakeScore > 0) {
+                gamePoints += snakeScore;
+                document.getElementById('user-game-points').innerText = gamePoints;
+                await sendGameScoreToServer(snakeScore); 
+            }
+        }
+
+        function endSnakeGameSessionAnalytics() {
+            let durationSeconds = Math.floor((Date.now() - snakeGameStartTime) / 1000);
+            if (typeof firebase !== 'undefined' && firebase.analytics) {
+                firebase.analytics().logEvent('game_session_stats', {
+                    game_name: 'snake',
+                    duration_seconds: durationSeconds,
+                    score: snakeScore
+                });
+            }
+        }
+
+        function resetSnakeGame() {
+            if (snakeAttemptsLeft <= 0) {
+                alert("❌ Спроби вичерпано!");
+                closeSnakeGame();
+                return;
+            }
+            document.getElementById('snake-gameover-screen').style.display = 'none';
+            startSnakeGame();
         }
 
         async function startApp() {
