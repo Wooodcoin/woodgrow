@@ -932,7 +932,7 @@
                 `,
                 min_sum_label: "Мінімальна сума:",
                 withdraw_action: "💸 Вивести на гаманець",
-                cabinet_title: "👤 Mій кабінет",
+                cabinet_title: "👤 Мій кабінет",
                 tgid_label: "Ваш Telegram ID:",
                 stat_ref: "Реферали",
                 stat_bonus: "Ref Бонус",
@@ -2472,7 +2472,7 @@
 
 
         // ==========================================
-        // 3. TOWER STACK GAME
+        // 3. TOWER STACK GAME (ВИПРАВЛЕНО)
         // ==========================================
         let towerCanvas, towerCtx;
         let towerRunning = false;
@@ -2511,6 +2511,10 @@
             document.getElementById('tower-gameover-screen').style.display = 'none';
             towerCanvas = document.getElementById('tower-canvas');
             towerCtx = towerCanvas.getContext('2d');
+            
+            // Надійно синхронізуємо реальні пікселі розмітки з розміром канвасу
+            towerCanvas.width = 360;
+            towerCanvas.height = 520;
         }
 
         function closeTowerGame() {
@@ -2537,9 +2541,10 @@
             towerStack = [];
 
             let baseWidth = 160;
+            // Ставимо базу надійніше вище нижнього краю екрана канвасу
             towerStack.push({
                 x: (towerCanvas.width - baseWidth) / 2,
-                y: towerCanvas.height - 50,
+                y: towerCanvas.height - 80,
                 w: baseWidth,
                 h: blockHeight,
                 color: '#d4af37'
