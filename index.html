@@ -445,24 +445,6 @@
             border-radius: 8px;
         }
 
-        #flappy-game-modal {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: #0a1f0f;
-            z-index: 4000;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        #flappy-game-modal.active { display: flex; }
-        #flappy-canvas {
-            background: radial-gradient(circle at 50% 30%, #12351d 0%, #050d08 100%);
-            border: 2px solid var(--gold-color);
-            border-radius: 16px;
-            box-shadow: 0 0 25px rgba(13, 242, 93, 0.3);
-            cursor: pointer;
-        }
         .game-overlay-panel {
             position: absolute;
             display: flex;
@@ -576,7 +558,7 @@
             </div>
         </div>
 
-        <!-- Нова вкладка: Ігри -->
+        <!-- Вкладка: Ігри -->
         <div id="tab-games" class="tab-content">
             <!-- Гра 1: Flappy WoodGrow Coin -->
             <div class="card" style="border: 2px solid var(--neon-green); background: rgba(13, 242, 93, 0.05);">
@@ -612,7 +594,7 @@
                 <button class="btn" style="background: linear-gradient(135deg, #00f5d4 0%, #00bbf9 100%); color: #000; margin-bottom: 10px;" onclick="openSnakeGame()" id="btn-play-snake">🎮 Грати у Змійку</button>
             </div>
 
-            <!-- Гра 3: Tower Stack (Нова гра) -->
+            <!-- Гра 3: Tower Stack -->
             <div class="card" style="border: 2px solid var(--gold-color); background: rgba(212, 175, 55, 0.05); margin-top: 15px;">
                 <div style="font-size: 45px; margin-bottom: 5px;">🏗️</div>
                 <h3 id="txt-tower-title" style="font-size: 18px; color: var(--gold-color);">WoodGrow Tower Stack</h3>
@@ -732,7 +714,7 @@
     </div>
 
     <!-- Модальне вікно гри Flappy WoodGrow Coin -->
-    <div id="flappy-game-modal">
+    <div id="flappy-game-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #0a1f0f; z-index: 4000; display: none; flex-direction: column; align-items: center; justify-content: center;">
         <div style="position: absolute; top: 15px; left: 15px; right: 15px; display: flex; justify-content: space-between; align-items: center; z-index: 4100;">
             <div style="color: var(--neon-green); font-weight: bold; font-size: 16px;">🪙 Flappy WoodGrow</div>
             <button onclick="closeFlappyGame()" style="background: rgba(255,255,255,0.1); border: 1px solid var(--gold-color); color: #fff; border-radius: 50%; width: 35px; height: 35px; font-size: 18px; cursor: pointer;">✕</button>
@@ -787,7 +769,7 @@
         </div>
     </div>
 
-    <!-- Модальне вікно гри WoodGrow Tower Stack (Нова гра) -->
+    <!-- Модальне вікно гри WoodGrow Tower Stack -->
     <div id="tower-game-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #0a1f0f; z-index: 4000; display: none; flex-direction: column; align-items: center; justify-content: center;">
         <div style="position: absolute; top: 15px; left: 15px; right: 15px; display: flex; justify-content: space-between; align-items: center; z-index: 4100;">
             <div style="color: var(--gold-color); font-weight: bold; font-size: 16px;">🏗️ Tower Stack</div>
@@ -874,7 +856,7 @@
         let currentLang = 'en';
         let gamePoints = 0; 
 
-        // Спроби у Flappy (10 безкоштовних)
+        // Спроби у Flappy
         const MAX_GAME_ATTEMPTS = 10;
         let gameAttemptsLeft = MAX_GAME_ATTEMPTS;
         const todayKey = new Date().toDateString();
@@ -887,7 +869,7 @@
             gameAttemptsLeft = parseInt(localStorage.getItem('wg_game_attempts')) || MAX_GAME_ATTEMPTS;
         }
 
-        // Спроби у Snake (5 безкоштовних)
+        // Спроби у Snake
         const MAX_SNAKE_ATTEMPTS = 5;
         let snakeAttemptsLeft = MAX_SNAKE_ATTEMPTS;
         const snakeDateKey = new Date().toDateString();
@@ -900,7 +882,7 @@
             snakeAttemptsLeft = parseInt(localStorage.getItem('wg_snake_attempts')) || MAX_SNAKE_ATTEMPTS;
         }
 
-        // Спроби у Tower Stack (5 безкоштовних)
+        // Спроби у Tower Stack
         const MAX_TOWER_ATTEMPTS = 5;
         let towerAttemptsLeft = MAX_TOWER_ATTEMPTS;
         const towerDateKey = new Date().toDateString();
@@ -1324,14 +1306,6 @@
 
         async function fetchUserData() {
             try {
-                const showAlert = (msg) => {
-                    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.showAlert) {
-                        window.Telegram.WebApp.showAlert(msg);
-                    } else {
-                        alert(msg);
-                    }
-                };
-
                 const res = await fetch('/api/user', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1343,7 +1317,6 @@
 
                 if (!res.ok) {
                     console.error("Server returned status:", res.status);
-                    showAlert("Помилка сервера: статус " + res.status);
                     checkAdminAccess("user", null);
                     return;
                 }
@@ -2127,7 +2100,6 @@
                             alert("🎉 Вам надано +5 додаткових спроб!");
                             
                             document.getElementById('flappy-game-modal').style.display = 'flex';
-                            document.getElementById('flappy-game-modal').classList.add('active');
                             document.getElementById('flappy-start-screen').style.display = 'flex';
                             document.getElementById('flappy-gameover-screen').style.display = 'none';
                             flappyCanvas = document.getElementById('flappy-canvas');
@@ -2140,7 +2112,6 @@
             }
 
             document.getElementById('flappy-game-modal').style.display = 'flex';
-            document.getElementById('flappy-game-modal').classList.add('active');
             document.getElementById('flappy-start-screen').style.display = 'flex';
             document.getElementById('flappy-gameover-screen').style.display = 'none';
             
@@ -2151,9 +2122,7 @@
 
         function closeFlappyGame() {
             gameRunning = false;
-            const modal = document.getElementById('flappy-game-modal');
-            modal.style.display = 'none';
-            modal.classList.remove('active');
+            document.getElementById('flappy-game-modal').style.display = 'none';
             document.getElementById('user-game-points').innerText = gamePoints;
             document.getElementById('game-attempts-left').innerText = gameAttemptsLeft;
         }
@@ -2407,7 +2376,6 @@
 
         function openSnakeModalUI() {
             document.getElementById('snake-game-modal').style.display = 'flex';
-            document.getElementById('snake-game-modal').classList.add('active');
             document.getElementById('snake-start-screen').style.display = 'flex';
             document.getElementById('snake-gameover-screen').style.display = 'none';
             wgSnakeCanvas = document.getElementById('snake-canvas');
@@ -2418,7 +2386,6 @@
             wgSnakeRunning = false;
             clearInterval(wgSnakeLoopInterval);
             document.getElementById('snake-game-modal').style.display = 'none';
-            document.getElementById('snake-game-modal').classList.remove('active');
             document.getElementById('snake-attempts-left').innerText = snakeAttemptsLeft;
         }
 
@@ -2505,7 +2472,7 @@
 
 
         // ==========================================
-        // 3. TOWER STACK GAME (Нова гра з ефектами)
+        // 3. TOWER STACK GAME
         // ==========================================
         let towerCanvas, towerCtx;
         let towerRunning = false;
@@ -2516,8 +2483,8 @@
         let blockHeight = 25;
         let towerSpeed = 2.5;
         let cameraY = 0;
-        let fallingPieces = []; // Ефект 2.1: зрізані шматки що падають
-        let perfectAnimTimer = 0; // Ефект 2.2: напис PERFECT
+        let fallingPieces = [];
+        let perfectAnimTimer = 0;
         let towerStartTime = 0;
         let towerLoopId = null;
 
@@ -2540,7 +2507,6 @@
 
         function openTowerModalUI() {
             document.getElementById('tower-game-modal').style.display = 'flex';
-            document.getElementById('tower-game-modal').classList.add('active');
             document.getElementById('tower-start-screen').style.display = 'flex';
             document.getElementById('tower-gameover-screen').style.display = 'none';
             towerCanvas = document.getElementById('tower-canvas');
@@ -2551,7 +2517,6 @@
             towerRunning = false;
             cancelAnimationFrame(towerLoopId);
             document.getElementById('tower-game-modal').style.display = 'none';
-            document.getElementById('tower-game-modal'].classList.remove('active');
             document.getElementById('tower-attempts-left').innerText = towerAttemptsLeft;
         }
 
@@ -2571,7 +2536,6 @@
             fallingPieces = [];
             towerStack = [];
 
-            // Базова платформа внизу
             let baseWidth = 160;
             towerStack.push({
                 x: (towerCanvas.width - baseWidth) / 2,
@@ -2596,15 +2560,13 @@
             let nextY = lastBlock.y - blockHeight;
             let direction = towerStack.length % 2 === 0 ? 1 : -1;
             let startX = direction > 0 ? -blockWidth : towerCanvas.width;
-
-            // Ефект 2.3: зміна кольорів (райдужний градієнт вежі)
             let hue = (towerStack.length * 25) % 360;
             let blockColor = `hsl(${hue}, 80%, 55%)`;
 
             currentBlock = {
                 x: startX,
                 y: nextY,
-                w: lastBlock.w, // ширина зберігає попередній розмір
+                w: lastBlock.w,
                 h: blockHeight,
                 speed: (towerSpeed + Math.floor(towerStack.length / 5) * 0.4) * direction,
                 color: blockColor
@@ -2614,23 +2576,19 @@
         function placeTowerBlock() {
             let lastBlock = towerStack[towerStack.length - 1];
             let diff = currentBlock.x - lastBlock.x;
-
-            // Ефект 2.2: Ідеальне попадання (Perfect) якщо похибка менше 4 пікселів
             let isPerfect = Math.abs(diff) < 4;
 
             if (isPerfect) {
                 currentBlock.x = lastBlock.x;
                 currentBlock.w = lastBlock.w;
-                perfectAnimTimer = 30; // тридцять кадрів для показу напису PERFECT
+                perfectAnimTimer = 30;
             } else {
                 if (Math.abs(diff) >= lastBlock.w) {
-                    // Повний промах — гра закінчена
                     towerRunning = false;
                     gameOverTower();
                     return;
                 }
 
-                // Ефект 2.1: Зрізання та падіння зайвої частини блоку
                 let overlap = lastBlock.w - Math.abs(diff);
                 let cutWidth = Math.abs(diff);
                 let cutX = diff > 0 ? currentBlock.x + overlap : currentBlock.x;
@@ -2645,10 +2603,8 @@
                     color: currentBlock.color
                 });
 
-                if (diff > 0) {
-                    currentBlock.w = overlap;
-                } else {
-                    currentBlock.w = overlap;
+                currentBlock.w = overlap;
+                if (diff < 0) {
                     currentBlock.x = lastBlock.x;
                 }
             }
@@ -2656,7 +2612,6 @@
             towerStack.push(currentBlock);
             towerScore++;
 
-            // Ефект 2.3: Плавне підняття камери, коли вежа росте
             if (towerStack.length > 6) {
                 cameraY += blockHeight;
             }
@@ -2667,18 +2622,15 @@
         function loopTower() {
             if (!towerRunning) return;
 
-            // Рух поточного блоку
             currentBlock.x += currentBlock.speed;
             if (currentBlock.x <= 0 || currentBlock.x + currentBlock.w >= towerCanvas.width) {
                 currentBlock.speed *= -1;
             }
 
-            // Рендеринг
             towerCtx.clearRect(0, 0, towerCanvas.width, towerCanvas.height);
             towerCtx.save();
             towerCtx.translate(0, cameraY);
 
-            // Малюємо вежу
             towerStack.forEach(b => {
                 towerCtx.fillStyle = b.color;
                 towerCtx.fillRect(b.x, b.y, b.w, b.h);
@@ -2687,16 +2639,14 @@
                 towerCtx.strokeRect(b.x, b.y, b.w, b.h);
             });
 
-            // Малюємо поточний рухомий блок
             towerCtx.fillStyle = currentBlock.color;
             towerCtx.fillRect(currentBlock.x, currentBlock.y, currentBlock.w, currentBlock.h);
 
-            // Анімація падаючих зрізаних шматків
             for (let i = fallingPieces.length - 1; i >= 0; i--) {
                 let p = fallingPieces[i];
                 p.x += p.vx;
                 p.y += p.vy;
-                p.vy += 0.5; // гравітація
+                p.vy += 0.5;
 
                 towerCtx.fillStyle = p.color;
                 towerCtx.fillRect(p.x, p.y, p.w, p.h);
@@ -2708,13 +2658,11 @@
 
             towerCtx.restore();
 
-            // Виводимо поточний рахунок (висоту вежі)
             towerCtx.fillStyle = "#ffffff";
             towerCtx.font = "900 28px sans-serif";
             towerCtx.textAlign = "center";
             towerCtx.fillText(towerScore, towerCanvas.width / 2, 45);
 
-            // Ефект 2.2: Анімація напису PERFECT
             if (perfectAnimTimer > 0) {
                 towerCtx.fillStyle = "#0df25d";
                 towerCtx.font = "bold 24px sans-serif";
@@ -2736,7 +2684,7 @@
 
             let durationSec = Math.floor((Date.now() - towerStartTime) / 1000);
             if (towerScore > 0) {
-                gamePoints += towerScore * 2; // Бонусні бали за висоту вежі
+                gamePoints += towerScore * 2;
                 document.getElementById('user-game-points').innerText = gamePoints;
                 await sendGameScoreToServer(towerScore * 2, durationSec, 'tower_stack');
             }
@@ -2754,9 +2702,6 @@
                 await fetchUserData(); 
             } catch (err) {
                 console.error("Global startApp error:", err);
-                if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.showAlert) {
-                    window.Telegram.WebApp.showAlert("Помилка старту додатка: " + err.message);
-                }
             }
         }
 
