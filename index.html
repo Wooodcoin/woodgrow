@@ -2062,6 +2062,7 @@
                                 firebase.analytics().logEvent('game_extra_attempts_ad_watched');
                             }
 
+                            document.getElementById('flappy-game-modal').style.display = 'flex';
                             document.getElementById('flappy-game-modal').classList.add('active');
                             document.getElementById('flappy-start-screen').style.display = 'flex';
                             document.getElementById('flappy-gameover-screen').style.display = 'none';
@@ -2076,6 +2077,7 @@
                 return;
             }
 
+            document.getElementById('flappy-game-modal').style.display = 'flex';
             document.getElementById('flappy-game-modal').classList.add('active');
             document.getElementById('flappy-start-screen').style.display = 'flex';
             document.getElementById('flappy-gameover-screen').style.display = 'none';
@@ -2087,7 +2089,9 @@
 
         function closeFlappyGame() {
             gameRunning = false;
-            document.getElementById('flappy-game-modal').classList.remove('active');
+            const modal = document.getElementById('flappy-game-modal');
+            modal.style.display = 'none';
+            modal.classList.remove('active');
             document.getElementById('user-game-points').innerText = gamePoints;
             document.getElementById('game-attempts-left').innerText = gameAttemptsLeft;
         }
@@ -2366,7 +2370,7 @@
         }
 
         // ==========================================
-        // WOODGROW SNAKE GAME & ANALYTICS (Ізольовані змінні)
+        // WOODGROW SNAKE GAME & ANALYTICS (Виправлено відкриття)
         // ==========================================
         let wgSnakeCanvas, wgSnakeCtx;
         let wgSnakeRunning = false;
@@ -2444,7 +2448,10 @@
             const startScreenEl = document.getElementById('snake-start-screen');
             const gameOverEl = document.getElementById('snake-gameover-screen');
             
-            if (modalEl) modalEl.classList.add('active');
+            if (modalEl) {
+                modalEl.style.display = 'flex'; // Примусово робимо видимим
+                modalEl.classList.add('active');
+            }
             if (startScreenEl) startScreenEl.style.display = 'flex';
             if (gameOverEl) gameOverEl.style.display = 'none';
 
@@ -2462,7 +2469,10 @@
             clearInterval(wgSnakeLoopInterval);
             
             const modalEl = document.getElementById('snake-game-modal');
-            if (modalEl) modalEl.classList.remove('active');
+            if (modalEl) {
+                modalEl.style.display = 'none';
+                modalEl.classList.remove('active');
+            }
             
             const attemptsEl = document.getElementById('snake-attempts-left');
             if (attemptsEl) attemptsEl.innerText = snakeAttemptsLeft;
@@ -2517,7 +2527,6 @@
             createWgFood();
             wgSnakeRunning = true;
             
-            // Миттєвий виклик рендеру при старті
             drawWgSnakeScene();
 
             if (wgSnakeLoopInterval) clearInterval(wgSnakeLoopInterval);
