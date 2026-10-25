@@ -926,7 +926,7 @@
                 btn_support: "🍿 Підтримати WoodGrow (+0 USDT)",
                 loading: "Завантаження...",
                 people_count: "чол.",
-                copied: "Скопійовано!",
+                copied: "Скопіювано!",
                 alert_wallet: "❌ Спочатку підключіть ваш TON-гаманець!",
                 alert_min: "❌ Мінімальна сума для виведення: 5 USDT (У вас {val})",
                 alert_confirm: "Ви впевнені, що хочете вивести {val} USDT?\n\nПісля натискання 'ОК' ваш баланс буде списано, а заявка автоматично надійде адміну.",
@@ -2386,12 +2386,14 @@
         const snakeModalEl = document.getElementById('snake-game-modal');
         if (snakeModalEl) {
             snakeModalEl.addEventListener('touchstart', e => {
-                touchStartX = e.changedTouches[0].screenX;
-                touchStartY = e.changedTouches[0].screenY;
+                if (e.changedTouches && e.changedTouches[0]) {
+                    touchStartX = e.changedTouches[0].screenX;
+                    touchStartY = e.changedTouches[0].screenY;
+                }
             }, { passive: true });
 
             snakeModalEl.addEventListener('touchend', e => {
-                if (!snakeRunning) return;
+                if (!snakeRunning || !e.changedTouches || !e.changedTouches[0]) return;
                 let touchEndX = e.changedTouches[0].screenX;
                 let touchEndY = e.changedTouches[0].screenY;
                 let diffX = touchEndX - touchStartX;
@@ -2420,7 +2422,8 @@
                         .then(() => {
                             snakeAttemptsLeft += 5;
                             localStorage.setItem('wg_snake_attempts', snakeAttemptsLeft.toString());
-                            document.getElementById('snake-attempts-left').innerText = snakeAttemptsLeft;
+                            const attemptsEl = document.getElementById('snake-attempts-left');
+                            if (attemptsEl) attemptsEl.innerText = snakeAttemptsLeft;
                             alert("🎉 Нараховано +5 спроб у Змійку!");
                             
                             if (typeof firebase !== 'undefined' && firebase.analytics) {
@@ -2437,9 +2440,14 @@
         }
 
         function openSnakeModalUI() {
-            document.getElementById('snake-game-modal').classList.add('active');
-            document.getElementById('snake-start-screen').style.display = 'flex';
-            document.getElementById('snake-gameover-screen').style.display = 'none';
+            const modalEl = document.getElementById('snake-game-modal');
+            const startScreenEl = document.getElementById('snake-start-screen');
+            const gameOverEl = document.getElementById('snake-gameover-screen');
+            
+            if (modalEl) modalEl.classList.add('active');
+            if (startScreenEl) startScreenEl.style.display = 'flex';
+            if (gameOverEl) gameOverEl.style.display = 'none';
+
             snakeCanvas = document.getElementById('snake-canvas');
             if (snakeCanvas) {
                 snakeCtx = snakeCanvas.getContext('2d');
@@ -2452,8 +2460,12 @@
             }
             snakeRunning = false;
             clearInterval(snakeInterval);
-            document.getElementById('snake-game-modal').classList.remove('active');
-            document.getElementById('snake-attempts-left').innerText = snakeAttemptsLeft;
+            
+            const modalEl = document.getElementById('snake-game-modal');
+            if (modalEl) modalEl.classList.remove('active');
+            
+            const attemptsEl = document.getElementById('snake-attempts-left');
+            if (attemptsEl) attemptsEl.innerText = snakeAttemptsLeft;
         }
 
         function changeSnakeDir(direction) {
@@ -2469,18 +2481,26 @@
 
             snakeAttemptsLeft--;
             localStorage.setItem('wg_snake_attempts', snakeAttemptsLeft.toString());
-            document.getElementById('snake-attempts-left').innerText = snakeAttemptsLeft;
+            
+            const attemptsEl = document.getElementById('snake-attempts-left');
+            if (attemptsEl) attemptsEl.innerText = snakeAttemptsLeft;
 
             snakeGameStartTime = Date.now();
             if (typeof firebase !== 'undefined' && firebase.analytics) {
                 firebase.analytics().logEvent('snake_game_started', { user_id: userId });
             }
 
-            document.getElementById('snake-start-screen').style.display = 'none';
+            const startScreenEl = document.getElementById('snake-start-screen');
+            if (startScreenEl) startScreenEl.style.display = 'none';
             
             snakeCanvas = document.getElementById('snake-canvas');
             if (snakeCanvas) {
                 snakeCtx = snakeCanvas.getContext('2d');
+            }
+
+            if (!snakeCtx || !snakeCanvas) {
+                alert("Помилка ініціалізації Canvas для гри Змійка!");
+                return;
             }
 
             snake = [
@@ -2552,6 +2572,7 @@
         }
 
         function createFood() {
+            if (!snakeCanvas) return;
             food.x = Math.floor(Math.random() * (snakeCanvas.width / 20)) * 20;
             food.y = Math.floor(Math.random() * (snakeCanvas.height / 20)) * 20;
             if (snake.some(part => part.x === food.x && part.y === food.y)) {
@@ -2564,13 +2585,17 @@
             clearInterval(snakeInterval);
             endSnakeGameSessionAnalytics();
 
-            document.getElementById('snake-final-score').innerText = snakeScore;
-            document.getElementById('snake-gameover-screen').style.display = 'flex';
+            const finalScoreEl = document.getElementById('snake-final-score');
+            if (finalScoreEl) finalScoreEl.innerText = snakeScore;
+
+            const gameOverEl = document.getElementById('snake-gameover-screen');
+            if (gameOverEl) gameOverEl.style.display = 'flex';
 
             let durationSec = Math.floor((Date.now() - snakeGameStartTime) / 1000);
             if (snakeScore > 0) {
                 gamePoints += snakeScore;
-                document.getElementById('user-game-points').innerText = gamePoints;
+                const userGamePtsEl = document.getElementById('user-game-points');
+                if (userGamePtsEl) userGamePtsEl.innerText = gamePoints;
                 await sendGameScoreToServer(snakeScore, durationSec, 'snake'); 
             }
         }
@@ -2592,7 +2617,8 @@
                 closeSnakeGame();
                 return;
             }
-            document.getElementById('snake-gameover-screen').style.display = 'none';
+            const gameOverEl = document.getElementById('snake-gameover-screen');
+            if (gameOverEl) gameOverEl.style.display = 'none';
             startSnakeGame();
         }
 
