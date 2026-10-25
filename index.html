@@ -578,6 +578,7 @@
 
         <!-- Нова вкладка: Ігри -->
         <div id="tab-games" class="tab-content">
+            <!-- Гра 1: Flappy WoodGrow Coin -->
             <div class="card" style="border: 2px solid var(--neon-green); background: rgba(13, 242, 93, 0.05);">
                 <div style="font-size: 45px; margin-bottom: 5px;">🪙</div>
                 <h3 id="txt-game-title" style="font-size: 18px; color: var(--neon-green);">Flappy WoodGrow Coin</h3>
@@ -592,11 +593,11 @@
                     <div style="font-size: 11px; color: #a1a1aa;" id="txt-game-next-reward">Курс: 10,000 WGC ➔ 0.01 USDT</div>
                 </div>
 
-                <button class="btn" style="background: var(--gold-gradient); color: #000; margin-bottom: 10px;" onclick="openFlappyGame()" id="btn-play-game">🎮 Грати зараз</button>
+                <button class="btn" style="background: var(--gold-gradient); color: #000; margin-bottom: 10px;" onclick="openFlappyGame()" id="btn-play-game">🎮 Грати у Flappy</button>
                 <button class="btn" style="background: linear-gradient(135deg, #00f5d4 0%, #00bbf9 100%); color: #000;" onclick="exchangeGamePoints()" id="btn-exchange-points">💎 Обміняти WGC на USDT</button>
             </div>
 
-            <!-- Карточка гри: Snake -->
+            <!-- Гра 2: WoodGrow Snake -->
             <div class="card" style="border: 2px solid var(--neon-aqua); background: rgba(0, 245, 212, 0.05); margin-top: 15px;">
                 <div style="font-size: 45px; margin-bottom: 5px;">🐍</div>
                 <h3 id="txt-snake-title" style="font-size: 18px; color: var(--neon-aqua);">WoodGrow Snake</h3>
@@ -609,6 +610,21 @@
                 </div>
 
                 <button class="btn" style="background: linear-gradient(135deg, #00f5d4 0%, #00bbf9 100%); color: #000; margin-bottom: 10px;" onclick="openSnakeGame()" id="btn-play-snake">🎮 Грати у Змійку</button>
+            </div>
+
+            <!-- Гра 3: Tower Stack (Нова гра) -->
+            <div class="card" style="border: 2px solid var(--gold-color); background: rgba(212, 175, 55, 0.05); margin-top: 15px;">
+                <div style="font-size: 45px; margin-bottom: 5px;">🏗️</div>
+                <h3 id="txt-tower-title" style="font-size: 18px; color: var(--gold-color);">WoodGrow Tower Stack</h3>
+                <p style="color: #a1a1aa; font-size: 13px; margin-bottom: 15px;" id="txt-tower-desc">
+                    Будуйте найвищу вежу на точність! Зупиняйте блоки рівно один над одним, зрізайте зайве та встановлюйте рекорди.
+                </p>
+                
+                <div style="background: rgba(0,0,0,0.4); padding: 10px; border-radius: 10px; margin-bottom: 15px; border: 1px solid rgba(212,175,55,0.3);">
+                    <div style="font-size: 12px; color: var(--gold-color); font-weight: bold;" id="txt-tower-attempts-label">Спроби у Вежу сьогодні: <span id="tower-attempts-left">5</span> / 5</div>
+                </div>
+
+                <button class="btn" style="background: var(--gold-gradient); color: #000; margin-bottom: 10px;" onclick="openTowerGame()" id="btn-play-tower">🎮 Грати у Вежу</button>
             </div>
         </div>
 
@@ -749,7 +765,6 @@
         
         <canvas id="snake-canvas" width="360" height="360" style="background: #050d08; border: 2px solid var(--neon-aqua); border-radius: 16px; box-shadow: 0 0 25px rgba(0, 245, 212, 0.3);"></canvas>
 
-        <!-- Екранні кнопки керування -->
         <div style="display: grid; grid-template-columns: repeat(3, 60px); gap: 10px; margin-top: 15px;">
             <div></div>
             <button class="btn" style="padding: 15px; font-size: 20px; margin:0;" onclick="changeSnakeDir('UP')">⬆️</button>
@@ -769,6 +784,28 @@
             <h3 style="color: #ff4444; margin-bottom: 5px;">ГРУ ЗАВЕРШЕНО</h3>
             <p style="font-size: 14px; color: #fff; margin: 5px 0;">Зібрано їжі: <span id="snake-final-score" style="color: var(--neon-aqua); font-weight: bold;">0</span> WGC</p>
             <button class="btn" style="background: linear-gradient(135deg, #00f5d4 0%, #00bbf9 100%); color: #000; margin-top: 15px;" onclick="resetSnakeGame()">🔄 Грати знову</button>
+        </div>
+    </div>
+
+    <!-- Модальне вікно гри WoodGrow Tower Stack (Нова гра) -->
+    <div id="tower-game-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #0a1f0f; z-index: 4000; display: none; flex-direction: column; align-items: center; justify-content: center;">
+        <div style="position: absolute; top: 15px; left: 15px; right: 15px; display: flex; justify-content: space-between; align-items: center; z-index: 4100;">
+            <div style="color: var(--gold-color); font-weight: bold; font-size: 16px;">🏗️ Tower Stack</div>
+            <button onclick="closeTowerGame()" style="background: rgba(255,255,255,0.1); border: 1px solid var(--gold-color); color: #fff; border-radius: 50%; width: 35px; height: 35px; font-size: 18px; cursor: pointer;">✕</button>
+        </div>
+        
+        <canvas id="tower-canvas" width="360" height="520" style="background: radial-gradient(circle at 50% 30%, #1a1a0f 0%, #050508 100%); border: 2px solid var(--gold-color); border-radius: 16px; box-shadow: 0 0 25px rgba(212, 175, 55, 0.3); cursor: pointer;"></canvas>
+
+        <div id="tower-start-screen" class="game-overlay-panel" style="border-color: var(--gold-color);">
+            <h3 style="color: var(--gold-color); margin-bottom: 10px;">Tower Stack</h3>
+            <p style="font-size: 13px; color: #a1a1aa; margin-bottom: 20px;">Тапайте по екрану, щоб зупинити рухомий блок та збудувати найвищу вежу!</p>
+            <button class="btn" style="background: var(--gold-gradient); color: #000;" onclick="startTowerGame()">🎮 Старт</button>
+        </div>
+
+        <div id="tower-gameover-screen" class="game-overlay-panel" style="display: none; border-color: var(--gold-color);">
+            <h3 style="color: #ff4444; margin-bottom: 5px;">ВЕЖУ ЗРУЙНОВАНО!</h3>
+            <p style="font-size: 14px; color: #fff; margin: 5px 0;">Висота вежі: <span id="tower-final-score" style="color: var(--gold-color); font-weight: bold;">0</span> поверхів</p>
+            <button class="btn" style="background: var(--gold-gradient); color: #000; margin-top: 15px;" onclick="resetTowerGame()">🔄 Будувати знову</button>
         </div>
     </div>
 
@@ -837,7 +874,7 @@
         let currentLang = 'en';
         let gamePoints = 0; 
 
-        // Система щоденних спроб у грі Flappy (10 безкоштовних)
+        // Спроби у Flappy (10 безкоштовних)
         const MAX_GAME_ATTEMPTS = 10;
         let gameAttemptsLeft = MAX_GAME_ATTEMPTS;
         const todayKey = new Date().toDateString();
@@ -850,7 +887,7 @@
             gameAttemptsLeft = parseInt(localStorage.getItem('wg_game_attempts')) || MAX_GAME_ATTEMPTS;
         }
 
-        // Система щоденних спроб у грі Snake (5 безкоштовних)
+        // Спроби у Snake (5 безкоштовних)
         const MAX_SNAKE_ATTEMPTS = 5;
         let snakeAttemptsLeft = MAX_SNAKE_ATTEMPTS;
         const snakeDateKey = new Date().toDateString();
@@ -861,6 +898,19 @@
             snakeAttemptsLeft = MAX_SNAKE_ATTEMPTS;
         } else {
             snakeAttemptsLeft = parseInt(localStorage.getItem('wg_snake_attempts')) || MAX_SNAKE_ATTEMPTS;
+        }
+
+        // Спроби у Tower Stack (5 безкоштовних)
+        const MAX_TOWER_ATTEMPTS = 5;
+        let towerAttemptsLeft = MAX_TOWER_ATTEMPTS;
+        const towerDateKey = new Date().toDateString();
+        const savedTowerDate = localStorage.getItem('wg_tower_date');
+        if (savedTowerDate !== towerDateKey) {
+            localStorage.setItem('wg_tower_date', towerDateKey);
+            localStorage.setItem('wg_tower_attempts', MAX_TOWER_ATTEMPTS.toString());
+            towerAttemptsLeft = MAX_TOWER_ATTEMPTS;
+        } else {
+            towerAttemptsLeft = parseInt(localStorage.getItem('wg_tower_attempts')) || MAX_TOWER_ATTEMPTS;
         }
 
         const comboItemDetails = {
@@ -922,7 +972,7 @@
                 game_points_label: "Накопичені бали WGC:",
                 game_attempts_label: "Доступно спроб сьогодні:",
                 game_next_reward: "Курс: 10,000 WGC ➔ 0.01 USDT",
-                btn_play_game: "🎮 Грати зараз",
+                btn_play_game: "🎮 Грати у Flappy",
                 btn_support: "🍿 Підтримати WoodGrow (+0 USDT)",
                 loading: "Завантаження...",
                 people_count: "чол.",
@@ -935,7 +985,6 @@
                 claim_bonus: "🎁 ЗАБРАТИ БОНУС",
                 ads_error: "Рекламу не зараховано.",
                 support_thanks: "Дякуємо! ❤️",
-                video_interrupted: "Видео перервано.",
                 db_error: "Помилка зв'язку з сервером бази даних.",
                 req_error: "Не вдалося виконати запит на виведення.",
                 adv_title: "💼 Кабінет рекламодавця",
@@ -944,7 +993,6 @@
                 task_reaction_btn: "👍 Поставити реакцію",
                 task_waiting_btn: "⏳ Зачекайте",
                 task_claim_btn: "🎁 Забрати",
-                task_claiming_process: "Обробка...",
                 task_no_active: "Немає активних завдань",
                 task_conn_error: "Помилка з'єднання з сервером"
             },
@@ -997,7 +1045,7 @@
                 game_points_label: "Accumulated WGC Points:",
                 game_attempts_label: "Attempts left today:",
                 game_next_reward: "Rate: 10,000 WGC ➔ 0.01 USDT",
-                btn_play_game: "🎮 Play Now",
+                btn_play_game: "🎮 Play Flappy",
                 btn_support: "🍿 Support WoodGrow (+0 USDT)",
                 loading: "Loading...",
                 people_count: "users",
@@ -1010,7 +1058,6 @@
                 claim_bonus: "🎁 CLAIM BONUS",
                 ads_error: "Ad not credited.",
                 support_thanks: "Thank you! ❤️",
-                video_interrupted: "Video interrupted.",
                 db_error: "Error communicating with the database server.",
                 req_error: "Failed to process withdrawal request.",
                 adv_title: "💼 Advertiser Cabinet",
@@ -1019,7 +1066,6 @@
                 task_reaction_btn: "👍 Give Reaction",
                 task_waiting_btn: "⏳ Wait",
                 task_claim_btn: "🎁 Claim",
-                task_claiming_process: "Processing...",
                 task_no_active: "No active tasks",
                 task_conn_error: "Server connection error"
             },
@@ -1072,7 +1118,7 @@
                 game_points_label: "Накопленные баллы WGC:",
                 game_attempts_label: "Доступно попыток сегодня:",
                 game_next_reward: "Курс: 10,000 WGC ➔ 0.01 USDT",
-                btn_play_game: "🎮 Играть сейчас",
+                btn_play_game: "🎮 Играть во Flappy",
                 btn_support: "🍿 Поддержать WoodGrow (+0 USDT)",
                 loading: "Загрузка...",
                 people_count: "чел.",
@@ -1085,7 +1131,6 @@
                 claim_bonus: "🎁 ЗАБРАТЬ БОНУС",
                 ads_error: "Реклама не засчитана.",
                 support_thanks: "Спасибо! ❤️",
-                video_interrupted: "Видео прервано.",
                 db_error: "Ошибка связи с сервером базы данных.",
                 req_error: "Не удалось выполнить запрос на вывод.",
                 adv_title: "💼 Кабинет рекламодавця",
@@ -1094,7 +1139,6 @@
                 task_reaction_btn: "👍 Поставить реакцию",
                 task_waiting_btn: "⏳ Подождите",
                 task_claim_btn: "🎁 Забрать",
-                task_claiming_process: "Обработка...",
                 task_no_active: "Нет активных заданий",
                 task_conn_error: "Ошибка соединения с сервером"
             }
@@ -1212,6 +1256,7 @@
             document.getElementById('user-game-points').innerText = gamePoints;
             document.getElementById('game-attempts-left').innerText = gameAttemptsLeft;
             document.getElementById('snake-attempts-left').innerText = snakeAttemptsLeft;
+            document.getElementById('tower-attempts-left').innerText = towerAttemptsLeft;
             services.forEach(srv => updateLimitUI(srv));
             updateStreakUI();
             updateComboUI();
@@ -1270,7 +1315,7 @@
             }
 
             if (serviceKey === 'service1') {
-                localStorage.setItem('wg_cooldown_service1', (Date.now() + 120000).toString());
+                localStorage.setItem(`wg_cooldown_service1`, (Date.now() + 120000).toString());
                 checkSingleCooldown('service1');
             }
 
@@ -2028,8 +2073,31 @@
             }
         }
 
+        async function sendGameScoreToServer(scoreEarned, durationSec, gameName) {
+            try {
+                const res = await fetch('/api/game-score', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: userId,
+                        pointsEarned: scoreEarned,
+                        durationSeconds: durationSec,
+                        gameName: gameName,
+                        initData: window.Telegram.WebApp.initData
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    gamePoints = data.totalGamePoints;
+                    document.getElementById('user-game-points').innerText = gamePoints;
+                }
+            } catch (err) {
+                console.error("Error saving game score:", err);
+            }
+        }
+
         // ==========================================
-        // FLAPPY WOODGROW COIN GAME
+        // 1. FLAPPY WOODGROW COIN GAME
         // ==========================================
         let flappyCanvas, flappyCtx;
         let gameRunning = false;
@@ -2058,10 +2126,6 @@
                             document.getElementById('game-attempts-left').innerText = gameAttemptsLeft;
                             alert("🎉 Вам надано +5 додаткових спроб!");
                             
-                            if (typeof firebase !== 'undefined' && firebase.analytics) {
-                                firebase.analytics().logEvent('game_extra_attempts_ad_watched');
-                            }
-
                             document.getElementById('flappy-game-modal').style.display = 'flex';
                             document.getElementById('flappy-game-modal').classList.add('active');
                             document.getElementById('flappy-start-screen').style.display = 'flex';
@@ -2070,9 +2134,7 @@
                             flappyCtx = flappyCanvas.getContext('2d');
                             drawInitialScreen();
                         })
-                        .catch(() => {
-                            alert(translations[currentLang].ads_error);
-                        });
+                        .catch(() => { alert(translations[currentLang].ads_error); });
                 }
                 return;
             }
@@ -2098,7 +2160,6 @@
 
         function drawInitialScreen() {
             flappyCtx.clearRect(0, 0, flappyCanvas.width, flappyCanvas.height);
-            
             let bgGrad = flappyCtx.createRadialGradient(flappyCanvas.width/2, flappyCanvas.height/2, 20, flappyCanvas.width/2, flappyCanvas.height/2, 250);
             bgGrad.addColorStop(0, "#163820");
             bgGrad.addColorStop(1, "#07140a");
@@ -2127,10 +2188,6 @@
             document.getElementById('game-attempts-left').innerText = gameAttemptsLeft;
 
             flappyStartTime = Date.now();
-            if (typeof firebase !== 'undefined' && firebase.analytics) {
-                firebase.analytics().logEvent('game_started', { remaining_attempts: gameAttemptsLeft });
-            }
-
             document.getElementById('flappy-start-screen').style.display = 'none';
             bird.y = flappyCanvas.height / 2;
             bird.velocity = 0;
@@ -2154,7 +2211,6 @@
             if (!gameRunning) return;
 
             flappyCtx.clearRect(0, 0, flappyCanvas.width, flappyCanvas.height);
-
             let bgGrad = flappyCtx.createLinearGradient(0, 0, 0, flappyCanvas.height);
             bgGrad.addColorStop(0, "#0e2914");
             bgGrad.addColorStop(1, "#050f08");
@@ -2185,7 +2241,6 @@
 
             for (let i = pipes.length - 1; i >= 0; i--) {
                 pipes[i].x -= 1.3;
-
                 drawWoodPipe(pipes[i].x, 0, pipeWidth, pipes[i].top, true);
                 drawWoodPipe(pipes[i].x, flappyCanvas.height - pipes[i].bottom, pipeWidth, pipes[i].bottom, false);
 
@@ -2211,7 +2266,6 @@
             flappyCtx.save();
             flappyCtx.translate(bird.x, bird.y);
             flappyCtx.rotate(bird.rotation);
-
             flappyCtx.shadowBlur = 15;
             flappyCtx.shadowColor = "#0df25d";
 
@@ -2234,16 +2288,12 @@
             flappyCtx.textAlign = "center";
             flappyCtx.textBaseline = "middle";
             flappyCtx.fillText("🌱", 0, 1);
-
             flappyCtx.restore();
 
             flappyCtx.fillStyle = "#ffffff";
             flappyCtx.font = "900 32px sans-serif";
             flappyCtx.textAlign = "center";
-            flappyCtx.shadowBlur = 10;
-            flappyCtx.shadowColor = "rgba(0,0,0,0.8)";
             flappyCtx.fillText(currentScore, flappyCanvas.width / 2, 50);
-            flappyCtx.shadowBlur = 0;
 
             frameCount++;
             requestAnimationFrame(loopFlappy);
@@ -2257,42 +2307,17 @@
 
             flappyCtx.fillStyle = woodGrad;
             flappyCtx.fillRect(x, y, w, h);
-
             flappyCtx.strokeStyle = "#0df25d";
             flappyCtx.lineWidth = 2;
             flappyCtx.strokeRect(x, y, w, h);
-
-            flappyCtx.strokeStyle = "rgba(13, 242, 93, 0.3)";
-            flappyCtx.lineWidth = 1;
-            flappyCtx.beginPath();
-            if (isTop) {
-                flappyCtx.moveTo(x + w / 2, y + h - 20);
-                flappyCtx.lineTo(x + w / 2, y + h);
-            } else {
-                flappyCtx.moveTo(x + w / 2, y);
-                flappyCtx.lineTo(x + w / 2, y + 20);
-            }
-            flappyCtx.stroke();
         }
 
         async function gameOverFlappy() {
             gameRunning = false;
             flappyCanvas.onclick = null;
-
-            if (typeof firebase !== 'undefined' && firebase.analytics) {
-                firebase.analytics().logEvent('game_over', { score: currentScore });
-            }
-
             document.getElementById('flappy-final-score').innerText = currentScore;
             document.getElementById('flappy-earned-pts').innerText = currentScore;
-            
-            const reviveBtn = document.getElementById('btn-revive-ad');
-            if (canRevive) {
-                reviveBtn.style.display = 'block';
-            } else {
-                reviveBtn.style.display = 'none';
-            }
-
+            document.getElementById('btn-revive-ad').style.display = canRevive ? 'block' : 'none';
             document.getElementById('flappy-gameover-screen').style.display = 'flex';
 
             let durationSec = Math.floor((Date.now() - flappyStartTime) / 1000);
@@ -2302,75 +2327,30 @@
             }
         }
 
-        async function sendGameScoreToServer(scoreEarned, durationSec, gameName) {
-            try {
-                const res = await fetch('/api/game-score', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        userId: userId,
-                        pointsEarned: scoreEarned,
-                        durationSeconds: durationSec,
-                        gameName: gameName,
-                        initData: window.Telegram.WebApp.initData
-                    })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    gamePoints = data.totalGamePoints;
-                    document.getElementById('user-game-points').innerText = gamePoints;
-                }
-            } catch (err) {
-                console.error("Error saving game score:", err);
-            }
-        }
-
         function reviveWithAd() {
             const AdVideoController = window.Adsgram ? window.Adsgram.init({ blockId: "35910" }) : null;
-            if (!AdVideoController) {
-                alert("Рекламний SDK не завантажено.");
-                return;
-            }
+            if (!AdVideoController) { alert("Рекламний SDK не завантажено."); return; }
 
-            AdVideoController.show()
-                .then(() => {
-                    canRevive = false;
-                    
-                    if (typeof firebase !== 'undefined' && firebase.analytics) {
-                        firebase.analytics().logEvent('game_revive_ad_watched');
-                    }
-
-                    document.getElementById('flappy-gameover-screen').style.display = 'none';
-                    bird.y = flappyCanvas.height / 2;
-                    bird.velocity = 0;
-                    pipes = []; 
-                    gameRunning = true;
-                    
-                    flappyCanvas.onclick = () => {
-                        if (gameRunning) {
-                            bird.velocity = bird.lift;
-                            bird.rotation = -0.25;
-                        }
-                    };
-                    loopFlappy();
-                })
-                .catch(() => {
-                    alert(translations[currentLang].ads_error);
-                });
+            AdVideoController.show().then(() => {
+                canRevive = false;
+                document.getElementById('flappy-gameover-screen').style.display = 'none';
+                bird.y = flappyCanvas.height / 2;
+                bird.velocity = 0;
+                pipes = []; 
+                gameRunning = true;
+                flappyCanvas.onclick = () => { if (gameRunning) { bird.velocity = bird.lift; bird.rotation = -0.25; } };
+                loopFlappy();
+            }).catch(() => { alert(translations[currentLang].ads_error); });
         }
 
         function resetFlappyGame() {
-            if (gameAttemptsLeft <= 0) {
-                alert("❌ Спроби на сьогодні вичерпано. Перегляньте рекламу на головному екрані гри, щоб отримати додаткові спроби!");
-                closeFlappyGame();
-                return;
-            }
+            if (gameAttemptsLeft <= 0) { alert("❌ Спроби на сьогодні вичерпано!"); closeFlappyGame(); return; }
             document.getElementById('flappy-gameover-screen').style.display = 'none';
             startFlappyGame();
         }
 
         // ==========================================
-        // WOODGROW SNAKE GAME & ANALYTICS (Зменшена швидкість)
+        // 2. WOODGROW SNAKE GAME
         // ==========================================
         let wgSnakeCanvas, wgSnakeCtx;
         let wgSnakeRunning = false;
@@ -2383,9 +2363,7 @@
         let wgSnakeScore = 0;
         let wgSnakeStartTime = 0;
         let wgSnakeLoopInterval = null;
-
-        let wgTouchStartX = 0;
-        let wgTouchStartY = 0;
+        let wgTouchStartX = 0, wgTouchStartY = 0;
 
         const wgSnakeModalEl = document.getElementById('snake-game-modal');
         if (wgSnakeModalEl) {
@@ -2398,11 +2376,8 @@
 
             wgSnakeModalEl.addEventListener('touchend', e => {
                 if (!wgSnakeRunning || !e.changedTouches || !e.changedTouches[0]) return;
-                let touchEndX = e.changedTouches[0].screenX;
-                let touchEndY = e.changedTouches[0].screenY;
-                let diffX = touchEndX - wgTouchStartX;
-                let diffY = touchEndY - wgTouchStartY;
-
+                let diffX = e.changedTouches[0].screenX - wgTouchStartX;
+                let diffY = e.changedTouches[0].screenY - wgTouchStartY;
                 if (Math.abs(diffX) > Math.abs(diffY)) {
                     if (diffX > 30 && wgSnakeDx === 0) { wgSnakeNextDx = 20; wgSnakeNextDy = 0; }
                     else if (diffX < -30 && wgSnakeDx === 0) { wgSnakeNextDx = -20; wgSnakeNextDy = 0; }
@@ -2416,27 +2391,14 @@
         function openSnakeGame() {
             if (snakeAttemptsLeft <= 0) {
                 const AdVideoController = window.Adsgram ? window.Adsgram.init({ blockId: "35910" }) : null;
-                if (!AdVideoController) {
-                    alert("❌ У вас закінчилися спроби у Змійку на сьогодні!");
-                    return;
-                }
-
-                if (confirm("❌ Спроби вичерпано! Переглянути рекламу та отримати +5 додаткових спроб у Змійку?")) {
-                    AdVideoController.show()
-                        .then(() => {
-                            snakeAttemptsLeft += 5;
-                            localStorage.setItem('wg_snake_attempts', snakeAttemptsLeft.toString());
-                            const attemptsEl = document.getElementById('snake-attempts-left');
-                            if (attemptsEl) attemptsEl.innerText = snakeAttemptsLeft;
-                            alert("🎉 Нараховано +5 спроб у Змійку!");
-                            
-                            if (typeof firebase !== 'undefined' && firebase.analytics) {
-                                firebase.analytics().logEvent('snake_extra_attempts_watched');
-                            }
-
-                            openSnakeModalUI();
-                        })
-                        .catch(() => { alert("Рекламу не зараховано."); });
+                if (!AdVideoController) { alert("❌ Спроби у Змійку вичерпано!"); return; }
+                if (confirm("Переглянути рекламу та отримати +5 спроб у Змійку?")) {
+                    AdVideoController.show().then(() => {
+                        snakeAttemptsLeft += 5;
+                        localStorage.setItem('wg_snake_attempts', snakeAttemptsLeft.toString());
+                        document.getElementById('snake-attempts-left').innerText = snakeAttemptsLeft;
+                        openSnakeModalUI();
+                    }).catch(() => { alert("Рекламу не зараховано."); });
                 }
                 return;
             }
@@ -2444,192 +2406,346 @@
         }
 
         function openSnakeModalUI() {
-            const modalEl = document.getElementById('snake-game-modal');
-            const startScreenEl = document.getElementById('snake-start-screen');
-            const gameOverEl = document.getElementById('snake-gameover-screen');
-            
-            if (modalEl) {
-                modalEl.style.display = 'flex'; 
-                modalEl.classList.add('active');
-            }
-            if (startScreenEl) startScreenEl.style.display = 'flex';
-            if (gameOverEl) gameOverEl.style.display = 'none';
-
+            document.getElementById('snake-game-modal').style.display = 'flex';
+            document.getElementById('snake-game-modal').classList.add('active');
+            document.getElementById('snake-start-screen').style.display = 'flex';
+            document.getElementById('snake-gameover-screen').style.display = 'none';
             wgSnakeCanvas = document.getElementById('snake-canvas');
-            if (wgSnakeCanvas) {
-                wgSnakeCtx = wgSnakeCanvas.getContext('2d');
-            }
+            wgSnakeCtx = wgSnakeCanvas.getContext('2d');
         }
 
         function closeSnakeGame() {
-            if (wgSnakeRunning) {
-                endSnakeGameSessionAnalytics();
-            }
             wgSnakeRunning = false;
             clearInterval(wgSnakeLoopInterval);
-            
-            const modalEl = document.getElementById('snake-game-modal');
-            if (modalEl) {
-                modalEl.style.display = 'none';
-                modalEl.classList.remove('active');
-            }
-            
-            const attemptsEl = document.getElementById('snake-attempts-left');
-            if (attemptsEl) attemptsEl.innerText = snakeAttemptsLeft;
+            document.getElementById('snake-game-modal').style.display = 'none';
+            document.getElementById('snake-game-modal').classList.remove('active');
+            document.getElementById('snake-attempts-left').innerText = snakeAttemptsLeft;
         }
 
-        function changeSnakeDir(direction) {
+        function changeSnakeDir(dir) {
             if (!wgSnakeRunning) return;
-            if (direction === 'UP' && wgSnakeDy === 0) { wgSnakeNextDx = 0; wgSnakeNextDy = -20; }
-            if (direction === 'DOWN' && wgSnakeDy === 0) { wgSnakeNextDx = 0; wgSnakeNextDy = 20; }
-            if (direction === 'LEFT' && wgSnakeDx === 0) { wgSnakeNextDx = -20; wgSnakeNextDy = 0; }
-            if (direction === 'RIGHT' && wgSnakeDx === 0) { wgSnakeNextDx = 20; wgSnakeNextDy = 0; }
+            if (dir === 'UP' && wgSnakeDy === 0) { wgSnakeNextDx = 0; wgSnakeNextDy = -20; }
+            if (dir === 'DOWN' && wgSnakeDy === 0) { wgSnakeNextDx = 0; wgSnakeNextDy = 20; }
+            if (dir === 'LEFT' && wgSnakeDx === 0) { wgSnakeNextDx = -20; wgSnakeNextDy = 0; }
+            if (dir === 'RIGHT' && wgSnakeDx === 0) { wgSnakeNextDx = 20; wgSnakeNextDy = 0; }
         }
 
         function startSnakeGame() {
             if (snakeAttemptsLeft <= 0) return;
-
             snakeAttemptsLeft--;
             localStorage.setItem('wg_snake_attempts', snakeAttemptsLeft.toString());
-            
-            const attemptsEl = document.getElementById('snake-attempts-left');
-            if (attemptsEl) attemptsEl.innerText = snakeAttemptsLeft;
+            document.getElementById('snake-attempts-left').innerText = snakeAttemptsLeft;
 
             wgSnakeStartTime = Date.now();
-            if (typeof firebase !== 'undefined' && firebase.analytics) {
-                firebase.analytics().logEvent('snake_game_started', { user_id: userId });
-            }
-
-            const startScreenEl = document.getElementById('snake-start-screen');
-            if (startScreenEl) startScreenEl.style.display = 'none';
-            
-            wgSnakeCanvas = document.getElementById('snake-canvas');
-            if (wgSnakeCanvas) {
-                wgSnakeCtx = wgSnakeCanvas.getContext('2d');
-            }
-
-            if (!wgSnakeCtx || !wgSnakeCanvas) {
-                alert("Помилка ініціалізації Canvas для гри Змійка!");
-                return;
-            }
-
-            wgSnakeBody = [
-                { x: 160, y: 160 },
-                { x: 140, y: 160 },
-                { x: 120, y: 160 }
-            ];
+            document.getElementById('snake-start-screen').style.display = 'none';
+            wgSnakeBody = [{ x: 160, y: 160 }, { x: 140, y: 160 }, { x: 120, y: 160 }];
             wgSnakeScore = 0;
-            wgSnakeDx = 20;
-            wgSnakeDy = 0;
-            wgSnakeNextDx = 20;
-            wgSnakeNextDy = 0;
-            
+            wgSnakeDx = 20; wgSnakeDy = 0; wgSnakeNextDx = 20; wgSnakeNextDy = 0;
             createWgFood();
             wgSnakeRunning = true;
-            
-            drawWgSnakeScene();
-
             if (wgSnakeLoopInterval) clearInterval(wgSnakeLoopInterval);
-            // Збільшено інтервал з 120 до 180 мс для повільнішої та комфортнішої швидкості змійки
             wgSnakeLoopInterval = setInterval(mainWgSnakeLoop, 180);
         }
 
         function mainWgSnakeLoop() {
             if (!wgSnakeRunning) return;
-            wgSnakeDx = wgSnakeNextDx;
-            wgSnakeDy = wgSnakeNextDy;
-
+            wgSnakeDx = wgSnakeNextDx; wgSnakeDy = wgSnakeNextDy;
             let head = { x: wgSnakeBody[0].x + wgSnakeDx, y: wgSnakeBody[0].y + wgSnakeDy };
 
-            if (head.x < 0 || head.x >= wgSnakeCanvas.width || head.y < 0 || head.y >= wgSnakeCanvas.height || wgSnakeBody.slice(1).some(part => part.x === head.x && part.y === head.y)) {
+            if (head.x < 0 || head.x >= wgSnakeCanvas.width || head.y < 0 || head.y >= wgSnakeCanvas.height || wgSnakeBody.slice(1).some(p => p.x === head.x && p.y === head.y)) {
                 gameOverWgSnake();
                 return;
             }
 
             wgSnakeBody.unshift(head);
-
             if (head.x === wgSnakeFood.x && head.y === wgSnakeFood.y) {
-                wgSnakeScore += 1; 
+                wgSnakeScore += 1;
                 createWgFood();
             } else {
                 wgSnakeBody.pop();
             }
 
-            drawWgSnakeScene();
-        }
-
-        function drawWgSnakeScene() {
-            if (!wgSnakeCtx || !wgSnakeCanvas) return;
             wgSnakeCtx.fillStyle = '#050d08';
             wgSnakeCtx.fillRect(0, 0, wgSnakeCanvas.width, wgSnakeCanvas.height);
-
             wgSnakeCtx.fillStyle = '#ff0055';
-            wgSnakeCtx.shadowBlur = 10;
-            wgSnakeCtx.shadowColor = '#ff0055';
             wgSnakeCtx.fillRect(wgSnakeFood.x + 2, wgSnakeFood.y + 2, 16, 16);
-
-            wgSnakeBody.forEach((part, index) => {
-                wgSnakeCtx.fillStyle = index === 0 ? '#0df25d' : '#00f5d4';
-                wgSnakeCtx.shadowBlur = 8;
-                wgSnakeCtx.shadowColor = index === 0 ? '#0df25d' : '#00f5d4';
-                wgSnakeCtx.fillRect(part.x + 1, part.y + 1, 18, 18);
+            wgSnakeBody.forEach((p, idx) => {
+                wgSnakeCtx.fillStyle = idx === 0 ? '#0df25d' : '#00f5d4';
+                wgSnakeCtx.fillRect(p.x + 1, p.y + 1, 18, 18);
             });
-            wgSnakeCtx.shadowBlur = 0;
-
             wgSnakeCtx.fillStyle = '#ffffff';
             wgSnakeCtx.font = "bold 16px sans-serif";
             wgSnakeCtx.fillText(`WGC: ${wgSnakeScore}`, 15, 25);
         }
 
         function createWgFood() {
-            if (!wgSnakeCanvas) return;
             wgSnakeFood.x = Math.floor(Math.random() * (wgSnakeCanvas.width / 20)) * 20;
             wgSnakeFood.y = Math.floor(Math.random() * (wgSnakeCanvas.height / 20)) * 20;
-            if (wgSnakeBody.some(part => part.x === wgSnakeFood.x && part.y === wgSnakeFood.y)) {
-                createWgFood();
-            }
+            if (wgSnakeBody.some(p => p.x === wgSnakeFood.x && p.y === wgSnakeFood.y)) createWgFood();
         }
 
         async function gameOverWgSnake() {
             wgSnakeRunning = false;
             clearInterval(wgSnakeLoopInterval);
-            endSnakeGameSessionAnalytics();
-
-            const finalScoreEl = document.getElementById('snake-final-score');
-            if (finalScoreEl) finalScoreEl.innerText = wgSnakeScore;
-
-            const gameOverEl = document.getElementById('snake-gameover-screen');
-            if (gameOverEl) gameOverEl.style.display = 'flex';
-
+            document.getElementById('snake-final-score').innerText = wgSnakeScore;
+            document.getElementById('snake-gameover-screen').style.display = 'flex';
             let durationSec = Math.floor((Date.now() - wgSnakeStartTime) / 1000);
             if (wgSnakeScore > 0) {
                 gamePoints += wgSnakeScore;
-                const userGamePtsEl = document.getElementById('user-game-points');
-                if (userGamePtsEl) userGamePtsEl.innerText = gamePoints;
-                await sendGameScoreToServer(wgSnakeScore, durationSec, 'snake'); 
-            }
-        }
-
-        function endSnakeGameSessionAnalytics() {
-            let durationSeconds = Math.floor((Date.now() - wgSnakeStartTime) / 1000);
-            if (typeof firebase !== 'undefined' && firebase.analytics) {
-                firebase.analytics().logEvent('game_session_stats', {
-                    game_name: 'snake',
-                    duration_seconds: durationSeconds,
-                    score: wgSnakeScore
-                });
+                document.getElementById('user-game-points').innerText = gamePoints;
+                await sendGameScoreToServer(wgSnakeScore, durationSec, 'snake');
             }
         }
 
         function resetSnakeGame() {
-            if (snakeAttemptsLeft <= 0) {
-                alert("❌ Спроби вичерпано!");
-                closeSnakeGame();
+            if (snakeAttemptsLeft <= 0) { closeSnakeGame(); return; }
+            document.getElementById('snake-gameover-screen').style.display = 'none';
+            startSnakeGame();
+        }
+
+
+        // ==========================================
+        // 3. TOWER STACK GAME (Нова гра з ефектами)
+        // ==========================================
+        let towerCanvas, towerCtx;
+        let towerRunning = false;
+        let towerStack = [];
+        let currentBlock = null;
+        let towerScore = 0;
+        let blockWidth = 140;
+        let blockHeight = 25;
+        let towerSpeed = 2.5;
+        let cameraY = 0;
+        let fallingPieces = []; // Ефект 2.1: зрізані шматки що падають
+        let perfectAnimTimer = 0; // Ефект 2.2: напис PERFECT
+        let towerStartTime = 0;
+        let towerLoopId = null;
+
+        function openTowerGame() {
+            if (towerAttemptsLeft <= 0) {
+                const AdVideoController = window.Adsgram ? window.Adsgram.init({ blockId: "35910" }) : null;
+                if (!AdVideoController) { alert("❌ Спроби у Вежу вичерпано!"); return; }
+                if (confirm("Переглянути рекламу та отримати +5 спроб у Tower Stack?")) {
+                    AdVideoController.show().then(() => {
+                        towerAttemptsLeft += 5;
+                        localStorage.setItem('wg_tower_attempts', towerAttemptsLeft.toString());
+                        document.getElementById('tower-attempts-left').innerText = towerAttemptsLeft;
+                        openTowerModalUI();
+                    }).catch(() => { alert("Рекламу не зараховано."); });
+                }
                 return;
             }
-            const gameOverEl = document.getElementById('snake-gameover-screen');
-            if (gameOverEl) gameOverEl.style.display = 'none';
-            startSnakeGame();
+            openTowerModalUI();
+        }
+
+        function openTowerModalUI() {
+            document.getElementById('tower-game-modal').style.display = 'flex';
+            document.getElementById('tower-game-modal').classList.add('active');
+            document.getElementById('tower-start-screen').style.display = 'flex';
+            document.getElementById('tower-gameover-screen').style.display = 'none';
+            towerCanvas = document.getElementById('tower-canvas');
+            towerCtx = towerCanvas.getContext('2d');
+        }
+
+        function closeTowerGame() {
+            towerRunning = false;
+            cancelAnimationFrame(towerLoopId);
+            document.getElementById('tower-game-modal').style.display = 'none';
+            document.getElementById('tower-game-modal'].classList.remove('active');
+            document.getElementById('tower-attempts-left').innerText = towerAttemptsLeft;
+        }
+
+        function startTowerGame() {
+            if (towerAttemptsLeft <= 0) return;
+            towerAttemptsLeft--;
+            localStorage.setItem('wg_tower_attempts', towerAttemptsLeft.toString());
+            document.getElementById('tower-attempts-left').innerText = towerAttemptsLeft;
+
+            towerStartTime = Date.now();
+            document.getElementById('tower-start-screen').style.display = 'none';
+
+            blockWidth = 140;
+            towerSpeed = 2.5;
+            cameraY = 0;
+            towerScore = 0;
+            fallingPieces = [];
+            towerStack = [];
+
+            // Базова платформа внизу
+            let baseWidth = 160;
+            towerStack.push({
+                x: (towerCanvas.width - baseWidth) / 2,
+                y: towerCanvas.height - 50,
+                w: baseWidth,
+                h: blockHeight,
+                color: '#d4af37'
+            });
+
+            spawnNewTowerBlock();
+            towerRunning = true;
+
+            towerCanvas.onclick = () => {
+                if (towerRunning) placeTowerBlock();
+            };
+
+            loopTower();
+        }
+
+        function spawnNewTowerBlock() {
+            let lastBlock = towerStack[towerStack.length - 1];
+            let nextY = lastBlock.y - blockHeight;
+            let direction = towerStack.length % 2 === 0 ? 1 : -1;
+            let startX = direction > 0 ? -blockWidth : towerCanvas.width;
+
+            // Ефект 2.3: зміна кольорів (райдужний градієнт вежі)
+            let hue = (towerStack.length * 25) % 360;
+            let blockColor = `hsl(${hue}, 80%, 55%)`;
+
+            currentBlock = {
+                x: startX,
+                y: nextY,
+                w: lastBlock.w, // ширина зберігає попередній розмір
+                h: blockHeight,
+                speed: (towerSpeed + Math.floor(towerStack.length / 5) * 0.4) * direction,
+                color: blockColor
+            };
+        }
+
+        function placeTowerBlock() {
+            let lastBlock = towerStack[towerStack.length - 1];
+            let diff = currentBlock.x - lastBlock.x;
+
+            // Ефект 2.2: Ідеальне попадання (Perfect) якщо похибка менше 4 пікселів
+            let isPerfect = Math.abs(diff) < 4;
+
+            if (isPerfect) {
+                currentBlock.x = lastBlock.x;
+                currentBlock.w = lastBlock.w;
+                perfectAnimTimer = 30; // тридцять кадрів для показу напису PERFECT
+            } else {
+                if (Math.abs(diff) >= lastBlock.w) {
+                    // Повний промах — гра закінчена
+                    towerRunning = false;
+                    gameOverTower();
+                    return;
+                }
+
+                // Ефект 2.1: Зрізання та падіння зайвої частини блоку
+                let overlap = lastBlock.w - Math.abs(diff);
+                let cutWidth = Math.abs(diff);
+                let cutX = diff > 0 ? currentBlock.x + overlap : currentBlock.x;
+
+                fallingPieces.push({
+                    x: cutX,
+                    y: currentBlock.y,
+                    w: cutWidth,
+                    h: blockHeight,
+                    vx: diff > 0 ? 2 : -2,
+                    vy: 1,
+                    color: currentBlock.color
+                });
+
+                if (diff > 0) {
+                    currentBlock.w = overlap;
+                } else {
+                    currentBlock.w = overlap;
+                    currentBlock.x = lastBlock.x;
+                }
+            }
+
+            towerStack.push(currentBlock);
+            towerScore++;
+
+            // Ефект 2.3: Плавне підняття камери, коли вежа росте
+            if (towerStack.length > 6) {
+                cameraY += blockHeight;
+            }
+
+            spawnNewTowerBlock();
+        }
+
+        function loopTower() {
+            if (!towerRunning) return;
+
+            // Рух поточного блоку
+            currentBlock.x += currentBlock.speed;
+            if (currentBlock.x <= 0 || currentBlock.x + currentBlock.w >= towerCanvas.width) {
+                currentBlock.speed *= -1;
+            }
+
+            // Рендеринг
+            towerCtx.clearRect(0, 0, towerCanvas.width, towerCanvas.height);
+            towerCtx.save();
+            towerCtx.translate(0, cameraY);
+
+            // Малюємо вежу
+            towerStack.forEach(b => {
+                towerCtx.fillStyle = b.color;
+                towerCtx.fillRect(b.x, b.y, b.w, b.h);
+                towerCtx.strokeStyle = "rgba(0,0,0,0.3)";
+                towerCtx.lineWidth = 1.5;
+                towerCtx.strokeRect(b.x, b.y, b.w, b.h);
+            });
+
+            // Малюємо поточний рухомий блок
+            towerCtx.fillStyle = currentBlock.color;
+            towerCtx.fillRect(currentBlock.x, currentBlock.y, currentBlock.w, currentBlock.h);
+
+            // Анімація падаючих зрізаних шматків
+            for (let i = fallingPieces.length - 1; i >= 0; i--) {
+                let p = fallingPieces[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.5; // гравітація
+
+                towerCtx.fillStyle = p.color;
+                towerCtx.fillRect(p.x, p.y, p.w, p.h);
+
+                if (p.y > towerCanvas.height + cameraY) {
+                    fallingPieces.splice(i, 1);
+                }
+            }
+
+            towerCtx.restore();
+
+            // Виводимо поточний рахунок (висоту вежі)
+            towerCtx.fillStyle = "#ffffff";
+            towerCtx.font = "900 28px sans-serif";
+            towerCtx.textAlign = "center";
+            towerCtx.fillText(towerScore, towerCanvas.width / 2, 45);
+
+            // Ефект 2.2: Анімація напису PERFECT
+            if (perfectAnimTimer > 0) {
+                towerCtx.fillStyle = "#0df25d";
+                towerCtx.font = "bold 24px sans-serif";
+                towerCtx.textAlign = "center";
+                towerCtx.shadowBlur = 15;
+                towerCtx.shadowColor = "#0df25d";
+                towerCtx.fillText("✨ PERFECT! ✨", towerCanvas.width / 2, towerCanvas.height / 2 - 40);
+                towerCtx.shadowBlur = 0;
+                perfectAnimTimer--;
+            }
+
+            towerLoopId = requestAnimationFrame(loopTower);
+        }
+
+        async function gameOverTower() {
+            towerCanvas.onclick = null;
+            document.getElementById('tower-final-score').innerText = towerScore;
+            document.getElementById('tower-gameover-screen').style.display = 'flex';
+
+            let durationSec = Math.floor((Date.now() - towerStartTime) / 1000);
+            if (towerScore > 0) {
+                gamePoints += towerScore * 2; // Бонусні бали за висоту вежі
+                document.getElementById('user-game-points').innerText = gamePoints;
+                await sendGameScoreToServer(towerScore * 2, durationSec, 'tower_stack');
+            }
+        }
+
+        function resetTowerGame() {
+            if (towerAttemptsLeft <= 0) { closeTowerGame(); return; }
+            document.getElementById('tower-gameover-screen').style.display = 'none';
+            startTowerGame();
         }
 
         async function startApp() {
