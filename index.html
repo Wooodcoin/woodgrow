@@ -781,7 +781,8 @@
         <div id="tower-start-screen" class="game-overlay-panel" style="border-color: var(--gold-color);">
             <h3 style="color: var(--gold-color); margin-bottom: 10px;">Tower Stack</h3>
             <p style="font-size: 13px; color: #a1a1aa; margin-bottom: 20px;">Тапайте по екрану, щоб зупинити рухомий блок та збудувати найвищу вежу!</p>
-            <button class="btn" style="background: var(--gold-gradient); color: #000;" onclick="startTowerGame()">🎮 Старт</button>
+            <!-- Використовуємо pointerdown замість onclick для мобільних пристроїв -->
+            <button class="btn" id="btn-start-tower-action" style="background: var(--gold-gradient); color: #000;">🎮 Старт</button>
         </div>
 
         <div id="tower-gameover-screen" class="game-overlay-panel" style="display: none; border-color: var(--gold-color);">
@@ -2472,7 +2473,7 @@
 
 
         // ==========================================
-        // 3. TOWER STACK GAME (ПОВНІСТЮ ВИПРАВЛЕНО З КЛИКОМ ТА СТАРТОМ)
+        // 3. TOWER STACK GAME (ПОВНІСТЮ ВИПРАВЛЕНО ДЛЯ МОБІЛЬНИХ)
         // ==========================================
         let towerCanvas, towerCtx;
         let towerRunning = false;
@@ -2524,6 +2525,12 @@
             document.getElementById('tower-attempts-left').innerText = towerAttemptsLeft;
         }
 
+        // Прив'язуємо запуск через pointerdown, щоб мобільний браузер чітко розділив тапи
+        document.getElementById('btn-start-tower-action').addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            startTowerGame();
+        });
+
         function startTowerGame() {
             if (towerAttemptsLeft <= 0) return;
             towerAttemptsLeft--;
@@ -2553,12 +2560,14 @@
             towerRunning = true;
             towerInputLocked = true;
 
-            // Захисний таймер блокує миттєвий клік відразу після натискання «Старт»
+            // Захисний інтервал 400мс повністю блокує будь-які кліки під час анімації зникнення стартового вікна
             setTimeout(() => {
                 towerInputLocked = false;
-            }, 300);
+            }, 400);
 
-            towerCanvas.onclick = () => {
+            // Очищаємо і призначаємо подію кліку за допомогою pointerdown
+            towerCanvas.onpointerdown = (e) => {
+                e.preventDefault();
                 if (towerRunning && !towerInputLocked) placeTowerBlock();
             };
 
@@ -2688,7 +2697,7 @@
         }
 
         async function gameOverTower() {
-            towerCanvas.onclick = null;
+            towerCanvas.onpointerdown = null;
             document.getElementById('tower-final-score').innerText = towerScore;
             document.getElementById('tower-gameover-screen').style.display = 'flex';
 
