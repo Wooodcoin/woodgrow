@@ -2370,7 +2370,7 @@
         }
 
         // ==========================================
-        // WOODGROW SNAKE GAME & ANALYTICS (Виправлено відкриття)
+        // WOODGROW SNAKE GAME & ANALYTICS (Зменшена швидкість)
         // ==========================================
         let wgSnakeCanvas, wgSnakeCtx;
         let wgSnakeRunning = false;
@@ -2449,7 +2449,7 @@
             const gameOverEl = document.getElementById('snake-gameover-screen');
             
             if (modalEl) {
-                modalEl.style.display = 'flex'; // Примусово робимо видимим
+                modalEl.style.display = 'flex'; 
                 modalEl.classList.add('active');
             }
             if (startScreenEl) startScreenEl.style.display = 'flex';
@@ -2530,7 +2530,8 @@
             drawWgSnakeScene();
 
             if (wgSnakeLoopInterval) clearInterval(wgSnakeLoopInterval);
-            wgSnakeLoopInterval = setInterval(mainWgSnakeLoop, 120);
+            // Збільшено інтервал з 120 до 180 мс для повільнішої та комфортнішої швидкості змійки
+            wgSnakeLoopInterval = setInterval(mainWgSnakeLoop, 180);
         }
 
         function mainWgSnakeLoop() {
