@@ -2383,26 +2383,29 @@
         let touchStartX = 0;
         let touchStartY = 0;
 
-        document.addEventListener('touchstart', e => {
-            touchStartX = e.changedTouches[0].screenX;
-            touchStartY = e.changedTouches[0].screenY;
-        }, false);
+        const snakeModalEl = document.getElementById('snake-game-modal');
+        if (snakeModalEl) {
+            snakeModalEl.addEventListener('touchstart', e => {
+                touchStartX = e.changedTouches[0].screenX;
+                touchStartY = e.changedTouches[0].screenY;
+            }, { passive: true });
 
-        document.addEventListener('touchend', e => {
-            if (!snakeRunning) return;
-            let touchEndX = e.changedTouches[0].screenX;
-            let touchEndY = e.changedTouches[0].screenY;
-            let diffX = touchEndX - touchStartX;
-            let diffY = touchEndY - touchStartY;
+            snakeModalEl.addEventListener('touchend', e => {
+                if (!snakeRunning) return;
+                let touchEndX = e.changedTouches[0].screenX;
+                let touchEndY = e.changedTouches[0].screenY;
+                let diffX = touchEndX - touchStartX;
+                let diffY = touchEndY - touchStartY;
 
-            if (Math.abs(diffX) > Math.abs(diffY)) {
-                if (diffX > 30 && dx === 0) { nextDx = 20; nextDy = 0; }
-                else if (diffX < -30 && dx === 0) { nextDx = -20; nextDy = 0; }
-            } else {
-                if (diffY > 30 && dy === 0) { nextDx = 0; nextDy = 20; }
-                else if (diffY < -30 && dy === 0) { nextDx = 0; nextDy = -20; }
-            }
-        }, false);
+                if (Math.abs(diffX) > Math.abs(diffY)) {
+                    if (diffX > 30 && dx === 0) { nextDx = 20; nextDy = 0; }
+                    else if (diffX < -30 && dx === 0) { nextDx = -20; nextDy = 0; }
+                } else {
+                    if (diffY > 30 && dy === 0) { nextDx = 0; nextDy = 20; }
+                    else if (diffY < -30 && dy === 0) { nextDx = 0; nextDy = -20; }
+                }
+            }, { passive: true });
+        }
 
         function openSnakeGame() {
             if (snakeAttemptsLeft <= 0) {
@@ -2438,7 +2441,9 @@
             document.getElementById('snake-start-screen').style.display = 'flex';
             document.getElementById('snake-gameover-screen').style.display = 'none';
             snakeCanvas = document.getElementById('snake-canvas');
-            snakeCtx = snakeCanvas.getContext('2d');
+            if (snakeCanvas) {
+                snakeCtx = snakeCanvas.getContext('2d');
+            }
         }
 
         function closeSnakeGame() {
@@ -2473,6 +2478,11 @@
 
             document.getElementById('snake-start-screen').style.display = 'none';
             
+            snakeCanvas = document.getElementById('snake-canvas');
+            if (snakeCanvas) {
+                snakeCtx = snakeCanvas.getContext('2d');
+            }
+
             snake = [
                 { x: 160, y: 160 },
                 { x: 140, y: 160 },
@@ -2487,6 +2497,9 @@
             createFood();
             snakeRunning = true;
             
+            // Миттєвий виклик рендеру при старті
+            drawSnakeScene();
+
             if (snakeInterval) clearInterval(snakeInterval);
             snakeInterval = setInterval(mainSnakeLoop, 120);
         }
@@ -2516,6 +2529,7 @@
         }
 
         function drawSnakeScene() {
+            if (!snakeCtx || !snakeCanvas) return;
             snakeCtx.fillStyle = '#050d08';
             snakeCtx.fillRect(0, 0, snakeCanvas.width, snakeCanvas.height);
 
