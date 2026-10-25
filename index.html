@@ -926,7 +926,7 @@
                 btn_support: "🍿 Підтримати WoodGrow (+0 USDT)",
                 loading: "Завантаження...",
                 people_count: "чол.",
-                copied: "Скопіювано!",
+                copied: "Скопійовано!",
                 alert_wallet: "❌ Спочатку підключіть ваш TON-гаманець!",
                 alert_min: "❌ Мінімальна сума для виведення: 5 USDT (У вас {val})",
                 alert_confirm: "Ви впевнені, що хочете вивести {val} USDT?\n\nПісля натискання 'ОК' ваш баланс буде списано, а заявка автоматично надійде адміну.",
@@ -2366,45 +2366,45 @@
         }
 
         // ==========================================
-        // WOODGROW SNAKE GAME & ANALYTICS
+        // WOODGROW SNAKE GAME & ANALYTICS (Ізольовані змінні)
         // ==========================================
-        let snakeCanvas, snakeCtx;
-        let snakeRunning = false;
-        let snake = [];
-        let food = { x: 0, y: 0 };
-        let dx = 20;
-        let dy = 0;
-        let nextDx = 20;
-        let nextDy = 0;
-        let snakeScore = 0;
-        let snakeGameStartTime = 0;
-        let snakeInterval = null;
+        let wgSnakeCanvas, wgSnakeCtx;
+        let wgSnakeRunning = false;
+        let wgSnakeBody = [];
+        let wgSnakeFood = { x: 0, y: 0 };
+        let wgSnakeDx = 20;
+        let wgSnakeDy = 0;
+        let wgSnakeNextDx = 20;
+        let wgSnakeNextDy = 0;
+        let wgSnakeScore = 0;
+        let wgSnakeStartTime = 0;
+        let wgSnakeLoopInterval = null;
 
-        let touchStartX = 0;
-        let touchStartY = 0;
+        let wgTouchStartX = 0;
+        let wgTouchStartY = 0;
 
-        const snakeModalEl = document.getElementById('snake-game-modal');
-        if (snakeModalEl) {
-            snakeModalEl.addEventListener('touchstart', e => {
+        const wgSnakeModalEl = document.getElementById('snake-game-modal');
+        if (wgSnakeModalEl) {
+            wgSnakeModalEl.addEventListener('touchstart', e => {
                 if (e.changedTouches && e.changedTouches[0]) {
-                    touchStartX = e.changedTouches[0].screenX;
-                    touchStartY = e.changedTouches[0].screenY;
+                    wgTouchStartX = e.changedTouches[0].screenX;
+                    wgTouchStartY = e.changedTouches[0].screenY;
                 }
             }, { passive: true });
 
-            snakeModalEl.addEventListener('touchend', e => {
-                if (!snakeRunning || !e.changedTouches || !e.changedTouches[0]) return;
+            wgSnakeModalEl.addEventListener('touchend', e => {
+                if (!wgSnakeRunning || !e.changedTouches || !e.changedTouches[0]) return;
                 let touchEndX = e.changedTouches[0].screenX;
                 let touchEndY = e.changedTouches[0].screenY;
-                let diffX = touchEndX - touchStartX;
-                let diffY = touchEndY - touchStartY;
+                let diffX = touchEndX - wgTouchStartX;
+                let diffY = touchEndY - wgTouchStartY;
 
                 if (Math.abs(diffX) > Math.abs(diffY)) {
-                    if (diffX > 30 && dx === 0) { nextDx = 20; nextDy = 0; }
-                    else if (diffX < -30 && dx === 0) { nextDx = -20; nextDy = 0; }
+                    if (diffX > 30 && wgSnakeDx === 0) { wgSnakeNextDx = 20; wgSnakeNextDy = 0; }
+                    else if (diffX < -30 && wgSnakeDx === 0) { wgSnakeNextDx = -20; wgSnakeNextDy = 0; }
                 } else {
-                    if (diffY > 30 && dy === 0) { nextDx = 0; nextDy = 20; }
-                    else if (diffY < -30 && dy === 0) { nextDx = 0; nextDy = -20; }
+                    if (diffY > 30 && wgSnakeDy === 0) { wgSnakeNextDx = 0; wgSnakeNextDy = 20; }
+                    else if (diffY < -30 && wgSnakeDy === 0) { wgSnakeNextDx = 0; wgSnakeNextDy = -20; }
                 }
             }, { passive: true });
         }
@@ -2448,18 +2448,18 @@
             if (startScreenEl) startScreenEl.style.display = 'flex';
             if (gameOverEl) gameOverEl.style.display = 'none';
 
-            snakeCanvas = document.getElementById('snake-canvas');
-            if (snakeCanvas) {
-                snakeCtx = snakeCanvas.getContext('2d');
+            wgSnakeCanvas = document.getElementById('snake-canvas');
+            if (wgSnakeCanvas) {
+                wgSnakeCtx = wgSnakeCanvas.getContext('2d');
             }
         }
 
         function closeSnakeGame() {
-            if (snakeRunning) {
+            if (wgSnakeRunning) {
                 endSnakeGameSessionAnalytics();
             }
-            snakeRunning = false;
-            clearInterval(snakeInterval);
+            wgSnakeRunning = false;
+            clearInterval(wgSnakeLoopInterval);
             
             const modalEl = document.getElementById('snake-game-modal');
             if (modalEl) modalEl.classList.remove('active');
@@ -2469,11 +2469,11 @@
         }
 
         function changeSnakeDir(direction) {
-            if (!snakeRunning) return;
-            if (direction === 'UP' && dy === 0) { nextDx = 0; nextDy = -20; }
-            if (direction === 'DOWN' && dy === 0) { nextDx = 0; nextDy = 20; }
-            if (direction === 'LEFT' && dx === 0) { nextDx = -20; nextDy = 0; }
-            if (direction === 'RIGHT' && dx === 0) { nextDx = 20; nextDy = 0; }
+            if (!wgSnakeRunning) return;
+            if (direction === 'UP' && wgSnakeDy === 0) { wgSnakeNextDx = 0; wgSnakeNextDy = -20; }
+            if (direction === 'DOWN' && wgSnakeDy === 0) { wgSnakeNextDx = 0; wgSnakeNextDy = 20; }
+            if (direction === 'LEFT' && wgSnakeDx === 0) { wgSnakeNextDx = -20; wgSnakeNextDy = 0; }
+            if (direction === 'RIGHT' && wgSnakeDx === 0) { wgSnakeNextDx = 20; wgSnakeNextDy = 0; }
         }
 
         function startSnakeGame() {
@@ -2485,7 +2485,7 @@
             const attemptsEl = document.getElementById('snake-attempts-left');
             if (attemptsEl) attemptsEl.innerText = snakeAttemptsLeft;
 
-            snakeGameStartTime = Date.now();
+            wgSnakeStartTime = Date.now();
             if (typeof firebase !== 'undefined' && firebase.analytics) {
                 firebase.analytics().logEvent('snake_game_started', { user_id: userId });
             }
@@ -2493,120 +2493,120 @@
             const startScreenEl = document.getElementById('snake-start-screen');
             if (startScreenEl) startScreenEl.style.display = 'none';
             
-            snakeCanvas = document.getElementById('snake-canvas');
-            if (snakeCanvas) {
-                snakeCtx = snakeCanvas.getContext('2d');
+            wgSnakeCanvas = document.getElementById('snake-canvas');
+            if (wgSnakeCanvas) {
+                wgSnakeCtx = wgSnakeCanvas.getContext('2d');
             }
 
-            if (!snakeCtx || !snakeCanvas) {
+            if (!wgSnakeCtx || !wgSnakeCanvas) {
                 alert("Помилка ініціалізації Canvas для гри Змійка!");
                 return;
             }
 
-            snake = [
+            wgSnakeBody = [
                 { x: 160, y: 160 },
                 { x: 140, y: 160 },
                 { x: 120, y: 160 }
             ];
-            snakeScore = 0;
-            dx = 20;
-            dy = 0;
-            nextDx = 20;
-            nextDy = 0;
+            wgSnakeScore = 0;
+            wgSnakeDx = 20;
+            wgSnakeDy = 0;
+            wgSnakeNextDx = 20;
+            wgSnakeNextDy = 0;
             
-            createFood();
-            snakeRunning = true;
+            createWgFood();
+            wgSnakeRunning = true;
             
             // Миттєвий виклик рендеру при старті
-            drawSnakeScene();
+            drawWgSnakeScene();
 
-            if (snakeInterval) clearInterval(snakeInterval);
-            snakeInterval = setInterval(mainSnakeLoop, 120);
+            if (wgSnakeLoopInterval) clearInterval(wgSnakeLoopInterval);
+            wgSnakeLoopInterval = setInterval(mainWgSnakeLoop, 120);
         }
 
-        function mainSnakeLoop() {
-            if (!snakeRunning) return;
-            dx = nextDx;
-            dy = nextDy;
+        function mainWgSnakeLoop() {
+            if (!wgSnakeRunning) return;
+            wgSnakeDx = wgSnakeNextDx;
+            wgSnakeDy = wgSnakeNextDy;
 
-            let head = { x: snake[0].x + dx, y: snake[0].y + dy };
+            let head = { x: wgSnakeBody[0].x + wgSnakeDx, y: wgSnakeBody[0].y + wgSnakeDy };
 
-            if (head.x < 0 || head.x >= snakeCanvas.width || head.y < 0 || head.y >= snakeCanvas.height || snake.slice(1).some(part => part.x === head.x && part.y === head.y)) {
-                gameOverSnake();
+            if (head.x < 0 || head.x >= wgSnakeCanvas.width || head.y < 0 || head.y >= wgSnakeCanvas.height || wgSnakeBody.slice(1).some(part => part.x === head.x && part.y === head.y)) {
+                gameOverWgSnake();
                 return;
             }
 
-            snake.unshift(head);
+            wgSnakeBody.unshift(head);
 
-            if (head.x === food.x && head.y === food.y) {
-                snakeScore += 1; // 1 їжа = 1 WGC
-                createFood();
+            if (head.x === wgSnakeFood.x && head.y === wgSnakeFood.y) {
+                wgSnakeScore += 1; 
+                createWgFood();
             } else {
-                snake.pop();
+                wgSnakeBody.pop();
             }
 
-            drawSnakeScene();
+            drawWgSnakeScene();
         }
 
-        function drawSnakeScene() {
-            if (!snakeCtx || !snakeCanvas) return;
-            snakeCtx.fillStyle = '#050d08';
-            snakeCtx.fillRect(0, 0, snakeCanvas.width, snakeCanvas.height);
+        function drawWgSnakeScene() {
+            if (!wgSnakeCtx || !wgSnakeCanvas) return;
+            wgSnakeCtx.fillStyle = '#050d08';
+            wgSnakeCtx.fillRect(0, 0, wgSnakeCanvas.width, wgSnakeCanvas.height);
 
-            snakeCtx.fillStyle = '#ff0055';
-            snakeCtx.shadowBlur = 10;
-            snakeCtx.shadowColor = '#ff0055';
-            snakeCtx.fillRect(food.x + 2, food.y + 2, 16, 16);
+            wgSnakeCtx.fillStyle = '#ff0055';
+            wgSnakeCtx.shadowBlur = 10;
+            wgSnakeCtx.shadowColor = '#ff0055';
+            wgSnakeCtx.fillRect(wgSnakeFood.x + 2, wgSnakeFood.y + 2, 16, 16);
 
-            snake.forEach((part, index) => {
-                snakeCtx.fillStyle = index === 0 ? '#0df25d' : '#00f5d4';
-                snakeCtx.shadowBlur = 8;
-                snakeCtx.shadowColor = index === 0 ? '#0df25d' : '#00f5d4';
-                snakeCtx.fillRect(part.x + 1, part.y + 1, 18, 18);
+            wgSnakeBody.forEach((part, index) => {
+                wgSnakeCtx.fillStyle = index === 0 ? '#0df25d' : '#00f5d4';
+                wgSnakeCtx.shadowBlur = 8;
+                wgSnakeCtx.shadowColor = index === 0 ? '#0df25d' : '#00f5d4';
+                wgSnakeCtx.fillRect(part.x + 1, part.y + 1, 18, 18);
             });
-            snakeCtx.shadowBlur = 0;
+            wgSnakeCtx.shadowBlur = 0;
 
-            snakeCtx.fillStyle = '#ffffff';
-            snakeCtx.font = "bold 16px sans-serif";
-            snakeCtx.fillText(`WGC: ${snakeScore}`, 15, 25);
+            wgSnakeCtx.fillStyle = '#ffffff';
+            wgSnakeCtx.font = "bold 16px sans-serif";
+            wgSnakeCtx.fillText(`WGC: ${wgSnakeScore}`, 15, 25);
         }
 
-        function createFood() {
-            if (!snakeCanvas) return;
-            food.x = Math.floor(Math.random() * (snakeCanvas.width / 20)) * 20;
-            food.y = Math.floor(Math.random() * (snakeCanvas.height / 20)) * 20;
-            if (snake.some(part => part.x === food.x && part.y === food.y)) {
-                createFood();
+        function createWgFood() {
+            if (!wgSnakeCanvas) return;
+            wgSnakeFood.x = Math.floor(Math.random() * (wgSnakeCanvas.width / 20)) * 20;
+            wgSnakeFood.y = Math.floor(Math.random() * (wgSnakeCanvas.height / 20)) * 20;
+            if (wgSnakeBody.some(part => part.x === wgSnakeFood.x && part.y === wgSnakeFood.y)) {
+                createWgFood();
             }
         }
 
-        async function gameOverSnake() {
-            snakeRunning = false;
-            clearInterval(snakeInterval);
+        async function gameOverWgSnake() {
+            wgSnakeRunning = false;
+            clearInterval(wgSnakeLoopInterval);
             endSnakeGameSessionAnalytics();
 
             const finalScoreEl = document.getElementById('snake-final-score');
-            if (finalScoreEl) finalScoreEl.innerText = snakeScore;
+            if (finalScoreEl) finalScoreEl.innerText = wgSnakeScore;
 
             const gameOverEl = document.getElementById('snake-gameover-screen');
             if (gameOverEl) gameOverEl.style.display = 'flex';
 
-            let durationSec = Math.floor((Date.now() - snakeGameStartTime) / 1000);
-            if (snakeScore > 0) {
-                gamePoints += snakeScore;
+            let durationSec = Math.floor((Date.now() - wgSnakeStartTime) / 1000);
+            if (wgSnakeScore > 0) {
+                gamePoints += wgSnakeScore;
                 const userGamePtsEl = document.getElementById('user-game-points');
                 if (userGamePtsEl) userGamePtsEl.innerText = gamePoints;
-                await sendGameScoreToServer(snakeScore, durationSec, 'snake'); 
+                await sendGameScoreToServer(wgSnakeScore, durationSec, 'snake'); 
             }
         }
 
         function endSnakeGameSessionAnalytics() {
-            let durationSeconds = Math.floor((Date.now() - snakeGameStartTime) / 1000);
+            let durationSeconds = Math.floor((Date.now() - wgSnakeStartTime) / 1000);
             if (typeof firebase !== 'undefined' && firebase.analytics) {
                 firebase.analytics().logEvent('game_session_stats', {
                     game_name: 'snake',
                     duration_seconds: durationSeconds,
-                    score: snakeScore
+                    score: wgSnakeScore
                 });
             }
         }
