@@ -81,18 +81,39 @@ export default async function handler(req, res) {
             totalPlayTime += parseInt(durationSeconds, 10);
         }
 
-        // Зберігаємо оновлені бали WGC та статистику ігор у Firebase
-        await userRef.update({
+        // Об'єкт для оновлення даних користувача в базі
+        let updateData = {
             game_points: currentGamePoints,
             total_play_time_seconds: totalPlayTime,
             total_games_played: totalGamesPlayed,
             last_game_played_at: Date.now()
-        });
+        };
+
+        let currentSnakeAttempts = userData.snake_attempts !== undefined ? userData.snake_attempts : 5;
+        let currentGameAttempts = userData.game_attempts !== undefined ? userData.game_attempts : 10;
+
+        // Безпечне керування спробами на бекенді залежно від гри
+        if (gameName === 'snake') {
+            if (currentSnakeAttempts > 0) {
+                currentSnakeAttempts -= 1;
+                updateData.snake_attempts = currentSnakeAttempts;
+            }
+        } else if (gameName === 'flappy') {
+            if (currentGameAttempts > 0) {
+                currentGameAttempts -= 1;
+                updateData.game_attempts = currentGameAttempts;
+            }
+        }
+
+        // Зберігаємо оновлені дані у Firebase
+        await userRef.update(updateData);
 
         return res.status(200).json({
             success: true,
             totalGamePoints: currentGamePoints,
-            totalPlayTimeSeconds: totalPlayTime
+            totalPlayTimeSeconds: totalPlayTime,
+            snake_attempts: currentSnakeAttempts,
+            game_attempts: currentGameAttempts
         });
 
     } catch (e) {
