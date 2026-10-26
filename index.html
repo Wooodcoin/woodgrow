@@ -2472,7 +2472,7 @@
 
 
         // ==========================================
-        // 3. TOWER STACK GAME (ПОВНІСТЮ ВИПРАВЛЕНО ДЛЯ МОБІЛЬНИХ)
+        // 3. TOWER STACK GAME (ПОВНІСТЮ ВИПРАВЛЕНО)
         // ==========================================
         let towerCanvas, towerCtx;
         let towerRunning = false;
@@ -2524,10 +2524,13 @@
             document.getElementById('tower-attempts-left').innerText = towerAttemptsLeft;
         }
 
-        document.getElementById('btn-start-tower-action').addEventListener('pointerdown', (e) => {
-            e.preventDefault();
-            startTowerGame();
-        });
+        const btnStartTowerAction = document.getElementById('btn-start-tower-action');
+        if (btnStartTowerAction) {
+            btnStartTowerAction.onclick = (e) => {
+                e.preventDefault();
+                startTowerGame();
+            };
+        }
 
         function startTowerGame() {
             if (towerAttemptsLeft <= 0) return;
@@ -2537,6 +2540,12 @@
 
             towerStartTime = Date.now();
             document.getElementById('tower-start-screen').style.display = 'none';
+
+            towerCanvas = document.getElementById('tower-canvas');
+            if (!towerCanvas) return;
+            towerCanvas.width = 360;
+            towerCanvas.height = 520;
+            towerCtx = towerCanvas.getContext('2d');
 
             blockWidth = 140;
             towerSpeed = 2.5;
@@ -2560,13 +2569,14 @@
 
             setTimeout(() => {
                 towerInputLocked = false;
-            }, 400);
+            }, 500);
 
-            towerCanvas.onpointerdown = (e) => {
+            towerCanvas.onclick = (e) => {
                 e.preventDefault();
                 if (towerRunning && !towerInputLocked) placeTowerBlock();
             };
 
+            if (towerLoopId) cancelAnimationFrame(towerLoopId);
             loopTower();
         }
 
@@ -2637,9 +2647,11 @@
         function loopTower() {
             if (!towerRunning) return;
 
-            currentBlock.x += currentBlock.speed;
-            if (currentBlock.x <= 0 || currentBlock.x + currentBlock.w >= towerCanvas.width) {
-                currentBlock.speed *= -1;
+            if (currentBlock) {
+                currentBlock.x += currentBlock.speed;
+                if (currentBlock.x <= 0 || currentBlock.x + currentBlock.w >= towerCanvas.width) {
+                    currentBlock.speed *= -1;
+                }
             }
 
             towerCtx.clearRect(0, 0, towerCanvas.width, towerCanvas.height);
@@ -2654,8 +2666,10 @@
                 towerCtx.strokeRect(b.x, b.y, b.w, b.h);
             });
 
-            towerCtx.fillStyle = currentBlock.color;
-            towerCtx.fillRect(currentBlock.x, currentBlock.y, currentBlock.w, currentBlock.h);
+            if (currentBlock) {
+                towerCtx.fillStyle = currentBlock.color;
+                towerCtx.fillRect(currentBlock.x, currentBlock.y, currentBlock.w, currentBlock.h);
+            }
 
             for (let i = fallingPieces.length - 1; i >= 0; i--) {
                 let p = fallingPieces[i];
@@ -2693,7 +2707,7 @@
         }
 
         async function gameOverTower() {
-            towerCanvas.onpointerdown = null;
+            if (towerCanvas) towerCanvas.onclick = null;
             document.getElementById('tower-final-score').innerText = towerScore;
             document.getElementById('tower-gameover-screen').style.display = 'flex';
 
@@ -2701,7 +2715,7 @@
             if (towerScore > 0) {
                 gamePoints += towerScore * 2;
                 document.getElementById('user-game-points').innerText = gamePoints;
-                await sendGameScoreToServer(towerScore * 2, durationSec, 'tower_stack');
+                await sendGameScoreSaver(towerScore * 2, durationSec, 'tower_stack');
             }
         }
 
