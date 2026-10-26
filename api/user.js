@@ -92,6 +92,7 @@ export default async function handler(req, res) {
                 game_points: 0, // Бали WGC
                 game_attempts: 10, // 10 безкоштовних спроб у Flappy
                 snake_attempts: 5, // 5 безкоштовних спроб у Змійці
+                tower_attempts: 5, // 5 безкоштовних спроб у Вежі
                 last_game_date: todayStr,
                 referred_by: referrerId, 
                 ref_bonus: 0.0000,
@@ -113,14 +114,17 @@ export default async function handler(req, res) {
         // 4. Перевірка оновлення спроб ігор при наступному дні
         let gameAttempts = user.game_attempts !== undefined ? user.game_attempts : 10;
         let snakeAttempts = user.snake_attempts !== undefined ? user.snake_attempts : 5;
+        let towerAttempts = user.tower_attempts !== undefined ? user.tower_attempts : 5;
         let lastGameDate = user.last_game_date || '';
 
         if (lastGameDate !== todayStr) {
             gameAttempts = 10; 
             snakeAttempts = 5; 
+            towerAttempts = 5;
             await userRef.update({
                 game_attempts: 10,
                 snake_attempts: 5,
+                tower_attempts: 5,
                 last_game_date: todayStr
             });
         }
@@ -170,7 +174,7 @@ export default async function handler(req, res) {
             adminDailyCombo = currentDailyCombo;
         }
 
-        // Повертаємо ПОВНИЙ набір даних на фронтенд (включно зі snake_attempts)
+        // Повертаємо ПОВНИЙ набір даних на фронтенд (включно зі snake_attempts та tower_attempts)
         return res.status(200).json({
             success: true,
             role: userRole, 
@@ -178,6 +182,7 @@ export default async function handler(req, res) {
             game_points: parseInt(user.game_points) || 0,
             game_attempts: parseInt(gameAttempts) || 10,
             snake_attempts: parseInt(snakeAttempts) || 5,
+            tower_attempts: parseInt(towerAttempts) || 5,
             ref_bonus: parseFloat(user.ref_bonus) || 0.0000,
             ref_count: totalReferrals,
             viewCounts: viewCounts,
