@@ -2472,7 +2472,7 @@
 
 
         // ==========================================
-        // 3. TOWER STACK GAME (ПОВНІСТЮ ВИПРАВЛЕНО)
+        // 3. TOWER STACK GAME (ВИПРАВЛЕНО СТАРТ ТА РУХ)
         // ==========================================
         let towerCanvas, towerCtx;
         let towerRunning = false;
@@ -2587,14 +2587,18 @@
             let lastBlock = towerStack[towerStack.length - 1];
             let nextY = lastBlock.y - blockHeight;
             let direction = towerStack.length % 2 === 0 ? 1 : -1;
-            let startX = direction > 0 ? 10 : (towerCanvas.width - blockWidth - 10);
+            
+            let w = lastBlock.w;
+            // Безпечна стартова позиція з відступом від стінок, щоб блок відразу рухався і не залипав
+            let startX = direction > 0 ? 25 : (towerCanvas.width - w - 25);
+            
             let hue = (towerStack.length * 25) % 360;
             let blockColor = `hsl(${hue}, 80%, 55%)`;
 
             currentBlock = {
                 x: startX,
                 y: nextY,
-                w: lastBlock.w,
+                w: w,
                 h: blockHeight,
                 speed: (towerSpeed + Math.floor(towerStack.length / 5) * 0.4) * direction,
                 color: blockColor
