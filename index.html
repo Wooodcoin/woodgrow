@@ -2511,10 +2511,10 @@
             document.getElementById('tower-start-screen').style.display = 'flex';
             document.getElementById('tower-gameover-screen').style.display = 'none';
             towerCanvas = document.getElementById('tower-canvas');
-            towerCtx = towerCanvas.getContext('2d');
             
             towerCanvas.width = 360;
             towerCanvas.height = 520;
+            towerCtx = towerCanvas.getContext('2d');
         }
 
         function closeTowerGame() {
@@ -2543,6 +2543,7 @@
 
             towerCanvas = document.getElementById('tower-canvas');
             if (!towerCanvas) return;
+            
             towerCanvas.width = 360;
             towerCanvas.height = 520;
             towerCtx = towerCanvas.getContext('2d');
@@ -2569,11 +2570,13 @@
 
             setTimeout(() => {
                 towerInputLocked = false;
-            }, 500);
+            }, 600);
 
             towerCanvas.onclick = (e) => {
                 e.preventDefault();
-                if (towerRunning && !towerInputLocked) placeTowerBlock();
+                if (towerRunning && !towerInputLocked) {
+                    placeTowerBlock();
+                }
             };
 
             if (towerLoopId) cancelAnimationFrame(towerLoopId);
@@ -2584,7 +2587,7 @@
             let lastBlock = towerStack[towerStack.length - 1];
             let nextY = lastBlock.y - blockHeight;
             let direction = towerStack.length % 2 === 0 ? 1 : -1;
-            let startX = direction > 0 ? -blockWidth : towerCanvas.width;
+            let startX = direction > 0 ? 10 : (towerCanvas.width - blockWidth - 10);
             let hue = (towerStack.length * 25) % 360;
             let blockColor = `hsl(${hue}, 80%, 55%)`;
 
