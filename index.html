@@ -781,7 +781,6 @@
         <div id="tower-start-screen" class="game-overlay-panel" style="border-color: var(--gold-color);">
             <h3 style="color: var(--gold-color); margin-bottom: 10px;">Tower Stack</h3>
             <p style="font-size: 13px; color: #a1a1aa; margin-bottom: 20px;">Тапайте по екрану, щоб зупинити рухомий блок та збудувати найвищу вежу!</p>
-            <!-- Використовуємо pointerdown замість onclick для мобільних пристроїв -->
             <button class="btn" id="btn-start-tower-action" style="background: var(--gold-gradient); color: #000;">🎮 Старт</button>
         </div>
 
@@ -2525,7 +2524,6 @@
             document.getElementById('tower-attempts-left').innerText = towerAttemptsLeft;
         }
 
-        // Прив'язуємо запуск через pointerdown, щоб мобільний браузер чітко розділив тапи
         document.getElementById('btn-start-tower-action').addEventListener('pointerdown', (e) => {
             e.preventDefault();
             startTowerGame();
@@ -2560,12 +2558,10 @@
             towerRunning = true;
             towerInputLocked = true;
 
-            // Захисний інтервал 400мс повністю блокує будь-які кліки під час анімації зникнення стартового вікна
             setTimeout(() => {
                 towerInputLocked = false;
             }, 400);
 
-            // Очищаємо і призначаємо подію кліку за допомогою pointerdown
             towerCanvas.onpointerdown = (e) => {
                 e.preventDefault();
                 if (towerRunning && !towerInputLocked) placeTowerBlock();
