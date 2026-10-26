@@ -91,6 +91,7 @@ export default async function handler(req, res) {
 
         let currentSnakeAttempts = userData.snake_attempts !== undefined ? userData.snake_attempts : 5;
         let currentGameAttempts = userData.game_attempts !== undefined ? userData.game_attempts : 10;
+        let currentTowerAttempts = userData.tower_attempts !== undefined ? userData.tower_attempts : 5;
 
         // Безпечне керування спробами на бекенді залежно від гри
         if (gameName === 'snake') {
@@ -103,6 +104,11 @@ export default async function handler(req, res) {
                 currentGameAttempts -= 1;
                 updateData.game_attempts = currentGameAttempts;
             }
+        } else if (gameName === 'tower_stack') {
+            if (currentTowerAttempts > 0) {
+                currentTowerAttempts -= 1;
+                updateData.tower_attempts = currentTowerAttempts;
+            }
         }
 
         // Зберігаємо оновлені дані у Firebase
@@ -113,7 +119,8 @@ export default async function handler(req, res) {
             totalGamePoints: currentGamePoints,
             totalPlayTimeSeconds: totalPlayTime,
             snake_attempts: currentSnakeAttempts,
-            game_attempts: currentGameAttempts
+            game_attempts: currentGameAttempts,
+            tower_attempts: currentTowerAttempts
         });
 
     } catch (e) {
