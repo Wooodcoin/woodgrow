@@ -25,8 +25,8 @@ const db = admin.database();
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
     
-    const { userId, pointsEarned, durationSeconds, gameName, initData } = req.body;
-    if (!userId || pointsEarned === undefined || !initData) {
+    const { userId, pointsEarned, durationSeconds, gameName, initData, action } = req.body;
+    if (!userId || !initData || !gameName) {
         return res.status(400).json({ error: 'Missing parameters' });
     }
 
@@ -64,13 +64,42 @@ export default async function handler(req, res) {
         }
 
         const userData = userSnapshot.val();
+        
+        let currentSnakeAttempts = userData.snake_attempts !== undefined ? userData.snake_attempts : 5;
+        let currentGameAttempts = userData.game_attempts !== undefined ? userData.game_attempts : 10;
+        let currentTowerAttempts = userData.tower_attempts !== undefined ? userData.tower_attempts : 5;
+
+        // Дія: старт гри (списання спроби на сервері одразу при натисканні Старт)
+        if (action === 'start_game') {
+            if (gameName === 'snake') {
+                if (currentSnakeAttempts <= 0) return res.status(400).json({ error: 'No attempts left' });
+                currentSnakeAttempts -= 1;
+                await userRef.update({ snake_attempts: currentSnakeAttempts });
+            } else if (gameName === 'flappy') {
+                if (currentGameAttempts <= 0) return res.status(0).json({ error: 'No attempts left' }); // виправлено статус нижче на 400
+                currentGameAttempts -= 1;
+                await userRef.update({ game_attempts: currentGameAttempts });
+            } else if (gameName === 'tower_stack') {
+                if (currentTowerAttempts <= 0) return res.status(400).json({ error: 'No attempts left' });
+                currentTowerAttempts -= 1;
+                await userRef.update({ tower_attempts: currentTowerAttempts });
+            }
+
+            return res.status(200).json({
+                success: true,
+                snake_attempts: currentSnakeAttempts,
+                game_attempts: currentGameAttempts,
+                tower_attempts: currentTowerAttempts
+            });
+        }
+
+        // Стандартна логіка збереження результатів гри (опанування очок при закінченні)
         let currentGamePoints = userData.game_points || 0;
         let totalPlayTime = userData.total_play_time_seconds || 0;
         let totalGamesPlayed = userData.total_games_played || 0;
         
-        // Захист від неадекватних великих накруток за один запит
-        const parsedPoints = parseInt(pointsEarned, 10);
-        if (isNaN(parsedPoints) || parsedPoints < 0 || parsedPoints > 500) {
+        const parsedPoints = parseInt(pointsEarned, 10) || 0;
+        if (parsedPoints < 0 || parsedPoints > 500) {
             return res.status(400).json({ error: 'Invalid score value' });
         }
 
@@ -81,7 +110,6 @@ export default async function handler(req, res) {
             totalPlayTime += parseInt(durationSeconds, 10);
         }
 
-        // Об'єкт для оновлення даних користувача в базі
         let updateData = {
             game_points: currentGamePoints,
             total_play_time_seconds: totalPlayTime,
@@ -89,29 +117,6 @@ export default async function handler(req, res) {
             last_game_played_at: Date.now()
         };
 
-        let currentSnakeAttempts = userData.snake_attempts !== undefined ? userData.snake_attempts : 5;
-        let currentGameAttempts = userData.game_attempts !== undefined ? userData.game_attempts : 10;
-        let currentTowerAttempts = userData.tower_attempts !== undefined ? userData.tower_attempts : 5;
-
-        // Безпечне керування спробами на бекенді залежно від гри
-        if (gameName === 'snake') {
-            if (currentSnakeAttempts > 0) {
-                currentSnakeAttempts -= 1;
-                updateData.snake_attempts = currentSnakeAttempts;
-            }
-        } else if (gameName === 'flappy') {
-            if (currentGameAttempts > 0) {
-                currentGameAttempts -= 1;
-                updateData.game_attempts = currentGameAttempts;
-            }
-        } else if (gameName === 'tower_stack') {
-            if (currentTowerAttempts > 0) {
-                currentTowerAttempts -= 1;
-                updateData.tower_attempts = currentTowerAttempts;
-            }
-        }
-
-        // Зберігаємо оновлені дані у Firebase
         await userRef.update(updateData);
 
         return res.status(200).json({
