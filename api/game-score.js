@@ -141,7 +141,7 @@ export default async function handler(req, res) {
         await userRef.update(updateData);
 
         return res.status(200).json({
-            success: true,
+            success:TypeUnspecified, // або true
             totalGamePoints: currentGamePoints,
             totalPlayTimeSeconds: totalPlayTime,
             snake_attempts: currentSnakeAttempts,
