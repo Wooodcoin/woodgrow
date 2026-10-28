@@ -76,7 +76,7 @@ export default async function handler(req, res) {
                 currentSnakeAttempts -= 1;
                 await userRef.update({ snake_attempts: currentSnakeAttempts });
             } else if (gameName === 'flappy') {
-                if (currentGameAttempts <= 0) return res.status(0).json({ error: 'No attempts left' }); // виправлено статус нижче на 400
+                if (currentGameAttempts <= 0) return res.status(400).json({ error: 'No attempts left' });
                 currentGameAttempts -= 1;
                 await userRef.update({ game_attempts: currentGameAttempts });
             } else if (gameName === 'tower_stack') {
@@ -93,7 +93,28 @@ export default async function handler(req, res) {
             });
         }
 
-        // Стандартна логіка збереження результатів гри (опанування очок при закінченні)
+        // Дія: додавання спроб за перегляд реклами (+5 спроб)
+        if (action === 'add_attempts') {
+            if (gameName === 'snake') {
+                currentSnakeAttempts += 5;
+                await userRef.update({ snake_attempts: currentSnakeAttempts });
+            } else if (gameName === 'flappy') {
+                currentGameAttempts += 5;
+                await userRef.update({ game_attempts: currentGameAttempts });
+            } else if (gameName === 'tower_stack') {
+                currentTowerAttempts += 5;
+                await userRef.update({ tower_attempts: currentTowerAttempts });
+            }
+
+            return res.status(200).json({
+                success: true,
+                snake_attempts: currentSnakeAttempts,
+                game_attempts: currentGameAttempts,
+                tower_attempts: currentTowerAttempts
+            });
+        }
+
+        // Стандартна логіка збереження результатів гри (нарахування очок при закінченні)
         let currentGamePoints = userData.game_points || 0;
         let totalPlayTime = userData.total_play_time_seconds || 0;
         let totalGamesPlayed = userData.total_games_played || 0;
