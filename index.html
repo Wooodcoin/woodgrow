@@ -2017,6 +2017,48 @@
             }
         }
 
+        async function addGameAttemptsViaAd(gameName) {
+            const AdVideoController = window.Adsgram ? window.Adsgram.init({ blockId: "35910" }) : null;
+            if (!AdVideoController) {
+                alert("❌ Рекламний SDK не завантажено.");
+                return;
+            }
+
+            AdVideoController.show()
+                .then(async () => {
+                    try {
+                        const res = await fetch('/api/game-score', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                userId: userId,
+                                gameName: gameName,
+                                action: 'add_attempts',
+                                initData: window.Telegram.WebApp.initData
+                            })
+                        });
+                        const data = await res.json();
+                        if (res.ok && data.success) {
+                            gameAttemptsLeft = data.game_attempts;
+                            snakeAttemptsLeft = data.snake_attempts;
+                            towerAttemptsLeft = data.tower_attempts;
+
+                            document.getElementById('game-attempts-left').innerText = gameAttemptsLeft;
+                            document.getElementById('snake-attempts-left').innerText = snakeAttemptsLeft;
+                            document.getElementById('tower-attempts-left').innerText = towerAttemptsLeft;
+                            alert("🎉 Вам успішно додано +5 спроб!");
+                        } else {
+                            alert("❌ Помилка нарахування спроб.");
+                        }
+                    } catch (e) {
+                        alert("Помилка зв'язку з сервером.");
+                    }
+                })
+                .catch(() => {
+                    alert(translations[currentLang].ads_error);
+                });
+        }
+
         async function startServerGame(gameName) {
             try {
                 const res = await fetch('/api/game-score', {
@@ -2089,19 +2131,8 @@
 
         function openFlappyGame() {
             if (gameAttemptsLeft <= 0) {
-                const AdVideoController = window.Adsgram ? window.Adsgram.init({ blockId: "35910" }) : null;
-                if (!AdVideoController) {
-                    alert("❌ У вас закінчилися безкоштовні спроби на сьогодні. Завітайте завтра!");
-                    return;
-                }
-
                 if (confirm("❌ У вас закінчилися спроби на сьогодні! Бажаєте переглянути коротку рекламу та отримати +5 додаткових спроб?")) {
-                    AdVideoController.show()
-                        .then(async () => {
-                            // Тут можна оновити спроби на сервері через додатковий запит чи вони додадуться автоматично. Для простоти оновлюємо локально/через сервер.
-                            alert("🎉 Переглянуто!");
-                        })
-                        .catch(() => { alert(translations[currentLang].ads_error); });
+                    addGameAttemptsViaAd('flappy');
                 }
                 return;
             }
@@ -2301,7 +2332,7 @@
         }
 
         function resetFlappyGame() {
-            if (gameAttemptsLeft <= 0) { alert("❌ Спроби на сьогодні вичерпано!"); closeFlappyGame(); return; }
+            if (gameAttemptsLeft <= 0) { closeFlappyGame(); return; }
             document.getElementById('flappy-gameover-screen').style.display = 'none';
             startFlappyGame();
         }
@@ -2347,7 +2378,9 @@
 
         function openSnakeGame() {
             if (snakeAttemptsLeft <= 0) {
-                alert("❌ Спроби у Змійку вичерпано!");
+                if (confirm("❌ У вас закінчилися спроби у Змійку! Бажаєте переглянути рекламу та отримати +5 спроб?")) {
+                    addGameAttemptsViaAd('snake');
+                }
                 return;
             }
             openSnakeModalUI();
@@ -2467,7 +2500,9 @@
 
         function openTowerGame() {
             if (towerAttemptsLeft <= 0) {
-                alert("❌ Спроби у Вежу вичерпано!");
+                if (confirm("❌ У вас закінчилися спроби у Вежу! Бажаєте переглянути рекламу та отримати +5 спроб?")) {
+                    addGameAttemptsViaAd('tower_stack');
+                }
                 return;
             }
             openTowerModalUI();
