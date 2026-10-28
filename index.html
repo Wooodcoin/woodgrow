@@ -856,44 +856,9 @@
         let currentLang = 'en';
         let gamePoints = 0; 
 
-        // Спроби у Flappy
-        const MAX_GAME_ATTEMPTS = 10;
-        let gameAttemptsLeft = MAX_GAME_ATTEMPTS;
-        const todayKey = new Date().toDateString();
-        const savedAttemptDate = localStorage.getItem('wg_game_date');
-        if (savedAttemptDate !== todayKey) {
-            localStorage.setItem('wg_game_date', todayKey);
-            localStorage.setItem('wg_game_attempts', MAX_GAME_ATTEMPTS.toString());
-            gameAttemptsLeft = MAX_GAME_ATTEMPTS;
-        } else {
-            gameAttemptsLeft = parseInt(localStorage.getItem('wg_game_attempts')) || MAX_GAME_ATTEMPTS;
-        }
-
-        // Спроби у Snake
-        const MAX_SNAKE_ATTEMPTS = 5;
-        let snakeAttemptsLeft = MAX_SNAKE_ATTEMPTS;
-        const snakeDateKey = new Date().toDateString();
-        const savedSnakeDate = localStorage.getItem('wg_snake_date');
-        if (savedSnakeDate !== snakeDateKey) {
-            localStorage.setItem('wg_snake_date', snakeDateKey);
-            localStorage.setItem('wg_snake_attempts', MAX_SNAKE_ATTEMPTS.toString());
-            snakeAttemptsLeft = MAX_SNAKE_ATTEMPTS;
-        } else {
-            snakeAttemptsLeft = parseInt(localStorage.getItem('wg_snake_attempts')) || MAX_SNAKE_ATTEMPTS;
-        }
-
-        // Спроби у Tower Stack
-        const MAX_TOWER_ATTEMPTS = 5;
-        let towerAttemptsLeft = MAX_TOWER_ATTEMPTS;
-        const towerDateKey = new Date().toDateString();
-        const savedTowerDate = localStorage.getItem('wg_tower_date');
-        if (savedTowerDate !== towerDateKey) {
-            localStorage.setItem('wg_tower_date', towerDateKey);
-            localStorage.setItem('wg_tower_attempts', MAX_TOWER_ATTEMPTS.toString());
-            towerAttemptsLeft = MAX_TOWER_ATTEMPTS;
-        } else {
-            towerAttemptsLeft = parseInt(localStorage.getItem('wg_tower_attempts')) || MAX_TOWER_ATTEMPTS;
-        }
+        let gameAttemptsLeft = 10;
+        let snakeAttemptsLeft = 5;
+        let towerAttemptsLeft = 5;
 
         const comboItemDetails = {
             seed: { icon: '🌾', names: { uk: 'Зерно', en: 'Seed', ru: 'Зерно' } },
@@ -1326,9 +1291,15 @@
                     balance = data.balance;
                     let rBonus = data.ref_bonus;
                     if (data.game_points !== undefined) gamePoints = data.game_points;
+                    if (data.game_attempts !== undefined) gameAttemptsLeft = data.game_attempts;
+                    if (data.snake_attempts !== undefined) snakeAttemptsLeft = data.snake_attempts;
+                    if (data.tower_attempts !== undefined) towerAttemptsLeft = data.tower_attempts;
                     
                     document.getElementById('user-balance').innerText = balance.toFixed(4);
                     document.getElementById('user-game-points').innerText = gamePoints;
+                    document.getElementById('game-attempts-left').innerText = gameAttemptsLeft;
+                    document.getElementById('snake-attempts-left').innerText = snakeAttemptsLeft;
+                    document.getElementById('tower-attempts-left').innerText = towerAttemptsLeft;
                     document.getElementById('ref-bonus').innerText = `${rBonus.toFixed(4)} USDT`;
                     
                     const pCountText = translations[currentLang].people_count;
@@ -2046,6 +2017,39 @@
             }
         }
 
+        async function startServerGame(gameName) {
+            try {
+                const res = await fetch('/api/game-score', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: userId,
+                        gameName: gameName,
+                        action: 'start_game',
+                        initData: window.Telegram.WebApp.initData
+                    })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    gameAttemptsLeft = data.game_attempts;
+                    snakeAttemptsLeft = data.snake_attempts;
+                    towerAttemptsLeft = data.tower_attempts;
+                    
+                    document.getElementById('game-attempts-left').innerText = gameAttemptsLeft;
+                    document.getElementById('snake-attempts-left').innerText = snakeAttemptsLeft;
+                    document.getElementById('tower-attempts-left').innerText = towerAttemptsLeft;
+                    return true;
+                } else {
+                    alert("❌ " + (data.error || "Немає доступних спроб"));
+                    return false;
+                }
+            } catch (err) {
+                console.error("Error starting game on server:", err);
+                alert("Помилка зв'язку з сервером.");
+                return false;
+            }
+        }
+
         async function sendGameScoreToServer(scoreEarned, durationSec, gameName) {
             try {
                 const res = await fetch('/api/game-score', {
@@ -2093,18 +2097,9 @@
 
                 if (confirm("❌ У вас закінчилися спроби на сьогодні! Бажаєте переглянути коротку рекламу та отримати +5 додаткових спроб?")) {
                     AdVideoController.show()
-                        .then(() => {
-                            gameAttemptsLeft += 5;
-                            localStorage.setItem('wg_game_attempts', gameAttemptsLeft.toString());
-                            document.getElementById('game-attempts-left').innerText = gameAttemptsLeft;
-                            alert("🎉 Вам надано +5 додаткових спроб!");
-                            
-                            document.getElementById('flappy-game-modal').style.display = 'flex';
-                            document.getElementById('flappy-start-screen').style.display = 'flex';
-                            document.getElementById('flappy-gameover-screen').style.display = 'none';
-                            flappyCanvas = document.getElementById('flappy-canvas');
-                            flappyCtx = flappyCanvas.getContext('2d');
-                            drawInitialScreen();
+                        .then(async () => {
+                            // Тут можна оновити спроби на сервері через додатковий запит чи вони додадуться автоматично. Для простоти оновлюємо локально/через сервер.
+                            alert("🎉 Переглянуто!");
                         })
                         .catch(() => { alert(translations[currentLang].ads_error); });
                 }
@@ -2145,16 +2140,9 @@
             flappyCtx.fillText("Натисніть «Старт» нижче", flappyCanvas.width / 2, flappyCanvas.height / 2 + 10);
         }
 
-        function startFlappyGame() {
-            if (gameAttemptsLeft <= 0) {
-                alert("❌ Спроби вичерпано!");
-                closeFlappyGame();
-                return;
-            }
-
-            gameAttemptsLeft--;
-            localStorage.setItem('wg_game_attempts', gameAttemptsLeft.toString());
-            document.getElementById('game-attempts-left').innerText = gameAttemptsLeft;
+        async function startFlappyGame() {
+            let success = await startServerGame('flappy');
+            if (!success) return;
 
             flappyStartTime = Date.now();
             document.getElementById('flappy-start-screen').style.display = 'none';
@@ -2359,16 +2347,7 @@
 
         function openSnakeGame() {
             if (snakeAttemptsLeft <= 0) {
-                const AdVideoController = window.Adsgram ? window.Adsgram.init({ blockId: "35910" }) : null;
-                if (!AdVideoController) { alert("❌ Спроби у Змійку вичерпано!"); return; }
-                if (confirm("Переглянути рекламу та отримати +5 спроб у Змійку?")) {
-                    AdVideoController.show().then(() => {
-                        snakeAttemptsLeft += 5;
-                        localStorage.setItem('wg_snake_attempts', snakeAttemptsLeft.toString());
-                        document.getElementById('snake-attempts-left').innerText = snakeAttemptsLeft;
-                        openSnakeModalUI();
-                    }).catch(() => { alert("Рекламу не зараховано."); });
-                }
+                alert("❌ Спроби у Змійку вичерпано!");
                 return;
             }
             openSnakeModalUI();
@@ -2397,11 +2376,9 @@
             if (dir === 'RIGHT' && wgSnakeDx === 0) { wgSnakeNextDx = 20; wgSnakeNextDy = 0; }
         }
 
-        function startSnakeGame() {
-            if (snakeAttemptsLeft <= 0) return;
-            snakeAttemptsLeft--;
-            localStorage.setItem('wg_snake_attempts', snakeAttemptsLeft.toString());
-            document.getElementById('snake-attempts-left').innerText = snakeAttemptsLeft;
+        async function startSnakeGame() {
+            let success = await startServerGame('snake');
+            if (!success) return;
 
             wgSnakeStartTime = Date.now();
             document.getElementById('snake-start-screen').style.display = 'none';
@@ -2470,9 +2447,8 @@
             startSnakeGame();
         }
 
-
         // ==========================================
-        // 3. TOWER STACK GAME (ВИПРАВЛЕНО СТАРТ ТА РУХ)
+        // 3. TOWER STACK GAME
         // ==========================================
         let towerCanvas, towerCtx;
         let towerRunning = false;
@@ -2491,16 +2467,7 @@
 
         function openTowerGame() {
             if (towerAttemptsLeft <= 0) {
-                const AdVideoController = window.Adsgram ? window.Adsgram.init({ blockId: "35910" }) : null;
-                if (!AdVideoController) { alert("❌ Спроби у Вежу вичерпано!"); return; }
-                if (confirm("Переглянути рекламу та отримати +5 спроб у Tower Stack?")) {
-                    AdVideoController.show().then(() => {
-                        towerAttemptsLeft += 5;
-                        localStorage.setItem('wg_tower_attempts', towerAttemptsLeft.toString());
-                        document.getElementById('tower-attempts-left').innerText = towerAttemptsLeft;
-                        openTowerModalUI();
-                    }).catch(() => { alert("Рекламу не зараховано."); });
-                }
+                alert("❌ Спроби у Вежу вичерпано!");
                 return;
             }
             openTowerModalUI();
@@ -2532,11 +2499,9 @@
             };
         }
 
-        function startTowerGame() {
-            if (towerAttemptsLeft <= 0) return;
-            towerAttemptsLeft--;
-            localStorage.setItem('wg_tower_attempts', towerAttemptsLeft.toString());
-            document.getElementById('tower-attempts-left').innerText = towerAttemptsLeft;
+        async function startTowerGame() {
+            let success = await startServerGame('tower_stack');
+            if (!success) return;
 
             towerStartTime = Date.now();
             document.getElementById('tower-start-screen').style.display = 'none';
@@ -2589,9 +2554,7 @@
             let direction = towerStack.length % 2 === 0 ? 1 : -1;
             
             let w = lastBlock.w;
-            // Безпечна стартова позиція з відступом від стінок, щоб блок відразу рухався і не залипав
             let startX = direction > 0 ? 25 : (towerCanvas.width - w - 25);
-            
             let hue = (towerStack.length * 25) % 360;
             let blockColor = `hsl(${hue}, 80%, 55%)`;
 
