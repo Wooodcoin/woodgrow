@@ -818,7 +818,7 @@
 
         <div id="jump-gameover-screen" class="game-overlay-panel" style="display: none; border-color: var(--neon-green);">
             <h3 style="color: #ff4444; margin-bottom: 5px;">ПАДІННЯ!</h3>
-            <p style="font-size: 14px; color: #fff; margin: 5px 0;">Висота: <span id="jump-final-score" style="color: var(--neon-green); font-weight: bold;">0</span> WGC</p>
+            <p style="font-size: 14px; color: #fff; margin: 5px 0;">Зароблено WGC: <span id="jump-final-score" style="color: var(--neon-green); font-weight: bold;">0</span> WGC</p>
             <button class="btn" style="background: var(--gold-gradient); color: #000; margin-top: 15px;" onclick="resetJumpGame()">🔄 Стрибати знову</button>
         </div>
     </div>
@@ -2121,7 +2121,13 @@
                     document.getElementById('jump-attempts-left').innerText = jumpAttemptsLeft;
                     return true;
                 } else {
-                    alert("❌ " + (data.error || "Немає доступних спроб"));
+                    if (gameName === 'jump_game') {
+                        if (confirm("❌ У вас закінчилися спроби у Jump! Бажаєте переглянути рекламу та отримати +5 спроб?")) {
+                            addGameAttemptsViaAd('jump_game');
+                        }
+                    } else {
+                        alert("❌ " + (data.error || "Немає доступних спроб"));
+                    }
                     return false;
                 }
             } catch (err) {
@@ -2777,11 +2783,10 @@
         let jumpPlayer = { x: 160, y: 300, vx: 0, vy: 0, width: 32, height: 32, radius: 16 };
         let jumpPlatforms = [];
         let jumpScore = 0;
-        let jumpMaxHeight = 0;
         let jumpCameraY = 0;
         let jumpStartTime = 0;
         let jumpLoopId = null;
-        let jumpMoveDir = 0; // -1 ліворуч, 1 праворуч, 0 стоїть
+        let jumpMoveDir = 0; 
 
         function openJumpGame() {
             if (jumpAttemptsLeft <= 0) {
@@ -2837,20 +2842,16 @@
             jumpCtx = jumpCanvas.getContext('2d');
 
             jumpScore = 0;
-            jumpMaxHeight = 0;
             jumpCameraY = 0;
             jumpPlatforms = [];
 
-            // Початковий гравець біля центру
             jumpPlayer.x = jumpCanvas.width / 2 - jumpPlayer.width / 2;
             jumpPlayer.y = jumpCanvas.height - 120;
             jumpPlayer.vx = 0;
-            jumpPlayer.vy = -10; // початковий стрибок вгору
+            jumpPlayer.vy = -10;
 
-            // Генерація початкових платформ
             let platWidth = 70;
             let platHeight = 14;
-            // Стартова платформа під гравцем
             jumpPlatforms.push({ x: jumpPlayer.x - 20, y: jumpPlayer.y + 40, w: platWidth + 20, h: platHeight });
 
             let currentY = jumpPlayer.y + 10;
@@ -2868,39 +2869,33 @@
         function loopJump() {
             if (!jumpRunning) return;
 
-            // Горизонтальне керування
             if (jumpMoveDir !== 0) {
                 jumpPlayer.vx = jumpMoveDir * 4.5;
             } else {
-                jumpPlayer.vx *= 0.85; // плавне гальмування
+                jumpPlayer.vx *= 0.85;
             }
 
             jumpPlayer.x += jumpPlayer.vx;
 
-            // Телепортація через краї екрана зліва направо і навпаки
             if (jumpPlayer.x + jumpPlayer.width < 0) {
                 jumpPlayer.x = jumpCanvas.width;
             } else if (jumpPlayer.x > jumpCanvas.width) {
                 jumpPlayer.x = -jumpPlayer.width;
             }
 
-            // Гравітація та рух по вертикалі
-            jumpPlayer.vy += 0.35; // гравітація
+            jumpPlayer.vy += 0.35;
             jumpPlayer.y += jumpPlayer.vy;
 
-            // Камера слідкує за гравцем вгору
             let targetCameraY = jumpPlayer.y - jumpCanvas.height / 2.5;
             if (targetCameraY < jumpCameraY) {
                 jumpCameraY = targetCameraY;
             }
 
-            // Розрахунок рахунку за максимальну висоту
             let currentHeightScore = Math.floor(Math.abs(jumpCameraY));
             if (currentHeightScore > jumpScore) {
                 jumpScore = currentHeightScore;
             }
 
-            // Перевірка приземлення на платформи (тільки коли падає вниз vy > 0)
             if (jumpPlayer.vy > 0) {
                 jumpPlatforms.forEach(p => {
                     if (
@@ -2909,12 +2904,11 @@
                         jumpPlayer.y + jumpPlayer.height >= p.y &&
                         jumpPlayer.y + jumpPlayer.height <= p.y + p.h + 8
                     ) {
-                        jumpPlayer.vy = -10.5; // стрибок від платформи
+                        jumpPlayer.vy = -10.5;
                     }
                 });
             }
 
-            // Генерація нових платформ зверху по мірі підйому
             let highestPlatY = jumpPlatforms.reduce((min, p) => p.y < min ? p.y : min, 0);
             if (highestPlatY > jumpCameraY - 100) {
                 let newY = highestPlatY - (Math.floor(Math.random() * 45) + 35);
@@ -2922,21 +2916,17 @@
                 jumpPlatforms.push({ x: newX, y: newY, w: 70, h: 14 });
             }
 
-            // Видалення платформ, які залишилися далеко внизу
             jumpPlatforms = jumpPlatforms.filter(p => p.y < jumpCameraY + jumpCanvas.height + 60);
 
-            // Умова програшу: падіння нижче нижньої межі екрана відносно камери
             if (jumpPlayer.y > jumpCameraY + jumpCanvas.height + 30) {
                 gameOverJump();
                 return;
             }
 
-            // --- РЕНДЕРИНГ ---
             jumpCtx.clearRect(0, 0, jumpCanvas.width, jumpCanvas.height);
             jumpCtx.save();
             jumpCtx.translate(0, -jumpCameraY);
 
-            // Малювання платформ (дерев'яні бруски)
             jumpPlatforms.forEach(p => {
                 let pGrad = jumpCtx.createLinearGradient(p.x, p.y, p.x, p.y + p.h);
                 pGrad.addColorStop(0, "#8B5A2B");
@@ -2948,7 +2938,6 @@
                 jumpCtx.strokeRect(p.x, p.y, p.w, p.h);
             });
 
-            // Малювання персонажа (монета-паросток)
             jumpCtx.save();
             jumpCtx.translate(jumpPlayer.x + jumpPlayer.width / 2, jumpPlayer.y + jumpPlayer.height / 2);
             jumpCtx.shadowBlur = 15;
@@ -2977,11 +2966,11 @@
 
             jumpCtx.restore();
 
-            // Виведення рахунку поверх екрана
+            let earnedWgcDisplay = Math.floor(jumpScore / 50);
             jumpCtx.fillStyle = "#ffffff";
             jumpCtx.font = "900 24px sans-serif";
             jumpCtx.textAlign = "center";
-            jumpCtx.fillText(jumpScore, jumpCanvas.width / 2, 40);
+            jumpCtx.fillText(earnedWgcDisplay, jumpCanvas.width / 2, 40);
 
             jumpLoopId = requestAnimationFrame(loopJump);
         }
@@ -2989,11 +2978,12 @@
         async function gameOverJump() {
             jumpRunning = false;
             cancelAnimationFrame(jumpLoopId);
-            document.getElementById('jump-final-score').innerText = jumpScore;
+            
+            let earnedWgc = Math.floor(jumpScore / 50); // Зменшено у 5 разів
+            document.getElementById('jump-final-score').innerText = earnedWgc;
             document.getElementById('jump-gameover-screen').style.display = 'flex';
 
             let durationSec = Math.floor((Date.now() - jumpStartTime) / 1000);
-            let earnedWgc = Math.floor(jumpScore / 10); // Конвертація висоти в бали WGC
             if (earnedWgc > 0) {
                 gamePoints += earnedWgc;
                 document.getElementById('user-game-points').innerText = gamePoints;
