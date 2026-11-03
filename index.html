@@ -560,53 +560,57 @@
 
         <!-- Вкладка: Ігри -->
         <div id="tab-games" class="tab-content">
+            <!-- Інформація про накопичені бали та обмін -->
+            <div class="card" style="border: 2px solid var(--neon-green); background: rgba(13, 242, 93, 0.05); margin-bottom: 15px;">
+                <div style="font-size: 35px; margin-bottom: 5px;">💎</div>
+                <div style="font-size: 12px; color: var(--gold-color); font-weight: bold;" id="txt-game-points-label">Накопичені бали WGC:</div>
+                <div style="font-size: 28px; font-weight: 900; color: #fff; margin: 5px 0;"><span id="user-game-points">0</span> WGC</div>
+                <div style="font-size: 11px; color: #a1a1aa; margin-bottom: 10px;" id="txt-game-next-reward">Курс: 10,000 WGC ➔ 0.01 USDT</div>
+                <button class="btn" style="background: linear-gradient(135deg, #00f5d4 0%, #00bbf9 100%); color: #000;" onclick="exchangeGamePoints()" id="btn-exchange-points">💎 Обміняти WGC на USDT</button>
+            </div>
+
             <!-- Гра 1: Flappy WoodGrow Coin -->
             <div class="card" style="border: 2px solid var(--neon-green); background: rgba(13, 242, 93, 0.05);">
-                <div style="font-size: 45px; margin-bottom: 5px;">🪙</div>
+                <div style="font-size: 40px; margin-bottom: 5px;">🪙</div>
                 <h3 id="txt-game-title" style="font-size: 18px; color: var(--neon-green);">Flappy WoodGrow Coin</h3>
                 <p style="color: #a1a1aa; font-size: 13px; margin-bottom: 15px;" id="txt-game-desc">
                     Керуйте монетою-паростком, оминайте дерев'яні колони, збирайте бали WGC та отримуйте реальні USDT!
                 </p>
-                
-                <div style="background: rgba(0,0,0,0.4); padding: 10px; border-radius: 10px; margin-bottom: 15px; border: 1px solid rgba(212,175,55,0.3);">
-                    <div style="font-size: 12px; color: var(--gold-color); font-weight: bold;" id="txt-game-points-label">Накопичені бали WGC:</div>
-                    <div style="font-size: 24px; font-weight: 900; color: #fff; margin: 5px 0;"><span id="user-game-points">0</span> WGC</div>
-                    <div style="font-size: 12px; color: var(--neon-green); margin-bottom: 5px; font-weight: bold;" id="txt-game-attempts">Доступно спроб сьогодні: <span id="game-attempts-left">10</span> / 10</div>
-                    <div style="font-size: 11px; color: #a1a1aa;" id="txt-game-next-reward">Курс: 10,000 WGC ➔ 0.01 USDT</div>
-                </div>
-
-                <button class="btn" style="background: var(--gold-gradient); color: #000; margin-bottom: 10px;" onclick="openFlappyGame()" id="btn-play-game">🎮 Грати у Flappy</button>
-                <button class="btn" style="background: linear-gradient(135deg, #00f5d4 0%, #00bbf9 100%); color: #000;" onclick="exchangeGamePoints()" id="btn-exchange-points">💎 Обміняти WGC на USDT</button>
+                <div style="font-size: 12px; color: var(--neon-green); margin-bottom: 12px; font-weight: bold;">Доступно спроб: <span id="game-attempts-left">10</span> / 10</div>
+                <button class="btn" style="background: var(--gold-gradient); color: #000;" onclick="openFlappyGame()" id="btn-play-game">🎮 Грати у Flappy</button>
             </div>
 
             <!-- Гра 2: WoodGrow Snake -->
             <div class="card" style="border: 2px solid var(--neon-aqua); background: rgba(0, 245, 212, 0.05); margin-top: 15px;">
-                <div style="font-size: 45px; margin-bottom: 5px;">🐍</div>
+                <div style="font-size: 40px; margin-bottom: 5px;">🐍</div>
                 <h3 id="txt-snake-title" style="font-size: 18px; color: var(--neon-aqua);">WoodGrow Snake</h3>
                 <p style="color: #a1a1aa; font-size: 13px; margin-bottom: 15px;" id="txt-snake-desc">
                     Класична змійка у сучасному стилі! Збирайте смаколики, зростайте та заробляйте WGC бали.
                 </p>
-                
-                <div style="background: rgba(0,0,0,0.4); padding: 10px; border-radius: 10px; margin-bottom: 15px; border: 1px solid rgba(0,245,212,0.3);">
-                    <div style="font-size: 12px; color: var(--neon-aqua); font-weight: bold;" id="txt-snake-attempts-label">Спроби у Змійку сьогодні: <span id="snake-attempts-left">5</span> / 5</div>
-                </div>
-
-                <button class="btn" style="background: linear-gradient(135deg, #00f5d4 0%, #00bbf9 100%); color: #000; margin-bottom: 10px;" onclick="openSnakeGame()" id="btn-play-snake">🎮 Грати у Змійку</button>
+                <div style="font-size: 12px; color: var(--neon-aqua); margin-bottom: 12px; font-weight: bold;">Доступно спроб: <span id="snake-attempts-left">5</span> / 5</div>
+                <button class="btn" style="background: linear-gradient(135deg, #00f5d4 0%, #00bbf9 100%); color: #000;" onclick="openSnakeGame()" id="btn-play-snake">🎮 Грати у Змійку</button>
             </div>
 
             <!-- Гра 3: Tower Stack -->
             <div class="card" style="border: 2px solid var(--gold-color); background: rgba(212, 175, 55, 0.05); margin-top: 15px;">
-                <div style="font-size: 45px; margin-bottom: 5px;">🏗️</div>
+                <div style="font-size: 40px; margin-bottom: 5px;">🏗️</div>
                 <h3 id="txt-tower-title" style="font-size: 18px; color: var(--gold-color);">WoodGrow Tower Stack</h3>
                 <p style="color: #a1a1aa; font-size: 13px; margin-bottom: 15px;" id="txt-tower-desc">
                     Будуйте найвищу вежу на точність! Зупиняйте блоки рівно один над одним, зрізайте зайве та встановлюйте рекорди.
                 </p>
-                
-                <div style="background: rgba(0,0,0,0.4); padding: 10px; border-radius: 10px; margin-bottom: 15px; border: 1px solid rgba(212,175,55,0.3);">
-                    <div style="font-size: 12px; color: var(--gold-color); font-weight: bold;" id="txt-tower-attempts-label">Спроби у Вежу сьогодні: <span id="tower-attempts-left">5</span> / 5</div>
-                </div>
+                <div style="font-size: 12px; color: var(--gold-color); margin-bottom: 12px; font-weight: bold;">Доступно спроб: <span id="tower-attempts-left">5</span> / 5</div>
+                <button class="btn" style="background: var(--gold-gradient); color: #000;" onclick="openTowerGame()" id="btn-play-tower">🎮 Грати у Вежу</button>
+            </div>
 
-                <button class="btn" style="background: var(--gold-gradient); color: #000; margin-bottom: 10px;" onclick="openTowerGame()" id="btn-play-tower">🎮 Грати у Вежу</button>
+            <!-- Гра 4: WoodGrow Jump (Doodle Jump style) -->
+            <div class="card" style="border: 2px solid var(--neon-green); background: rgba(13, 242, 93, 0.05); margin-top: 15px; margin-bottom: 25px;">
+                <div style="font-size: 40px; margin-bottom: 5px;">🚀</div>
+                <h3 id="txt-jump-title" style="font-size: 18px; color: var(--neon-green);">WoodGrow Jump</h3>
+                <p style="color: #a1a1aa; font-size: 13px; margin-bottom: 15px;" id="txt-jump-desc">
+                    Вертикальний платформер на реакцію! Стрибайте вгору по платформах, збирайте бали WGC та не падайте вниз.
+                </p>
+                <div style="font-size: 12px; color: var(--neon-green); margin-bottom: 12px; font-weight: bold;">Доступно спроб: <span id="jump-attempts-left">5</span> / 5</div>
+                <button class="btn" style="background: var(--gold-gradient); color: #000;" onclick="openJumpGame()" id="btn-play-jump">🎮 Грати у Jump</button>
             </div>
         </div>
 
@@ -791,6 +795,34 @@
         </div>
     </div>
 
+    <!-- Модальне вікно гри WoodGrow Jump (Doodle Jump) -->
+    <div id="jump-game-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #0a1f0f; z-index: 4000; display: none; flex-direction: column; align-items: center; justify-content: center;">
+        <div style="position: absolute; top: 15px; left: 15px; right: 15px; display: flex; justify-content: space-between; align-items: center; z-index: 4100;">
+            <div style="color: var(--neon-green); font-weight: bold; font-size: 16px;">🚀 WoodGrow Jump</div>
+            <button onclick="closeJumpGame()" style="background: rgba(255,255,255,0.1); border: 1px solid var(--neon-green); color: #fff; border-radius: 50%; width: 35px; height: 35px; font-size: 18px; cursor: pointer;">✕</button>
+        </div>
+        
+        <canvas id="jump-canvas" width="360" height="520" style="background: radial-gradient(circle at 50% 30%, #163820 0%, #050d08 100%); border: 2px solid var(--neon-green); border-radius: 16px; box-shadow: 0 0 25px rgba(13, 242, 93, 0.3);"></canvas>
+
+        <!-- Кнопки керування вліво/вправо для мобільних -->
+        <div style="display: flex; gap: 20px; margin-top: 12px; width: 360px; max-width: 100%; padding: 0 15px; box-sizing: border-box;">
+            <button class="btn" style="flex: 1; padding: 14px; font-size: 22px; margin:0;" onmousedown="jumpMoveLeft()" ontouchstart="jumpMoveLeft()" onmouseup="jumpStopMove()" ontouchend="jumpStopMove()">⬅️</button>
+            <button class="btn" style="flex: 1; padding: 14px; font-size: 22px; margin:0;" onmousedown="jumpMoveRight()" ontouchstart="jumpMoveRight()" onmouseup="jumpStopMove()" ontouchend="jumpStopMove()">➡️</button>
+        </div>
+
+        <div id="jump-start-screen" class="game-overlay-panel" style="border-color: var(--neon-green);">
+            <h3 style="color: var(--neon-green); margin-bottom: 10px;">WoodGrow Jump</h3>
+            <p style="font-size: 13px; color: #a1a1aa; margin-bottom: 20px;">Керуйте кнопками вліво/вправо та стрибайте вище по платформах!</p>
+            <button class="btn" id="btn-start-jump-action" style="background: var(--gold-gradient); color: #000;">🎮 Старт</button>
+        </div>
+
+        <div id="jump-gameover-screen" class="game-overlay-panel" style="display: none; border-color: var(--neon-green);">
+            <h3 style="color: #ff4444; margin-bottom: 5px;">ПАДІННЯ!</h3>
+            <p style="font-size: 14px; color: #fff; margin: 5px 0;">Висота: <span id="jump-final-score" style="color: var(--neon-green); font-weight: bold;">0</span> WGC</p>
+            <button class="btn" style="background: var(--gold-gradient); color: #000; margin-top: 15px;" onclick="resetJumpGame()">🔄 Стрибати знову</button>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="lang-modal">
         <div class="modal-window" style="border-color: var(--gold-color); box-shadow: 0 0 25px rgba(212, 175, 55, 0.4);">
             <h3 style="margin-bottom: 20px;">🌐 Choose Language / Мова</h3>
@@ -859,6 +891,7 @@
         let gameAttemptsLeft = 10;
         let snakeAttemptsLeft = 5;
         let towerAttemptsLeft = 5;
+        let jumpAttemptsLeft = 5;
 
         const comboItemDetails = {
             seed: { icon: '🌾', names: { uk: 'Зерно', en: 'Seed', ru: 'Зерно' } },
@@ -1165,7 +1198,6 @@
                 document.getElementById('txt-game-title').innerText = t.game_title;
                 document.getElementById('txt-game-desc').innerText = t.game_desc;
                 document.getElementById('txt-game-points-label').innerText = t.game_points_label;
-                document.getElementById('txt-game-attempts').childNodes[0].nodeValue = `${t.game_attempts_label} `;
                 document.getElementById('txt-game-next-reward').innerText = t.game_next_reward;
                 document.getElementById('btn-play-game').innerText = t.btn_play_game;
                 document.getElementById('btn-exchange-points').innerText = t.currentLang === 'ru' ? '💎 Обменять WGC на USDT' : (t.currentLang === 'uk' ? '💎 Обміняти WGC на USDT' : '💎 Exchange WGC for USDT');
@@ -1204,6 +1236,7 @@
             document.getElementById('game-attempts-left').innerText = gameAttemptsLeft;
             document.getElementById('snake-attempts-left').innerText = snakeAttemptsLeft;
             document.getElementById('tower-attempts-left').innerText = towerAttemptsLeft;
+            document.getElementById('jump-attempts-left').innerText = jumpAttemptsLeft;
             services.forEach(srv => updateLimitUI(srv));
             updateStreakUI();
             updateComboUI();
@@ -1294,12 +1327,14 @@
                     if (data.game_attempts !== undefined) gameAttemptsLeft = data.game_attempts;
                     if (data.snake_attempts !== undefined) snakeAttemptsLeft = data.snake_attempts;
                     if (data.tower_attempts !== undefined) towerAttemptsLeft = data.tower_attempts;
+                    if (data.jump_attempts !== undefined) jumpAttemptsLeft = data.jump_attempts;
                     
                     document.getElementById('user-balance').innerText = balance.toFixed(4);
                     document.getElementById('user-game-points').innerText = gamePoints;
                     document.getElementById('game-attempts-left').innerText = gameAttemptsLeft;
                     document.getElementById('snake-attempts-left').innerText = snakeAttemptsLeft;
                     document.getElementById('tower-attempts-left').innerText = towerAttemptsLeft;
+                    document.getElementById('jump-attempts-left').innerText = jumpAttemptsLeft;
                     document.getElementById('ref-bonus').innerText = `${rBonus.toFixed(4)} USDT`;
                     
                     const pCountText = translations[currentLang].people_count;
@@ -2042,10 +2077,12 @@
                             gameAttemptsLeft = data.game_attempts;
                             snakeAttemptsLeft = data.snake_attempts;
                             towerAttemptsLeft = data.tower_attempts;
+                            jumpAttemptsLeft = data.jump_attempts;
 
                             document.getElementById('game-attempts-left').innerText = gameAttemptsLeft;
                             document.getElementById('snake-attempts-left').innerText = snakeAttemptsLeft;
                             document.getElementById('tower-attempts-left').innerText = towerAttemptsLeft;
+                            document.getElementById('jump-attempts-left').innerText = jumpAttemptsLeft;
                             alert("🎉 Вам успішно додано +5 спроб!");
                         } else {
                             alert("❌ Помилка нарахування спроб.");
@@ -2076,10 +2113,12 @@
                     gameAttemptsLeft = data.game_attempts;
                     snakeAttemptsLeft = data.snake_attempts;
                     towerAttemptsLeft = data.tower_attempts;
+                    jumpAttemptsLeft = data.jump_attempts;
                     
                     document.getElementById('game-attempts-left').innerText = gameAttemptsLeft;
                     document.getElementById('snake-attempts-left').innerText = snakeAttemptsLeft;
                     document.getElementById('tower-attempts-left').innerText = towerAttemptsLeft;
+                    document.getElementById('jump-attempts-left').innerText = jumpAttemptsLeft;
                     return true;
                 } else {
                     alert("❌ " + (data.error || "Немає доступних спроб"));
@@ -2728,6 +2767,244 @@
             if (towerAttemptsLeft <= 0) { closeTowerGame(); return; }
             document.getElementById('tower-gameover-screen').style.display = 'none';
             startTowerGame();
+        }
+
+        // ==========================================
+        // 4. WOODGROW JUMP (DOODLE JUMP STYLE)
+        // ==========================================
+        let jumpCanvas, jumpCtx;
+        let jumpRunning = false;
+        let jumpPlayer = { x: 160, y: 300, vx: 0, vy: 0, width: 32, height: 32, radius: 16 };
+        let jumpPlatforms = [];
+        let jumpScore = 0;
+        let jumpMaxHeight = 0;
+        let jumpCameraY = 0;
+        let jumpStartTime = 0;
+        let jumpLoopId = null;
+        let jumpMoveDir = 0; // -1 ліворуч, 1 праворуч, 0 стоїть
+
+        function openJumpGame() {
+            if (jumpAttemptsLeft <= 0) {
+                if (confirm("❌ У вас закінчилися спроби у Jump! Бажаєте переглянути рекламу та отримати +5 спроб?")) {
+                    addGameAttemptsViaAd('jump_game');
+                }
+                return;
+            }
+            openJumpModalUI();
+        }
+
+        function openJumpModalUI() {
+            document.getElementById('jump-game-modal').style.display = 'flex';
+            document.getElementById('jump-start-screen').style.display = 'flex';
+            document.getElementById('jump-gameover-screen').style.display = 'none';
+            jumpCanvas = document.getElementById('jump-canvas');
+            if (jumpCanvas) {
+                jumpCanvas.width = 360;
+                jumpCanvas.height = 520;
+                jumpCtx = jumpCanvas.getContext('2d');
+            }
+        }
+
+        function closeJumpGame() {
+            jumpRunning = false;
+            cancelAnimationFrame(jumpLoopId);
+            document.getElementById('jump-game-modal').style.display = 'none';
+            document.getElementById('jump-attempts-left').innerText = jumpAttemptsLeft;
+            document.getElementById('user-game-points').innerText = gamePoints;
+        }
+
+        const btnStartJumpAction = document.getElementById('btn-start-jump-action');
+        if (btnStartJumpAction) {
+            btnStartJumpAction.onclick = (e) => {
+                e.preventDefault();
+                startJumpGame();
+            };
+        }
+
+        function jumpMoveLeft() { jumpMoveDir = -1; }
+        function jumpMoveRight() { jumpMoveDir = 1; }
+        function jumpStopMove() { jumpMoveDir = 0; }
+
+        async function startJumpGame() {
+            let success = await startServerGame('jump_game');
+            if (!success) return;
+
+            jumpStartTime = Date.now();
+            document.getElementById('jump-start-screen').style.display = 'none';
+
+            jumpCanvas = document.getElementById('jump-canvas');
+            if (!jumpCanvas) return;
+            jumpCtx = jumpCanvas.getContext('2d');
+
+            jumpScore = 0;
+            jumpMaxHeight = 0;
+            jumpCameraY = 0;
+            jumpPlatforms = [];
+
+            // Початковий гравець біля центру
+            jumpPlayer.x = jumpCanvas.width / 2 - jumpPlayer.width / 2;
+            jumpPlayer.y = jumpCanvas.height - 120;
+            jumpPlayer.vx = 0;
+            jumpPlayer.vy = -10; // початковий стрибок вгору
+
+            // Генерація початкових платформ
+            let platWidth = 70;
+            let platHeight = 14;
+            // Стартова платформа під гравцем
+            jumpPlatforms.push({ x: jumpPlayer.x - 20, y: jumpPlayer.y + 40, w: platWidth + 20, h: platHeight });
+
+            let currentY = jumpPlayer.y + 10;
+            while (currentY > -1000) {
+                currentY -= Math.floor(Math.random() * 45) + 35;
+                let currentX = Math.floor(Math.random() * (jumpCanvas.width - platWidth));
+                jumpPlatforms.push({ x: currentX, y: currentY, w: platWidth, h: platHeight });
+            }
+
+            jumpRunning = true;
+            if (jumpLoopId) cancelAnimationFrame(jumpLoopId);
+            loopJump();
+        }
+
+        function loopJump() {
+            if (!jumpRunning) return;
+
+            // Горизонтальне керування
+            if (jumpMoveDir !== 0) {
+                jumpPlayer.vx = jumpMoveDir * 4.5;
+            } else {
+                jumpPlayer.vx *= 0.85; // плавне гальмування
+            }
+
+            jumpPlayer.x += jumpPlayer.vx;
+
+            // Телепортація через краї екрана зліва направо і навпаки
+            if (jumpPlayer.x + jumpPlayer.width < 0) {
+                jumpPlayer.x = jumpCanvas.width;
+            } else if (jumpPlayer.x > jumpCanvas.width) {
+                jumpPlayer.x = -jumpPlayer.width;
+            }
+
+            // Гравітація та рух по вертикалі
+            jumpPlayer.vy += 0.35; // гравітація
+            jumpPlayer.y += jumpPlayer.vy;
+
+            // Камера слідкує за гравцем вгору
+            let targetCameraY = jumpPlayer.y - jumpCanvas.height / 2.5;
+            if (targetCameraY < jumpCameraY) {
+                jumpCameraY = targetCameraY;
+            }
+
+            // Розрахунок рахунку за максимальну висоту
+            let currentHeightScore = Math.floor(Math.abs(jumpCameraY));
+            if (currentHeightScore > jumpScore) {
+                jumpScore = currentHeightScore;
+            }
+
+            // Перевірка приземлення на платформи (тільки коли падає вниз vy > 0)
+            if (jumpPlayer.vy > 0) {
+                jumpPlatforms.forEach(p => {
+                    if (
+                        jumpPlayer.x + jumpPlayer.width - 6 > p.x &&
+                        jumpPlayer.x + 6 < p.x + p.w &&
+                        jumpPlayer.y + jumpPlayer.height >= p.y &&
+                        jumpPlayer.y + jumpPlayer.height <= p.y + p.h + 8
+                    ) {
+                        jumpPlayer.vy = -10.5; // стрибок від платформи
+                    }
+                });
+            }
+
+            // Генерація нових платформ зверху по мірі підйому
+            let highestPlatY = jumpPlatforms.reduce((min, p) => p.y < min ? p.y : min, 0);
+            if (highestPlatY > jumpCameraY - 100) {
+                let newY = highestPlatY - (Math.floor(Math.random() * 45) + 35);
+                let newX = Math.floor(Math.random() * (jumpCanvas.width - 70));
+                jumpPlatforms.push({ x: newX, y: newY, w: 70, h: 14 });
+            }
+
+            // Видалення платформ, які залишилися далеко внизу
+            jumpPlatforms = jumpPlatforms.filter(p => p.y < jumpCameraY + jumpCanvas.height + 60);
+
+            // Умова програшу: падіння нижче нижньої межі екрана відносно камери
+            if (jumpPlayer.y > jumpCameraY + jumpCanvas.height + 30) {
+                gameOverJump();
+                return;
+            }
+
+            // --- РЕНДЕРИНГ ---
+            jumpCtx.clearRect(0, 0, jumpCanvas.width, jumpCanvas.height);
+            jumpCtx.save();
+            jumpCtx.translate(0, -jumpCameraY);
+
+            // Малювання платформ (дерев'яні бруски)
+            jumpPlatforms.forEach(p => {
+                let pGrad = jumpCtx.createLinearGradient(p.x, p.y, p.x, p.y + p.h);
+                pGrad.addColorStop(0, "#8B5A2B");
+                pGrad.addColorStop(1, "#5C3A21");
+                jumpCtx.fillStyle = pGrad;
+                jumpCtx.fillRect(p.x, p.y, p.w, p.h);
+                jumpCtx.strokeStyle = "#0df25d";
+                jumpCtx.lineWidth = 1.5;
+                jumpCtx.strokeRect(p.x, p.y, p.w, p.h);
+            });
+
+            // Малювання персонажа (монета-паросток)
+            jumpCtx.save();
+            jumpCtx.translate(jumpPlayer.x + jumpPlayer.width / 2, jumpPlayer.y + jumpPlayer.height / 2);
+            jumpCtx.shadowBlur = 15;
+            jumpCtx.shadowColor = "#0df25d";
+
+            let jCoinGrad = jumpCtx.createRadialGradient(-3, -3, 2, 0, 0, jumpPlayer.radius);
+            jCoinGrad.addColorStop(0, "#ffe066");
+            jCoinGrad.addColorStop(0.5, "#d4af37");
+            jCoinGrad.addColorStop(1, "#8a6508");
+
+            jumpCtx.beginPath();
+            jumpCtx.arc(0, 0, jumpPlayer.radius, 0, Math.PI * 2);
+            jumpCtx.fillStyle = jCoinGrad;
+            jumpCtx.fill();
+            jumpCtx.lineWidth = 2.5;
+            jumpCtx.strokeStyle = "#0df25d";
+            jumpCtx.stroke();
+            jumpCtx.closePath();
+
+            jumpCtx.shadowBlur = 0;
+            jumpCtx.font = "16px sans-serif";
+            jumpCtx.textAlign = "center";
+            jumpCtx.textBaseline = "middle";
+            jumpCtx.fillText("🌱", 0, 1);
+            jumpCtx.restore();
+
+            jumpCtx.restore();
+
+            // Виведення рахунку поверх екрана
+            jumpCtx.fillStyle = "#ffffff";
+            jumpCtx.font = "900 24px sans-serif";
+            jumpCtx.textAlign = "center";
+            jumpCtx.fillText(jumpScore, jumpCanvas.width / 2, 40);
+
+            jumpLoopId = requestAnimationFrame(loopJump);
+        }
+
+        async function gameOverJump() {
+            jumpRunning = false;
+            cancelAnimationFrame(jumpLoopId);
+            document.getElementById('jump-final-score').innerText = jumpScore;
+            document.getElementById('jump-gameover-screen').style.display = 'flex';
+
+            let durationSec = Math.floor((Date.now() - jumpStartTime) / 1000);
+            let earnedWgc = Math.floor(jumpScore / 10); // Конвертація висоти в бали WGC
+            if (earnedWgc > 0) {
+                gamePoints += earnedWgc;
+                document.getElementById('user-game-points').innerText = gamePoints;
+                await sendGameScoreToServer(earnedWgc, durationSec, 'jump_game');
+            }
+        }
+
+        function resetJumpGame() {
+            if (jumpAttemptsLeft <= 0) { closeJumpGame(); return; }
+            document.getElementById('jump-gameover-screen').style.display = 'none';
+            startJumpGame();
         }
 
         async function startApp() {
