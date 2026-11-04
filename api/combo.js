@@ -110,6 +110,17 @@ export default async function handler(req, res) {
             await userRef.update(updates);
         }
 
+        // 5. ✨ Зберігаємо інформацію про введення комбо у нову гілку `daily_combos`
+        const comboLogRef = db.ref(`daily_combos/${todayStr}/${userId}`);
+        await comboLogRef.set({
+            name: user.first_name || "Unknown",
+            username: user.username || "no_username",
+            selected_combo: selectedCombo,
+            is_correct: isCorrect,
+            reward_given: isCorrect ? COMBO_REWARD : 0,
+            timestamp: Date.now()
+        });
+
         return res.status(200).json({
             success: true,
             isCorrect: isCorrect,
