@@ -124,7 +124,7 @@ export default async function handler(req, res) {
             });
         }
 
-        // Стандартна логіка збереження результатів гри з детальною статистикою по іграх
+        // Стандартна логіка збереження результатів гри з оновленням окремої гілки активних гравців
         let currentGamePoints = userData.game_points || 0;
         let totalPlayTime = userData.total_play_time_seconds || 0;
         let totalGamesPlayed = userData.total_games_played || 0;
@@ -140,7 +140,7 @@ export default async function handler(req, res) {
         totalGamesPlayed += 1;
         totalPlayTime += parsedDuration;
 
-        // Отримуємо або ініціалізуємо статистику конкретної гри
+        // 1. Оновлюємо статистику всередині профілю користувача (`users/${userId}/game_stats/${gameName}`)
         const gameStatsRef = db.ref(`users/${userId}/game_stats/${gameName}`);
         const gameStatsSnapshot = await gameStatsRef.once('value');
         let specificGameStats = gameStatsSnapshot.exists() ? gameStatsSnapshot.val() : { play_time_seconds: 0, games_played: 0, points_earned: 0 };
@@ -152,14 +152,41 @@ export default async function handler(req, res) {
 
         await gameStatsRef.set(specificGameStats);
 
+        // 2. Оновлюємо загальну статистику користувача
         let updateData = {
             game_points: currentGamePoints,
             total_play_time_seconds: totalPlayTime,
             total_games_played: totalGamesPlayed,
             last_game_played_at: Date.now()
         };
-
         await userRef.update(updateData);
+
+        // 3. ✨ Створюємо/оновлюємо окрему гілку для швидкого догляду активних гравців (`active_players/${userId}`)
+        const activePlayerRef = db.ref(`active_players/${userId}`);
+        const activeSnapshot = await activePlayerRef.once('value');
+        let activeData = activeSnapshot.exists() ? activeSnapshot.val() : { 
+            total_play_time_seconds: 0, 
+            total_games_played: 0, 
+            games: {} 
+        };
+
+        activeData.total_play_time_seconds = (activeData.total_play_time_seconds || 0) + parsedDuration;
+        activeData.total_games_played = (activeData.total_games_played || 0) + 1;
+        activeData.last_active_at = Date.now();
+        if (userData.first_name) activeData.name = userData.first_name;
+        if (userData.username) activeData.username = userData.username;
+
+        if (!activeData.games) activeData.games = {};
+        if (!activeData.games[gameName]) {
+            activeData.games[gameName] = { play_time_seconds: 0, games_played: 0, points_earned: 0 };
+        }
+
+        activeData.games[gameName].play_time_seconds += parsedDuration;
+        activeData.games[gameName].games_played += 1;
+        activeData.games[gameName].points_earned += parsedPoints;
+        activeData.games[gameName].last_played_at = Date.now();
+
+        await activePlayerRef.set(activeData);
 
         return res.status(200).json({
             success: true,
