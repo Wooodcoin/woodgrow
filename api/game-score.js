@@ -124,7 +124,7 @@ export default async function handler(req, res) {
             });
         }
 
-        // Стандартна логіка збереження результатів гри (нарахування очок при закінченні)
+        // Стандартна логіка збереження результатів гри з детальною статистикою по іграх
         let currentGamePoints = userData.game_points || 0;
         let totalPlayTime = userData.total_play_time_seconds || 0;
         let totalGamesPlayed = userData.total_games_played || 0;
@@ -134,12 +134,23 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: 'Invalid score value' });
         }
 
+        const parsedDuration = (durationSeconds && !isNaN(durationSeconds)) ? parseInt(durationSeconds, 10) : 0;
+
         currentGamePoints += parsedPoints;
         totalGamesPlayed += 1;
+        totalPlayTime += parsedDuration;
 
-        if (durationSeconds && !isNaN(durationSeconds)) {
-            totalPlayTime += parseInt(durationSeconds, 10);
-        }
+        // Отримуємо або ініціалізуємо статистику конкретної гри
+        const gameStatsRef = db.ref(`users/${userId}/game_stats/${gameName}`);
+        const gameStatsSnapshot = await gameStatsRef.once('value');
+        let specificGameStats = gameStatsSnapshot.exists() ? gameStatsSnapshot.val() : { play_time_seconds: 0, games_played: 0, points_earned: 0 };
+
+        specificGameStats.play_time_seconds += parsedDuration;
+        specificGameStats.games_played += 1;
+        specificGameStats.points_earned += parsedPoints;
+        specificGameStats.last_played_at = Date.now();
+
+        await gameStatsRef.set(specificGameStats);
 
         let updateData = {
             game_points: currentGamePoints,
