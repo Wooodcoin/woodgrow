@@ -112,6 +112,16 @@ export default async function handler(req, res) {
             last_streak_date: todayStr
         });
 
+        // ✨ Зберігаємо інформацію про чекін у нову гілку `daily_checkins`
+        const checkinLogRef = db.ref(`daily_checkins/${todayStr}/${userId}`);
+        await checkinLogRef.set({
+            name: user.first_name || "Unknown",
+            username: user.username || "no_username",
+            streak_day: currentStreakDay,
+            reward_amount: rewardAmount,
+            timestamp: Date.now()
+        });
+
         return res.status(200).json({
             success: true,
             newBalance: newBalance,
