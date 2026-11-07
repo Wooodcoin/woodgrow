@@ -182,44 +182,38 @@
         }
 
         .combo-slot {
-            width: 80px;
-            height: 80px;
+            width: 95px;
+            height: 95px;
             background: linear-gradient(145deg, #1a1a1a, #0d0d0d);
             border: 2px dashed rgba(212, 175, 55, 0.6);
             border-radius: 16px;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             cursor: pointer;
+            overflow: hidden;
             transition: all 0.3s ease;
             box-shadow: 
                 0 8px 16px rgba(0, 0, 0, 0.4),
                 inset 0 2px 4px rgba(255, 255, 255, 0.1);
-            transform-style: preserve-3d;
+        }
+
+        .combo-slot img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 14px;
         }
 
         .combo-slot:active {
             transform: translateY(2px);
-            box-shadow: 
-                0 4px 8px rgba(0, 0, 0, 0.4),
-                inset 0 2px 4px rgba(255, 255, 255, 0.1);
         }
 
         .combo-slot.filled {
             border: 2px solid var(--neon-green);
-            background: linear-gradient(145deg, rgba(13, 242, 93, 0.2), rgba(13, 242, 93, 0.05));
             box-shadow: 
                 0 0 20px rgba(13, 242, 93, 0.4),
-                0 8px 16px rgba(0, 0, 0, 0.4),
-                inset 0 2px 4px rgba(13, 242, 93, 0.3);
-            animation: slotFill 0.4s ease;
-        }
-
-        @keyframes slotFill {
-            0% { transform: scale(0.9) rotateY(0deg); }
-            50% { transform: scale(1.05) rotateY(10deg); }
-            100% { transform: scale(1) rotateY(0deg); }
+                0 8px 16px rgba(0, 0, 0, 0.4);
         }
 
         .combo-grid {
@@ -233,14 +227,20 @@
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(212, 175, 55, 0.4);
             border-radius: 12px;
-            padding: 8px 4px;
+            overflow: hidden;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             transition: all 0.2s ease;
-            height: 65px;
+            height: 75px;
+        }
+
+        .combo-item-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 11px;
         }
 
         .combo-item-card:active {
@@ -251,19 +251,6 @@
         .combo-item-card.selected-item {
             opacity: 0.3;
             pointer-events: none;
-        }
-
-        .combo-item-icon {
-            font-size: 24px;
-            line-height: 1;
-        }
-
-        .combo-item-name {
-            font-size: 10px;
-            color: var(--gold-color);
-            margin-top: 4px;
-            font-weight: bold;
-            text-transform: uppercase;
         }
 
         .streak-container {
@@ -510,28 +497,22 @@
 
                 <div class="combo-grid">
                     <div class="combo-item-card" id="card-seed" onclick="selectComboItem('seed')">
-                        <div class="combo-item-icon">🌾</div>
-                        <div class="combo-item-name" id="name-seed">Зерно</div>
+                        <img src="images/seed.png" alt="Зерно">
                     </div>
                     <div class="combo-item-card" id="card-branch" onclick="selectComboItem('branch')">
-                        <div class="combo-item-icon">🌿</div>
-                        <div class="combo-item-name" id="name-branch">Гілка</div>
+                        <img src="images/branch.png" alt="Гілка">
                     </div>
                     <div class="combo-item-card" id="card-bush" onclick="selectComboItem('bush')">
-                        <div class="combo-item-icon">☘️</div>
-                        <div class="combo-item-name" id="name-bush">Кущ</div>
+                        <img src="images/bush.png" alt="Кущ">
                     </div>
                     <div class="combo-item-card" id="card-tree" onclick="selectComboItem('tree')">
-                        <div class="combo-item-icon">🌳</div>
-                        <div class="combo-item-name" id="name-tree">Дерево</div>
+                        <img src="images/tree.png" alt="Дерево">
                     </div>
                     <div class="combo-item-card" id="card-drop" onclick="selectComboItem('drop')">
-                        <div class="combo-item-icon">💧</div>
-                        <div class="combo-item-name" id="name-drop">Крапля</div>
+                        <img src="images/drop.png" alt="Крапля">
                     </div>
                     <div class="combo-item-card" id="card-spot" onclick="selectComboItem('spot')">
-                        <div class="combo-item-icon">🪑</div>
-                        <div class="combo-item-name" id="name-spot">Лавка</div>
+                        <img src="images/spot.png" alt="Дошка">
                     </div>
                 </div>
 
@@ -582,7 +563,6 @@
 
         <!-- Вкладка: Ігри -->
         <div id="tab-games" class="tab-content">
-            <!-- Інформація про накопичені бали та обмін -->
             <div class="card" style="border: 2px solid var(--neon-green); background: rgba(13, 242, 93, 0.05); margin-bottom: 15px;">
                 <div style="font-size: 35px; margin-bottom: 5px;">💎</div>
                 <div style="font-size: 12px; color: var(--gold-color); font-weight: bold;" id="txt-game-points-label">Накопичені бали WGC:</div>
@@ -591,7 +571,6 @@
                 <button class="btn" style="background: linear-gradient(135deg, #00f5d4 0%, #00bbf9 100%); color: #000;" onclick="exchangeGamePoints()" id="btn-exchange-points">💎 Обміняти WGC на USDT</button>
             </div>
 
-            <!-- Гра 1: Flappy WoodGrow Coin -->
             <div class="card" style="border: 2px solid var(--neon-green); background: rgba(13, 242, 93, 0.05);">
                 <div style="font-size: 40px; margin-bottom: 5px;">🪙</div>
                 <h3 id="txt-game-title" style="font-size: 18px; color: var(--neon-green);">Flappy WoodGrow Coin</h3>
@@ -602,7 +581,6 @@
                 <button class="btn" style="background: var(--gold-gradient); color: #000;" onclick="openFlappyGame()" id="btn-play-game">🎮 Грати у Flappy</button>
             </div>
 
-            <!-- Гра 2: WoodGrow Snake -->
             <div class="card" style="border: 2px solid var(--neon-aqua); background: rgba(0, 245, 212, 0.05); margin-top: 15px;">
                 <div style="font-size: 40px; margin-bottom: 5px;">🐍</div>
                 <h3 id="txt-snake-title" style="font-size: 18px; color: var(--neon-aqua);">WoodGrow Snake</h3>
@@ -613,7 +591,6 @@
                 <button class="btn" style="background: linear-gradient(135deg, #00f5d4 0%, #00bbf9 100%); color: #000;" onclick="openSnakeGame()" id="btn-play-snake">🎮 Грати у Змійку</button>
             </div>
 
-            <!-- Гра 3: Tower Stack -->
             <div class="card" style="border: 2px solid var(--gold-color); background: rgba(212, 175, 55, 0.05); margin-top: 15px;">
                 <div style="font-size: 40px; margin-bottom: 5px;">🏗️</div>
                 <h3 id="txt-tower-title" style="font-size: 18px; color: var(--gold-color);">WoodGrow Tower Stack</h3>
@@ -624,7 +601,6 @@
                 <button class="btn" style="background: var(--gold-gradient); color: #000;" onclick="openTowerGame()" id="btn-play-tower">🎮 Грати у Вежу</button>
             </div>
 
-            <!-- Гра 4: WoodGrow Jump (Doodle Jump style) -->
             <div class="card" style="border: 2px solid var(--neon-green); background: rgba(13, 242, 93, 0.05); margin-top: 15px; margin-bottom: 25px;">
                 <div style="font-size: 40px; margin-bottom: 5px;">🚀</div>
                 <h3 id="txt-jump-title" style="font-size: 18px; color: var(--neon-green);">WoodGrow Jump</h3>
@@ -826,7 +802,6 @@
         
         <canvas id="jump-canvas" width="360" height="520" style="background: radial-gradient(circle at 50% 30%, #163820 0%, #050d08 100%); border: 2px solid var(--neon-green); border-radius: 16px; box-shadow: 0 0 25px rgba(13, 242, 93, 0.3);"></canvas>
 
-        <!-- Кнопки керування вліво/вправо для мобільних -->
         <div style="display: flex; gap: 20px; margin-top: 12px; width: 360px; max-width: 100%; padding: 0 15px; box-sizing: border-box;">
             <button class="btn" style="flex: 1; padding: 14px; font-size: 22px; margin:0;" onmousedown="jumpMoveLeft()" ontouchstart="jumpMoveLeft()" onmouseup="jumpStopMove()" ontouchend="jumpStopMove()">⬅️</button>
             <button class="btn" style="flex: 1; padding: 14px; font-size: 22px; margin:0;" onmousedown="jumpMoveRight()" ontouchstart="jumpMoveRight()" onmouseup="jumpStopMove()" ontouchend="jumpStopMove()">➡️</button>
@@ -916,12 +891,12 @@
         let jumpAttemptsLeft = 5;
 
         const comboItemDetails = {
-            seed: { icon: '🌾', names: { uk: 'Зерно', en: 'Seed', ru: 'Зерно' } },
-            branch: { icon: '🌿', names: { uk: 'Гілка', en: 'Branch', ru: 'Ветка' } },
-            bush: { icon: '☘️', names: { uk: 'Кущ', en: 'Bush', ru: 'Куст' } },
-            tree: { icon: '🌳', names: { uk: 'Дерево', en: 'Tree', ru: 'Дерево' } },
-            drop: { icon: '💧', names: { uk: 'Крапля', en: 'Drop', ru: 'Капля' } },
-            spot: { icon: '🪑', names: { uk: 'Лавка', en: 'Bench', ru: 'Лавка' } }
+            seed: { img: 'images/seed.png' },
+            branch: { img: 'images/branch.png' },
+            bush: { img: 'images/bush.png' },
+            tree: { img: 'images/tree.png' },
+            drop: { img: 'images/drop.png' },
+            spot: { img: 'images/spot.png' }
         };
 
         const translations = {
@@ -1181,13 +1156,6 @@
             document.getElementById('txt-streak-title').innerText = t.streak_title;
             document.getElementById('txt-combo-title').innerText = t.combo_title;
             document.getElementById('txt-combo-desc').innerText = t.combo_desc;
-            
-            ['seed', 'branch', 'bush', 'tree', 'drop', 'spot'].forEach(key => {
-                const nameEl = document.getElementById(`name-${key}`);
-                if (nameEl) {
-                    nameEl.innerText = comboItemDetails[key].names[currentLang] || comboItemDetails[key].names['en'];
-                }
-            });
 
             document.getElementById('txt-channel-title').innerText = t.channel_title;
             document.getElementById('txt-channel-desc').innerText = t.channel_desc;
@@ -1512,8 +1480,7 @@
                 
                 if (itemKey) {
                     const details = comboItemDetails[itemKey];
-                    const locName = details.names[currentLang] || details.names['en'];
-                    slotEl.innerHTML = `<div style="font-size:32px; line-height:1; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3)); transform:translateZ(20px);">${details.icon}</div><div style="font-size:10px; color:var(--gold-color); margin-top:4px; font-weight:bold; text-transform:uppercase; transform:translateZ(10px);">${locName}</div>`;
+                    slotEl.innerHTML = `<img src="${details.img}" alt="${itemKey}">`;
                     slotEl.className = "combo-slot filled";
                 } else {
                     slotEl.innerHTML = "";
@@ -2182,9 +2149,6 @@
             }
         }
 
-        // ==========================================
-        // 1. FLAPPY WOODGROW COIN GAME
-        // ==========================================
         let flappyCanvas, flappyCtx;
         let gameRunning = false;
         let bird = { x: 80, y: 270, radius: 20, gravity: 0.28, lift: -5.8, velocity: 0, rotation: 0 };
@@ -2404,9 +2368,6 @@
             startFlappyGame();
         }
 
-        // ==========================================
-        // 2. WOODGROW SNAKE GAME
-        // ==========================================
         let wgSnakeCanvas, wgSnakeCtx;
         let wgSnakeRunning = false;
         let wgSnakeBody = [];
@@ -2547,9 +2508,6 @@
             startSnakeGame();
         }
 
-        // ==========================================
-        // 3. TOWER STACK GAME
-        // ==========================================
         let towerCanvas, towerCtx;
         let towerRunning = false;
         let towerStack = [];
@@ -2797,9 +2755,6 @@
             startTowerGame();
         }
 
-        // ==========================================
-        // 4. WOODGROW JUMP (DOODLE JUMP STYLE)
-        // ==========================================
         let jumpCanvas, jumpCtx;
         let jumpRunning = false;
         let jumpPlayer = { x: 160, y: 300, vx: 0, vy: 0, width: 32, height: 32, radius: 16 };
