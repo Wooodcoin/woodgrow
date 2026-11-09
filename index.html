@@ -614,18 +614,59 @@
 
         <!-- Вкладка: Завдання -->
         <div id="tab-missions" class="tab-content">
-            <div class="card" style="border: 2px solid var(--neon-aqua); background: rgba(0, 245, 212, 0.05); box-shadow: 0 0 15px rgba(0, 245, 212, 0.2);">
-                <h3 style="color: var(--neon-aqua);" id="txt-adv-section-title">💼 Кабінет рекламодавця</h3>
-                <p style="color: #a1a1aa; font-size: 13px;" id="txt-adv-section-desc">Тут ви можете замовити реакції на телеграм пости від реальних користувачів.</p>
-                <button class="btn" style="background: linear-gradient(135deg, #00f5d4 0%, #00bbf9 100%); color: #000000; font-weight: 900;" onclick="tg.openTelegramLink('https://t.me/WoodGrow_task_bot/WoodGrowTask')" id="btn-go-advertiser">💼 Замовити завдання</button>
+            <!-- Компактний Кабінет рекламодавця -->
+            <div class="card" style="border: 2px solid var(--neon-aqua); background: rgba(0, 245, 212, 0.05); box-shadow: 0 0 12px rgba(0, 245, 212, 0.2); padding: 12px 15px; margin-bottom: 12px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                    <div style="text-align: left;">
+                        <h3 style="color: var(--neon-aqua); font-size: 14px; margin: 0 0 3px 0;" id="txt-adv-section-title">💼 Кабінет рекламодавця</h3>
+                        <p style="color: #a1a1aa; font-size: 11px; margin: 0; line-height: 1.3;" id="txt-adv-section-desc">Замовляйте реакції на пости від реальних користувачів.</p>
+                    </div>
+                    <button class="btn" style="background: linear-gradient(135deg, #00f5d4 0%, #00bbf9 100%); color: #000000; font-weight: 900; padding: 10px 14px; font-size: 12px; margin: 0; width: auto; white-space: nowrap;" onclick="tg.openTelegramLink('https://t.me/WoodGrow_task_bot/WoodGrowTask')" id="btn-go-advertiser">💼 Замовити</button>
+                </div>
             </div>
 
-            <div class="card" style="padding: 20px 15px;">
-                <div style="font-size: 40px; margin-bottom: 10px;">🎯</div>
-                <h3 id="txt-new-missions-title">🎯 Нові завдання</h3>
+            <!-- Меню вибору категорій завдань (5 компактних кнопок) -->
+            <div class="card" style="padding: 12px 15px; margin-bottom: 12px;">
+                <h3 id="txt-new-missions-title" style="font-size: 14px; margin-bottom: 10px;">🎯 Види завдань</h3>
                 
-                <div id="tasks-container" style="margin-top: 15px; display: flex; flex-direction: column; gap: 12px;">
-                    <p style="color: #a1a1aa; font-size: 14px;" id="tasks-loading-status">Завантаження завдань...</p>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <!-- Активна кнопка 1: Реакції на пости -->
+                    <button class="btn" style="background: linear-gradient(135deg, #0df25d 0%, #0b9e3a 100%); color: #000; padding: 10px 12px; font-size: 13px; margin: 0; display: flex; justify-content: space-between; align-items: center;" onclick="selectTaskCategory('reactions')">
+                        <span>👍 Реакції на пости</span>
+                        <span style="font-size: 11px; background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 6px;">Активно</span>
+                    </button>
+
+                    <!-- Заглушка 2: В розробці (Реферали) -->
+                    <button class="btn" disabled style="background: #1a1a1f; border: 1px dashed rgba(212,175,55,0.4); color: #71717a; padding: 10px 12px; font-size: 13px; margin: 0; display: flex; justify-content: space-between; align-items: center;">
+                        <span>🎮 Реферали в боти/ігри</span>
+                        <span style="font-size: 11px; color: var(--gold-color);">⏳ В розробці</span>
+                    </button>
+
+                    <!-- Заглушка 3: В розробці (Stories) -->
+                    <button class="btn" disabled style="background: #1a1a1f; border: 1px dashed rgba(212,175,55,0.4); color: #71717a; padding: 10px 12px; font-size: 13px; margin: 0; display: flex; justify-content: space-between; align-items: center;">
+                        <span>🧩 Розкрутка Stories</span>
+                        <span style="font-size: 11px; color: var(--gold-color);">⏳ В розробці</span>
+                    </button>
+
+                    <!-- Заглушка 4: В розробці (Повідомлення) -->
+                    <button class="btn" disabled style="background: #1a1a1f; border: 1px dashed rgba(212,175,55,0.4); color: #71717a; padding: 10px 12px; font-size: 13px; margin: 0; display: flex; justify-content: space-between; align-items: center;">
+                        <span>🎁 Анонімні повідомлення</span>
+                        <span style="font-size: 11px; color: var(--gold-color);">⏳ В розробці</span>
+                    </button>
+
+                    <!-- Заглушка 5: В розробці (Додатково) -->
+                    <button class="btn" disabled style="background: #1a1a1f; border: 1px dashed rgba(212,175,55,0.4); color: #71717a; padding: 10px 12px; font-size: 13px; margin: 0; display: flex; justify-content: space-between; align-items: center;">
+                        <span>🚀 Мікро-завдання</span>
+                        <span style="font-size: 11px; color: var(--gold-color);">⏳ В розробці</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Список активних завдань для виконання -->
+            <div class="card" style="padding: 15px;">
+                <h3 style="font-size: 14px; margin-bottom: 8px;">📋 Доступні завдання (Реакції)</h3>
+                <div id="tasks-container" style="margin-top: 10px; display: flex; flex-direction: column; gap: 8px;">
+                    <p style="color: #a1a1aa; font-size: 13px;" id="tasks-loading-status">Завантаження завдань...</p>
                 </div>
             </div>
         </div>
@@ -941,8 +982,8 @@
                 nav_games: "🎮Ігри",
                 nav_tasks: "ℹ️Інфо",
                 nav_missions: "🎯Завдання",
-                mission_title: "🎯 Нові завдання",
-                mission_desc: "Тут ви можете замовити реакції на ваші пости",
+                mission_title: "🎯 Види завдань",
+                mission_desc: "Замовляйте реакції на пости від реальних користувачів.",
                 nav_profile: "🖥️Кабінет",
                 game_title: "Flappy WoodGrow Coin",
                 game_desc: "Керуйте монетою-паростком, оминайте дерев'яні колони, збирайте бали WGC та отримуйте реальні USDT!",
@@ -965,8 +1006,8 @@
                 db_error: "Помилка зв'язку з сервером бази даних.",
                 req_error: "Не вдалося виконати запит на виведення.",
                 adv_title: "💼 Кабінет рекламодавця",
-                adv_desc: "Тут ви можете замовити реакції на телеграм пости від реальних користувачів.",
-                adv_btn: "💼 Замовити завдання",
+                adv_desc: "Замовляйте реакції на пости від реальних користувачів.",
+                adv_btn: "💼 Замовити",
                 task_reaction_btn: "👍 Поставити реакцію",
                 task_waiting_btn: "⏳ Зачекайте",
                 task_claim_btn: "🎁 Забрати",
@@ -1014,8 +1055,8 @@
                 nav_games: "🎮Games",
                 nav_tasks: "ℹ️Info",
                 nav_missions: "🎯Missions",
-                mission_title: "🎯 New Missions",
-                mission_desc: "Here you can order reactions for your posts",
+                mission_title: "🎯 Task Types",
+                mission_desc: "Order reactions to posts from real users.",
                 nav_profile: "🖥️Profile",
                 game_title: "Flappy WoodGrow Coin",
                 game_desc: "Control the sprout-coin, avoid wooden pillars, collect WGC points and earn real USDT!",
@@ -1038,8 +1079,8 @@
                 db_error: "Error communicating with the database server.",
                 req_error: "Failed to process withdrawal request.",
                 adv_title: "💼 Advertiser Cabinet",
-                adv_desc: "Here you can order reactions to Telegram posts from real users.",
-                adv_btn: "💼 Order Task",
+                adv_desc: "Order reactions to posts from real users.",
+                adv_btn: "💼 Order",
                 task_reaction_btn: "👍 Give Reaction",
                 task_waiting_btn: "⏳ Wait",
                 task_claim_btn: "🎁 Claim",
@@ -1087,8 +1128,8 @@
                 nav_games: "🎮Игры",
                 nav_tasks: "ℹ️Инфо",
                 nav_missions: "🎯Задания",
-                mission_title: "🎯 Новые задания",
-                mission_desc: "Здесь вы можете заказать реакции на ваши посты",
+                mission_title: "🎯 Виды заданий",
+                mission_desc: "Заказывайте реакции на посты от реальных пользователей.",
                 nav_profile: "🖥️Кабинет",
                 game_title: "Flappy WoodGrow Coin",
                 game_desc: "Управляйте монетой-ростком, обходите деревянные колонны, собирайте баллы WGC и получайте реальные USDT!",
@@ -1111,8 +1152,8 @@
                 db_error: "Ошибка связи с сервером базы данных.",
                 req_error: "Не удалось выполнить запрос на вывод.",
                 adv_title: "💼 Кабинет рекламодавця",
-                adv_desc: "Здесь вы можете заказать реакции на телеграм посты от реальных пользователей.",
-                adv_btn: "💼 Заказать задание",
+                adv_desc: "Заказывайте реакции на посты от реальных пользователей.",
+                adv_btn: "💼 Заказать",
                 task_reaction_btn: "👍 Поставить реакцию",
                 task_waiting_btn: "⏳ Подождите",
                 task_claim_btn: "🎁 Забрать",
@@ -1400,6 +1441,12 @@
             }
             
             if (tabName === 'missions') {
+                loadCustomerTasks();
+            }
+        }
+
+        function selectTaskCategory(category) {
+            if (category === 'reactions') {
                 loadCustomerTasks();
             }
         }
@@ -1864,6 +1911,8 @@
                         taskBtn.className = 'btn';
                         taskBtn.style.background = 'var(--gold-gradient)';
                         taskBtn.style.marginTop = '0';
+                        taskBtn.style.padding = '12px 14px';
+                        taskBtn.style.fontSize = '13px';
                         taskBtn.innerText = `${t.task_reaction_btn} (+${task.reward} USDT)`;
                         
                         taskBtn.onclick = async () => {
@@ -1901,7 +1950,7 @@
 
                             if (isTimerFinished) {
                                 taskBtn.disabled = true;
-                                taskBtn.innerText = t.task_claiming_process;
+                                taskBtn.innerText = t.task_claiming_process || "Зарахування...";
 
                                 try {
                                     const claimRes = await fetch('/api/claim-task', {
@@ -1929,7 +1978,7 @@
                                         taskBtn.remove();
 
                                         if (container.children.length === 0) {
-                                            container.innerHTML = `<p style="color: #a1a1aa; font-size: 14px;">${t.task_no_active}</p>`;
+                                            container.innerHTML = `<p style="color: #a1a1aa; font-size: 13px;">${t.task_no_active}</p>`;
                                         }
                                     } else {
                                         alert(`Error: ${claimData.error || 'Verification failed'}`);
@@ -1948,11 +1997,11 @@
                         container.appendChild(taskBtn);
                     });
                 } else {
-                    container.innerHTML = `<p style="color: #a1a1aa; font-size: 14px;">${t.task_no_active}</p>`;
+                    container.innerHTML = `<p style="color: #a1a1aa; font-size: 13px;">${t.task_no_active}</p>`;
                 }
             } catch (err) {
                 console.error("Помилка завантаження завдань:", err);
-                container.innerHTML = `<p style="color: #ff4444; font-size: 14px;">${t.task_conn_error}</p>`;
+                container.innerHTML = `<p style="color: #ff4444; font-size: 13px;">${t.task_conn_error}</p>`;
             }
         }
 
