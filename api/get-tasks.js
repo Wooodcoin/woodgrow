@@ -1,3 +1,5 @@
+// api/get-tasks.js
+
 import admin from 'firebase-admin';
 
 if (!admin.apps.length) {
@@ -24,12 +26,11 @@ export default async function handler(req, res) {
     const { userId } = req.query;
 
     try {
-        // 1. Спочатку витягуємо список виконаних завдань саме ЦЬОГО користувача
+        // 1. Витягуємо список виконаних завдань саме ЦЬОГО користувача
         let completedTaskIds = [];
         if (userId) {
             const completedSnapshot = await db.ref(`users/${userId}/completed_tasks`).once('value');
             if (completedSnapshot.exists()) {
-                // Отримуємо ключі (ID завдань), де значення є true
                 completedTaskIds = Object.keys(completedSnapshot.val());
             }
         }
@@ -43,28 +44,62 @@ export default async function handler(req, res) {
         const allTasks = snapshot.val();
         const activeTasks = [];
 
-        // 3. Фільтруємо завдання за твоїми правилами + додаємо перевірку на виконання
+        // 3. Фільтруємо завдання (і реакції, і реферали)
         for (const key in allTasks) {
             const task = allTasks[key];
+            const taskId = task.id || key;
             
-            // ПЕРЕВІРКА: чи є ID цього завдання в списку вже виконаних юзером
-            const isAlreadyCompleted = completedTaskIds.includes(task.id);
+            // Перевірка: чи є ID цього завдання в списку вже виконаних юзером
+            const isAlreadyCompleted = completedTaskIds.includes(taskId);
+            if (isAlreadyCompleted) continue;
 
-            if (
-                task.status === 'active' && 
-                !isAlreadyCompleted && // <--- НОВА УМОВА: Пропускаємо, якщо вже виконано
-                parseInt(task.current_views || 0) < parseInt(task.required_views || 26)
-            ) {
-                // Віддаємо на фронтенд тільки безпечні дані
-                activeTasks.push({
-                    id: task.id,
-                    link: task.link,
-                    reward: task.reward || 0.0005
-                });
+            // Логіка для РЕФЕРАЛЬНИХ завдань (type === 'referral')
+            if (task.type === 'referral') {
+                const currentCount = parseInt(task.current_count || 0);
+                const targetCount = parseInt(task.target_count || 5);
+
+                if (currentCount < targetCount) {
+                    // Перевіряємо також, чи користувач вже не надсилав звіт (pending/approved)
+                    const subRef = db.ref(`task_submissions/${taskId}`);
+                    const subSnap = await subRef.orderByChild('userId').equalTo(userId).once('value');
+                    
+                    let hasPendingOrApproved = false;
+                    if (subSnap.exists()) {
+                        subSnap.forEach(child => {
+                            const sub = child.val();
+                            if (sub.status === 'pending' || sub.status === 'approved') {
+                                hasPendingOrApproved = true;
+                            }
+                        });
+                    }
+
+                    if (!hasPendingOrApproved) {
+                        activeTasks.push({
+                            id: taskId,
+                            link: task.link,
+                            reward: 0.002, // Фіксована нагорода за реферала
+                            type: 'referral'
+                        });
+                    }
+                }
+            } 
+            // Логіка для стандартних завдань (реакції / перегляди)
+            else {
+                if (
+                    task.status === 'active' && 
+                    parseInt(task.current_views || 0) < parseInt(task.required_views || 26)
+                ) {
+                    activeTasks.push({
+                        id: taskId,
+                        link: task.link,
+                        reward: task.reward || 0.0005,
+                        type: 'reaction'
+                    });
+                }
             }
         }
 
-        // Повертаємо масив тільки тих активних завдань, які юзер ще НЕ робив
+        // Повертаємо об'єднаний список активних завдань
         return res.status(200).json({ success: true, tasks: activeTasks });
 
     } catch (error) {
