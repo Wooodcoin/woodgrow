@@ -187,10 +187,11 @@
             cursor: pointer;
             overflow: hidden;
             transition: all 0.3s ease;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.1);
         }
 
         .combo-slot img { width: 100%; height: 100%; object-fit: cover; border-radius: 14px; }
-        .combo-slot.filled { border: 2px solid var(--neon-green); }
+        .combo-slot.filled { border: 2px solid var(--neon-green); box-shadow: 0 0 20px rgba(13, 242, 93, 0.4), 0 8px 16px rgba(0, 0, 0, 0.4); }
 
         .combo-grid {
             display: grid;
@@ -235,7 +236,7 @@
             color: #fff;
         }
 
-        .streak-day-btn.active-day { border-color: var(--neon-green); background: rgba(13, 242, 93, 0.15); }
+        .streak-day-btn.active-day { border-color: var(--neon-green); background: rgba(13, 242, 93, 0.15); box-shadow: 0 0 10px rgba(13, 242, 93, 0.3); }
         .streak-day-btn.claimed { background: #1c2e21; border-color: #27272a; color: #71717a; opacity: 0.6; cursor: not-allowed; }
         .streak-day-btn.locked { opacity: 0.4; cursor: not-allowed; }
 
@@ -367,6 +368,7 @@
             width: 80%;
             max-width: 300px;
             text-align: center;
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.4);
         }
         
         .input-field {
@@ -522,7 +524,7 @@
                 <h3 id="txt-new-missions-title" style="font-size: 14px; margin-bottom: 10px;">🎯 Види завдань</h3>
                 
                 <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <!-- Кнопка 1: Реакції на пости (Тепер в єдиному стилі з рефералами) -->
+                    <!-- Кнопка 1: Реакції на пости -->
                     <button class="btn" id="btn-cat-reactions" style="background: rgba(15, 25, 30, 0.9); border: 1.5px solid var(--neon-green); color: var(--neon-green); padding: 10px 12px; font-size: 13px; margin: 0; display: flex; justify-content: space-between; align-items: center;" onclick="selectTaskCategory('reactions')">
                         <span>👍 Реакції на пости</span>
                         <span style="font-size: 11px; background: rgba(13,242,93,0.2); color: var(--neon-green); padding: 2px 6px; border-radius: 6px;">0.0005 USDT</span>
@@ -642,6 +644,93 @@
         </div>
     </div>
 
+    <!-- Модальні вікна ігор -->
+    <div id="flappy-game-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #0a1f0f; z-index: 4000; display: none; flex-direction: column; align-items: center; justify-content: center;">
+        <div style="position: absolute; top: 15px; left: 15px; right: 15px; display: flex; justify-content: space-between; align-items: center; z-index: 4100;">
+            <div style="color: var(--neon-green); font-weight: bold; font-size: 16px;">🪙 Flappy WoodGrow</div>
+            <button onclick="closeFlappyGame()" style="background: rgba(255,255,255,0.1); border: 1px solid var(--gold-color); color: #fff; border-radius: 50%; width: 35px; height: 35px; font-size: 18px; cursor: pointer;">✕</button>
+        </div>
+        <canvas id="flappy-canvas" width="360" height="540"></canvas>
+        <div id="flappy-start-screen" class="game-overlay-panel">
+            <h3 style="color: var(--neon-green); margin-bottom: 10px;">Flappy WoodGrow</h3>
+            <p style="font-size: 13px; color: #a1a1aa; margin-bottom: 20px;">Натискайте на екран, щоб монета підстрибувала та оминала дерева!</p>
+            <button class="btn" style="background: var(--gold-gradient); color: #000;" onclick="startFlappyGame()">🎮 Старт</button>
+        </div>
+        <div id="flappy-gameover-screen" class="game-overlay-panel" style="display: none;">
+            <h3 style="color: #ff4444; margin-bottom: 5px;">ГРУ ЗАВЕРШЕНО</h3>
+            <p style="font-size: 14px; color: #fff; margin: 5px 0;">Рахунок: <span id="flappy-final-score" style="color: var(--neon-green); font-weight: bold;">0</span> WGC</p>
+            <p style="font-size: 12px; color: var(--gold-color); margin-bottom: 15px;">Накопичено балів за сесію: +<span id="flappy-earned-pts">0</span> WGC</p>
+            <button class="btn" style="background: linear-gradient(135deg, #00f5d4 0%, #00bbf9 100%); color: #000; margin-bottom: 8px;" onclick="reviveWithAd()" id="btn-revive-ad">🎥 Одне життя за рекламу</button>
+            <button class="btn" style="background: var(--gold-gradient); color: #000;" onclick="resetFlappyGame()">🔄 Грати знову</button>
+        </div>
+    </div>
+
+    <div id="snake-game-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #0a1f0f; z-index: 4000; display: none; flex-direction: column; align-items: center; justify-content: center;">
+        <div style="position: absolute; top: 15px; left: 15px; right: 15px; display: flex; justify-content: space-between; align-items: center; z-index: 4100;">
+            <div style="color: var(--neon-aqua); font-weight: bold; font-size: 16px;">🐍 WoodGrow Snake</div>
+            <button onclick="closeSnakeGame()" style="background: rgba(255,255,255,0.1); border: 1px solid var(--neon-aqua); color: #fff; border-radius: 50%; width: 35px; height: 35px; font-size: 18px; cursor: pointer;">✕</button>
+        </div>
+        <canvas id="snake-canvas" width="360" height="360" style="background: #050d08; border: 2px solid var(--neon-aqua); border-radius: 16px; box-shadow: 0 0 25px rgba(0, 245, 212, 0.3);"></canvas>
+        <div style="display: grid; grid-template-columns: repeat(3, 60px); gap: 10px; margin-top: 15px;">
+            <div></div>
+            <button class="btn" style="padding: 15px; font-size: 20px; margin:0;" onclick="changeSnakeDir('UP')">⬆️</button>
+            <div></div>
+            <button class="btn" style="padding: 15px; font-size: 20px; margin:0;" onclick="changeSnakeDir('LEFT')">⬅️</button>
+            <button class="btn" style="padding: 15px; font-size: 20px; margin:0;" onclick="changeSnakeDir('DOWN')">⬇️</button>
+            <button class="btn" style="padding: 15px; font-size: 20px; margin:0;" onclick="changeSnakeDir('RIGHT')">➡️</button>
+        </div>
+        <div id="snake-start-screen" class="game-overlay-panel" style="border-color: var(--neon-aqua);">
+            <h3 style="color: var(--neon-aqua); margin-bottom: 10px;">WoodGrow Snake</h3>
+            <p style="font-size: 13px; color: #a1a1aa; margin-bottom: 20px;">Керуйте змійкою стрілками або свайпами на екрані!</p>
+            <button class="btn" style="background: linear-gradient(135deg, #00f5d4 0%, #00bbf9 100%); color: #000;" onclick="startSnakeGame()">🎮 Старт</button>
+        </div>
+        <div id="snake-gameover-screen" class="game-overlay-panel" style="display: none; border-color: var(--neon-aqua);">
+            <h3 style="color: #ff4444; margin-bottom: 5px;">ГРУ ЗАВЕРШЕНО</h3>
+            <p style="font-size: 14px; color: #fff; margin: 5px 0;">Зібрано їжі: <span id="snake-final-score" style="color: var(--neon-aqua); font-weight: bold;">0</span> WGC</p>
+            <button class="btn" style="background: linear-gradient(135deg, #00f5d4 0%, #00bbf9 100%); color: #000; margin-top: 15px;" onclick="resetSnakeGame()">🔄 Грати знову</button>
+        </div>
+    </div>
+
+    <div id="tower-game-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #0a1f0f; z-index: 4000; display: none; flex-direction: column; align-items: center; justify-content: center;">
+        <div style="position: absolute; top: 15px; left: 15px; right: 15px; display: flex; justify-content: space-between; align-items: center; z-index: 4100;">
+            <div style="color: var(--gold-color); font-weight: bold; font-size: 16px;">🏗️ Tower Stack</div>
+            <button onclick="closeTowerGame()" style="background: rgba(255,255,255,0.1); border: 1px solid var(--gold-color); color: #fff; border-radius: 50%; width: 35px; height: 35px; font-size: 18px; cursor: pointer;">✕</button>
+        </div>
+        <canvas id="tower-canvas" width="360" height="520" style="background: radial-gradient(circle at 50% 30%, #1a1a0f 0%, #050508 100%); border: 2px solid var(--gold-color); border-radius: 16px; box-shadow: 0 0 25px rgba(212, 175, 55, 0.3); cursor: pointer;"></canvas>
+        <div id="tower-start-screen" class="game-overlay-panel" style="border-color: var(--gold-color);">
+            <h3 style="color: var(--gold-color); margin-bottom: 10px;">Tower Stack</h3>
+            <p style="font-size: 13px; color: #a1a1aa; margin-bottom: 20px;">Тапайте по екрану, щоб зупинити рухомий блок та збудувати найвищу вежу!</p>
+            <button class="btn" id="btn-start-tower-action" style="background: var(--gold-gradient); color: #000;">🎮 Старт</button>
+        </div>
+        <div id="tower-gameover-screen" class="game-overlay-panel" style="display: none; border-color: var(--gold-color);">
+            <h3 style="color: #ff4444; margin-bottom: 5px;">ВЕЖУ ЗРУЙНОВАНО!</h3>
+            <p style="font-size: 14px; color: #fff; margin: 5px 0;">Висота вежі: <span id="tower-final-score" style="color: var(--gold-color); font-weight: bold;">0</span> поверхів</p>
+            <button class="btn" style="background: var(--gold-gradient); color: #000; margin-top: 15px;" onclick="resetTowerGame()">🔄 Будувати знову</button>
+        </div>
+    </div>
+
+    <div id="jump-game-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #0a1f0f; z-index: 4000; display: none; flex-direction: column; align-items: center; justify-content: center;">
+        <div style="position: absolute; top: 15px; left: 15px; right: 15px; display: flex; justify-content: space-between; align-items: center; z-index: 4100;">
+            <div style="color: var(--neon-green); font-weight: bold; font-size: 16px;">🚀 WoodGrow Jump</div>
+            <button onclick="closeJumpGame()" style="background: rgba(255,255,255,0.1); border: 1px solid var(--neon-green); color: #fff; border-radius: 50%; width: 35px; height: 35px; font-size: 18px; cursor: pointer;">✕</button>
+        </div>
+        <canvas id="jump-canvas" width="360" height="520" style="background: radial-gradient(circle at 50% 30%, #163820 0%, #050d08 100%); border: 2px solid var(--neon-green); border-radius: 16px; box-shadow: 0 0 25px rgba(13, 242, 93, 0.3);"></canvas>
+        <div style="display: flex; gap: 20px; margin-top: 12px; width: 360px; max-width: 100%; padding: 0 15px; box-sizing: border-box;">
+            <button class="btn" style="flex: 1; padding: 14px; font-size: 22px; margin:0;" onmousedown="jumpMoveLeft()" ontouchstart="jumpMoveLeft()" onmouseup="jumpStopMove()" ontouchend="jumpStopMove()">⬅️</button>
+            <button class="btn" style="flex: 1; padding: 14px; font-size: 22px; margin:0;" onmousedown="jumpMoveRight()" ontouchstart="jumpMoveRight()" onmouseup="jumpStopMove()" ontouchend="jumpStopMove()">➡️</button>
+        </div>
+        <div id="jump-start-screen" class="game-overlay-panel" style="border-color: var(--neon-green);">
+            <h3 style="color: var(--neon-green); margin-bottom: 10px;">WoodGrow Jump</h3>
+            <p style="font-size: 13px; color: #a1a1aa; margin-bottom: 20px;">Керуйте кнопками вліво/вправо та стрибайте вище по платформах!</p>
+            <button class="btn" id="btn-start-jump-action" style="background: var(--gold-gradient); color: #000;">🎮 Старт</button>
+        </div>
+        <div id="jump-gameover-screen" class="game-overlay-panel" style="display: none; border-color: var(--neon-green);">
+            <h3 style="color: #ff4444; margin-bottom: 5px;">ПАДІННЯ!</h3>
+            <p style="font-size: 14px; color: #fff; margin: 5px 0;">Зароблено WGC: <span id="jump-final-score" style="color: var(--neon-green); font-weight: bold;">0</span> WGC</p>
+            <button class="btn" style="background: var(--gold-gradient); color: #000; margin-top: 15px;" onclick="resetJumpGame()">🔄 Стрибати знову</button>
+        </div>
+    </div>
+
     <!-- Модальне вікно для надсилання скріншота реферального завдання -->
     <div class="modal-overlay" id="screenshot-modal">
         <div class="modal-window" style="border-color: var(--neon-aqua);">
@@ -657,7 +746,7 @@
         </div>
     </div>
 
-    <!-- Модальне вікно успішного виведення -->
+    <!-- Модальні вікна виведення та мови -->
     <div class="modal-overlay" id="withdraw-modal">
         <div class="modal-window">
             <div style="font-size: 45px; margin-bottom: 10px;">🎉</div>
@@ -667,7 +756,6 @@
         </div>
     </div>
 
-    <!-- Модальне вікно вибору мови -->
     <div class="modal-overlay" id="lang-modal">
         <div class="modal-window" style="border-color: var(--gold-color);">
             <h3 style="margin-bottom: 20px;">🌐 Choose Language / Мова</h3>
@@ -708,6 +796,7 @@
         let streakClaimedToday = false;
         let comboTriedToday = false;
         let selectedComboSlots = [null, null, null];
+        let activeLinkTimers = {};
         let currentLang = 'en';
         let gamePoints = 0; 
         let currentTaskCategory = 'reactions'; 
@@ -717,6 +806,15 @@
         let snakeAttemptsLeft = 5;
         let towerAttemptsLeft = 5;
         let jumpAttemptsLeft = 5;
+
+        const comboItemDetails = {
+            seed: { img: 'images/seed.png' },
+            branch: { img: 'images/branch.png' },
+            bush: { img: 'images/bush.png' },
+            tree: { img: 'images/tree.png' },
+            drop: { img: 'images/drop.png' },
+            spot: { img: 'images/spot.png' }
+        };
 
         const translations = {
             uk: {
@@ -762,6 +860,12 @@
                 nav_missions: "🎯Завдання",
                 mission_title: "🎯 Види завдань",
                 nav_profile: "🖥️Кабінет",
+                game_title: "Flappy WoodGrow Coin",
+                game_desc: "Керуйте монетою-паростком, оминайте дерев'яні колони, збирайте бали WGC та отримуйте реальні USDT!",
+                game_points_label: "Накопичені бали WGC:",
+                game_next_reward: "Курс: 10,000 WGC ➔ 0.01 USDT",
+                btn_play_game: "🎮 Грати у Flappy",
+                btn_support: "🍿 Підтримати WoodGrow (+0 USDT)",
                 loading: "Завантаження...",
                 people_count: "чол.",
                 copied: "Скопійовано!",
@@ -828,6 +932,12 @@
                 nav_missions: "🎯Missions",
                 mission_title: "🎯 Task Types",
                 nav_profile: "🖥️Profile",
+                game_title: "Flappy WoodGrow Coin",
+                game_desc: "Control the sprout-coin, avoid wooden pillars, collect WGC points and earn real USDT!",
+                game_points_label: "Accumulated WGC Points:",
+                game_next_reward: "Rate: 10,000 WGC ➔ 0.01 USDT",
+                btn_play_game: "🎮 Play Flappy",
+                btn_support: "🍿 Support WoodGrow (+0 USDT)",
                 loading: "Loading...",
                 people_count: "users",
                 copied: "Copied!",
@@ -894,6 +1004,12 @@
                 nav_missions: "🎯Задания",
                 mission_title: "🎯 Виды заданий",
                 nav_profile: "🖥️Кабинет",
+                game_title: "Flappy WoodGrow Coin",
+                game_desc: "Управляйте монетой-ростком, обходите деревянные колонны, собирайте баллы WGC и получайте реальные USDT!",
+                game_points_label: "Накопленные баллы WGC:",
+                game_next_reward: "Курс: 10,000 WGC ➔ 0.01 USDT",
+                btn_play_game: "🎮 Играть во Flappy",
+                btn_support: "🍿 Поддержать WoodGrow (+0 USDT)",
                 loading: "Загрузка...",
                 people_count: "чел.",
                 copied: "Скопировано!",
@@ -980,6 +1096,15 @@
             document.getElementById('txt-modal-success-title').innerText = t.modal_success_title;
             document.getElementById('txt-modal-success-desc').innerText = t.modal_success_desc;
 
+            if(document.getElementById('txt-game-title')) {
+                document.getElementById('txt-game-title').innerText = t.game_title;
+                document.getElementById('txt-game-desc').innerText = t.game_desc;
+                document.getElementById('txt-game-points-label').innerText = t.game_points_label;
+                document.getElementById('txt-game-next-reward').innerText = t.game_next_reward;
+                document.getElementById('btn-play-game').innerText = t.btn_play_game;
+                document.getElementById('btn-exchange-points').innerText = t.currentLang === 'ru' ? '💎 Обменять WGC на USDT' : (t.currentLang === 'uk' ? '💎 Обміняти WGC на USDT' : '💎 Exchange WGC for USDT');
+            }
+
             if(document.getElementById('txt-adv-section-title')) {
                 document.getElementById('txt-adv-section-title').innerText = t.adv_title;
                 document.getElementById('txt-adv-section-desc').innerText = t.adv_desc;
@@ -996,8 +1121,20 @@
                 document.getElementById('txt-new-missions-title').innerText = t.mission_title;
             }
 
+            const btnSupport = document.getElementById('btn-support');
+            if (btnSupport && !btnSupport.classList.contains('ready-claim') && !btnSupport.disabled) {
+                btnSupport.innerText = t.btn_support;
+            }
+
             document.getElementById('user-balance').innerText = balance.toFixed(4);
-            loadCustomerTasks();
+            document.getElementById('user-game-points').innerText = gamePoints;
+            document.getElementById('game-attempts-left').innerText = gameAttemptsLeft;
+            document.getElementById('snake-attempts-left').innerText = snakeAttemptsLeft;
+            document.getElementById('tower-attempts-left').innerText = towerAttemptsLeft;
+            document.getElementById('jump-attempts-left').innerText = jumpAttemptsLeft;
+            services.forEach(srv => updateLimitUI(srv));
+            updateStreakUI();
+            updateComboUI();
         }
 
         document.getElementById('user-id').innerText = userId;
@@ -1028,6 +1165,115 @@
             support: parseInt(localStorage.getItem('wg_views_support')) || 0
         };
 
+        const todayStr = new Date().toDateString();
+        const lastSavedDay = localStorage.getItem('wg_last_active_day') || '';
+        if (todayStr !== lastSavedDay) {
+            services.forEach(srv => localStorage.setItem(`wg_views_${srv}`, '0'));
+            localStorage.setItem('wg_last_active_day', todayStr);
+            viewCounts = { service1: 0, service2: 0, support: 0 };
+        }
+
+        let isClickBlocked = false;
+
+        function handleBtnClick(serviceKey, actionFunction) {
+            if (isClickBlocked) return;
+            if (serviceKey !== 'support' && viewCounts[serviceKey] >= MAX_VIEWS) return;
+
+            const expireTime = localStorage.getItem(`wg_cooldown_${serviceKey}`);
+            if (expireTime && Date.now() < expireTime && !document.getElementById(`btn-${serviceKey}`).classList.contains('ready-claim')) return;
+
+            isClickBlocked = true;
+            setTimeout(() => { isClickBlocked = false; }, 1000);
+
+            if (typeof firebase !== 'undefined' && firebase.analytics) {
+                firebase.analytics().logEvent('click_ad_service', { service: serviceKey });
+            }
+
+            if (serviceKey === 'service1') {
+                localStorage.setItem(`wg_cooldown_service1`, (Date.now() + 120000).toString());
+                checkSingleCooldown('service1');
+            }
+
+            actionFunction();
+        }
+
+        async function fetchUserData() {
+            try {
+                const res = await fetch('/api/user', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: userId, initData: window.Telegram.WebApp.initData })
+                });
+
+                if (!res.ok) return;
+                const data = await res.json();
+
+                if (data.success) {
+                    balance = data.balance;
+                    let rBonus = data.ref_bonus;
+                    if (data.game_points !== undefined) gamePoints = data.game_points;
+                    if (data.game_attempts !== undefined) gameAttemptsLeft = data.game_attempts;
+                    if (data.snake_attempts !== undefined) snakeAttemptsLeft = data.snake_attempts;
+                    if (data.tower_attempts !== undefined) towerAttemptsLeft = data.tower_attempts;
+                    if (data.jump_attempts !== undefined) jumpAttemptsLeft = data.jump_attempts;
+                    
+                    document.getElementById('user-balance').innerText = balance.toFixed(4);
+                    document.getElementById('user-game-points').innerText = gamePoints;
+                    document.getElementById('game-attempts-left').innerText = gameAttemptsLeft;
+                    document.getElementById('snake-attempts-left').innerText = snakeAttemptsLeft;
+                    document.getElementById('tower-attempts-left').innerText = towerAttemptsLeft;
+                    document.getElementById('jump-attempts-left').innerText = jumpAttemptsLeft;
+                    document.getElementById('ref-bonus').innerText = `${rBonus.toFixed(4)} USDT`;
+                    
+                    const pCountText = translations[currentLang].people_count;
+                    document.getElementById('ref-count').innerText = `${data.ref_count} ${pCountText}`;
+                    
+                    if (data.viewCounts) {
+                        services.forEach(srv => {
+                            if (data.viewCounts[srv] !== undefined) {
+                                viewCounts[srv] = data.viewCounts[srv];
+                                localStorage.setItem(`wg_views_${srv}`, viewCounts[srv].toString());
+                            }
+                        });
+                    }
+
+                    if (data.streak_day !== undefined) streakDay = data.streak_day;
+                    if (data.streak_claimed_today !== undefined) streakClaimedToday = data.streak_claimed_today;
+                    if (data.combo_tried_today !== undefined) comboTriedToday = data.combo_tried_today;
+                    
+                    checkAdminAccess(data.role, data.admin_combo);
+                } else {
+                    checkAdminAccess("user", null);
+                }
+            } catch (e) {
+                console.error(e);
+            }
+            
+            services.forEach(srv => {
+                updateLimitUI(srv);
+                checkSingleCooldown(srv);
+            });
+            updateStreakUI();
+            updateComboUI();
+        }
+
+        async function updateRefCounter() {
+            try {
+                const res = await fetch('/api/user', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: userId, initData: window.Telegram.WebApp.initData })
+                });
+                if (!res.ok) return;
+                const data = await res.json();
+                if (data.success) {
+                    const pCountText = translations[currentLang].people_count;
+                    document.getElementById('ref-count').innerText = `${data.ref_count} ${pCountText}`;
+                    document.getElementById('ref-bonus').innerText = `${data.ref_bonus.toFixed(4)} USDT`;
+                }
+            } catch (err) { console.error(err); }
+        }
+
         function switchTab(tabName, element) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(item => item.className = 'nav-item');
@@ -1057,38 +1303,318 @@
             loadCustomerTasks();
         }
 
-        async function fetchUserData() {
-            try {
-                const res = await fetch('/api/user', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId: userId, initData: window.Telegram.WebApp.initData })
-                });
-                if (!res.ok) return;
-                const data = await res.json();
-                if (data.success) {
-                    balance = data.balance;
-                    document.getElementById('user-balance').innerText = balance.toFixed(4);
-                    checkAdminAccess(data.role, data.admin_combo);
+        function updateLimitUI(serviceKey) {
+            const limitSpan = document.getElementById(`limit-${serviceKey}`);
+            if (!limitSpan) return;
+            
+            limitSpan.innerText = `${viewCounts[serviceKey]} / ${MAX_VIEWS}`;
+            const btn = document.getElementById(`btn-${serviceKey}`);
+            if (!btn) return;
+
+            if (viewCounts[serviceKey] >= MAX_VIEWS) {
+                limitSpan.className = 'limit-indicator maxed';
+                limitSpan.innerText = "5 / 5 🛑";
+                btn.disabled = true;
+                btn.className = "btn";
+            } else {
+                limitSpan.className = 'limit-indicator';
+                const expireTime = localStorage.getItem(`wg_cooldown_${serviceKey}`);
+                if (!expireTime || Date.now() >= expireTime) {
+                    if (!btn.classList.contains('ready-claim')) btn.disabled = false;
                 }
-            } catch (e) { console.error(e); }
+            }
         }
 
-        async function updateRefCounter() {
+        function updateStreakUI() {
+            for (let i = 1; i <= 7; i++) {
+                const btn = document.getElementById(`streak-day-${i}`);
+                if (!btn) continue;
+                
+                btn.className = "streak-day-btn";
+
+                if (streakClaimedToday) {
+                    if (i <= streakDay) btn.classList.add('claimed');
+                    else btn.classList.add('locked');
+                } else {
+                    if (i === streakDay) btn.classList.add('active-day');
+                    else if (i < streakDay) btn.classList.add('claimed');
+                    else btn.classList.add('locked');
+                }
+            }
+        }
+
+        function selectComboItem(itemKey) {
+            if (comboTriedToday) return;
+            const emptyIndex = selectedComboSlots.indexOf(null);
+            if (emptyIndex === -1) return;
+            selectedComboSlots[emptyIndex] = itemKey;
+            updateComboUI();
+        }
+
+        function removeFromSlot(slotIndex) {
+            if (comboTriedToday) return;
+            selectedComboSlots[slotIndex] = null;
+            updateComboUI();
+        }
+
+        function updateComboUI() {
+            const items = ['seed', 'branch', 'bush', 'tree', 'drop', 'spot'];
+            for (let i = 0; i < 3; i++) {
+                const slotEl = document.getElementById(`combo-slot-${i}`);
+                const itemKey = selectedComboSlots[i];
+                if (itemKey) {
+                    slotEl.innerHTML = `<img src="${comboItemDetails[itemKey].img}" alt="${itemKey}">`;
+                    slotEl.className = "combo-slot filled";
+                } else {
+                    slotEl.innerHTML = "";
+                    slotEl.className = "combo-slot";
+                }
+            }
+
+            items.forEach(key => {
+                const cardEl = document.getElementById(`card-${key}`);
+                if (!cardEl) return;
+                if (selectedComboSlots.includes(key) || comboTriedToday) {
+                    cardEl.classList.add('selected-item');
+                } else {
+                    cardEl.classList.remove('selected-item');
+                }
+            });
+
+            const checkBtn = document.getElementById('btn-check-combo');
+            const isFull = selectedComboSlots.every(slot => slot !== null);
+            if (comboTriedToday) {
+                checkBtn.disabled = true;
+                checkBtn.innerText = "✅ Вже виконано сьогодні";
+            } else {
+                checkBtn.disabled = !isFull;
+            }
+        }
+
+        function verifyCombo() {
+            if (comboTriedToday || !selectedComboSlots.every(s => s !== null)) return;
+            const AdVideoController = window.Adsgram ? window.Adsgram.init({ blockId: "35910" }) : null;
+            if (!AdVideoController) { alert("Рекламний SDK не завантажено."); return; }
+
+            AdVideoController.show().then(() => {
+                sendComboToServer();
+            }).catch(() => { alert(translations[currentLang].ads_error); });
+        }
+
+        async function sendComboToServer() {
             try {
-                const res = await fetch('/api/user', {
+                const response = await fetch('/api/combo', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: userId, selectedCombo: selectedComboSlots, initData: window.Telegram.WebApp.initData })
+                });
+                const data = await response.json();
+                if (response.ok && data.success) {
+                    comboTriedToday = true;
+                    balance = data.newBalance;
+                    document.getElementById('user-balance').innerText = balance.toFixed(4);
+                    updateComboUI();
+                    if (data.isCorrect) alert(`🎉 Вітаємо! Комбо вгадано вірно! Нараховано +${data.reward.toFixed(4)} USDT!`);
+                    else alert(`❌ На жаль, комбінація невірна. Спробуйте завтра!`);
+                    updateRefCounter();
+                } else { alert("Error: " + (data.error || "Rejected")); }
+            } catch (err) { alert(translations[currentLang].db_error); }
+        }
+
+        const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+            manifestUrl: 'https://woodgrow.vercel.app/tonconnect-manifest.json',
+            buttonRootId: 'ton-connect-btn'
+        });
+
+        tonConnectUI.onStatusChange(wallet => {
+            currentWalletAddress = wallet ? wallet.account.address : translations[currentLang].not_connected;
+            if (wallet && typeof firebase !== 'undefined' && firebase.analytics) {
+                firebase.analytics().logEvent('wallet_connected', { wallet_provider: wallet.device.appName });
+            }
+        });
+
+        const AdVideoController = window.Adsgram ? window.Adsgram.init({ blockId: "35910" }) : null;
+
+        function watchAdsgramVideo() {
+            if (!AdVideoController) return;
+            AdVideoController.show().then(() => {
+                rewardUserServer('service1');
+            }).catch(() => {
+                localStorage.removeItem('wg_cooldown_service1');
+                const timerBox = document.getElementById('timer-service1');
+                if (timerBox) timerBox.style.display = 'none';
+                const btn = document.getElementById('btn-service1');
+                if (btn && viewCounts['service1'] < MAX_VIEWS) btn.disabled = false;
+                alert(translations[currentLang].ads_error);
+            });
+        }
+
+        function handleStreakClick(dayNum) {
+            if (streakClaimedToday || dayNum !== streakDay) return;
+            if (!AdVideoController) { alert("Рекламний SDK не завантажено."); return; }
+
+            AdVideoController.show().then(() => {
+                claimStreakServer();
+            }).catch(() => { alert(translations[currentLang].ads_error); });
+        }
+
+        async function claimStreakServer() {
+            try {
+                const response = await fetch('/api/checkin', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ userId: userId, initData: window.Telegram.WebApp.initData })
                 });
-                if (!res.ok) return;
-                const data = await res.json();
-                if (data.success) {
-                    const pCountText = translations[currentLang].people_count;
-                    document.getElementById('ref-count').innerText = `${data.ref_count} ${pCountText}`;
-                    document.getElementById('ref-bonus').innerText = `${data.ref_bonus.toFixed(4)} USDT`;
+                const data = await response.json();
+                if (response.ok && data.success) {
+                    balance = data.newBalance;
+                    document.getElementById('user-balance').innerText = balance.toFixed(4);
+                    streakDay = data.nextStreakDay;
+                    streakClaimedToday = true;
+                    updateStreakUI();
+                    alert(`🎉 Бонус чекіну успішно зараховано (+${data.rewardAmount.toFixed(4)} USDT)!`);
+                    updateRefCounter();
+                } else { alert("Error: " + (data.error || "Rejected")); }
+            } catch (err) { alert(translations[currentLang].db_error); }
+        }
+
+        function startDirectLinkTimer(serviceKey, url) {
+            const btn = document.getElementById(`btn-${serviceKey}`);
+            const t = translations[currentLang];
+            const globalCooldown = localStorage.getItem(`wg_cooldown_${serviceKey}`);
+            if (globalCooldown && Date.now() < globalCooldown && !btn.classList.contains('ready-claim')) return;
+
+            if (btn.classList.contains('ready-claim')) {
+                btn.classList.remove('ready-claim');
+                if (serviceKey === 'service2') btn.innerText = "Service 2 (+0.0005)";
+                if (serviceKey === 'support') btn.innerText = t.btn_support;
+                rewardUserServer(serviceKey);
+                return;
+            }
+
+            tg.openLink(url);
+            btn.disabled = true;
+            let timeLeft = 20;
+            btn.innerText = `${t.checking} ${timeLeft}s`;
+
+            if (activeLinkTimers[serviceKey]) clearInterval(activeLinkTimers[serviceKey]);
+            activeLinkTimers[serviceKey] = setInterval(() => {
+                timeLeft--;
+                if (timeLeft <= 0) {
+                    clearInterval(activeLinkTimers[serviceKey]);
+                    btn.disabled = false;
+                    btn.classList.add('ready-claim');
+                    btn.innerText = `${t.claim_bonus} (+${configRewards[serviceKey]})`;
+                } else {
+                    btn.innerText = `${t.checking} ${timeLeft}s`;
                 }
-            } catch (err) { console.error(err); }
+            }, 1000);
+        }
+
+        async function rewardUserServer(serviceKey) {
+            try {
+                const response = await fetch('/api/reward', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: userId, serviceKey: serviceKey, initData: window.Telegram.WebApp.initData })
+                });
+                const data = await response.json();
+                if (response.ok && data.success) {
+                    balance = data.newBalance;
+                    document.getElementById('user-balance').innerText = balance.toFixed(4);
+                    viewCounts[serviceKey] += 1;
+                    localStorage.setItem(`wg_views_${serviceKey}`, viewCounts[serviceKey].toString());
+                    updateLimitUI(serviceKey);
+
+                    if (serviceKey === 'support') alert(translations[currentLang].support_thanks);
+                    if (serviceKey !== 'service1' && viewCounts[serviceKey] < MAX_VIEWS) {
+                        localStorage.setItem(`wg_cooldown_${serviceKey}`, (Date.now() + 120000).toString());
+                        checkSingleCooldown(serviceKey);
+                    }
+                    updateRefCounter();
+                } else {
+                    if (serviceKey === 'service1') {
+                        localStorage.removeItem('wg_cooldown_service1');
+                        document.getElementById('timer-service1').style.display = 'none';
+                        updateLimitUI('service1');
+                    }
+                    alert("Security Error: " + (data.error || "Rejected"));
+                }
+            } catch (err) {
+                alert(translations[currentLang].db_error);
+            }
+        }
+
+        function checkSingleCooldown(serviceKey) {
+            if (viewCounts[serviceKey] >= MAX_VIEWS) return;
+            const btn = document.getElementById(`btn-${serviceKey}`);
+            const timerBox = document.getElementById(`timer-${serviceKey}`);
+            const expireTime = localStorage.getItem(`wg_cooldown_${serviceKey}`);
+            if (!expireTime || !btn || !timerBox) return;
+
+            const remaining = Math.ceil((expireTime - Date.now()) / 1000);
+            if (remaining > 0) {
+                if (activeLinkTimers[serviceKey]) clearInterval(activeLinkTimers[serviceKey]);
+                btn.classList.remove('ready-claim');
+                btn.disabled = true;
+                timerBox.style.display = 'inline';
+                timerBox.querySelector('.sec').innerText = remaining;
+
+                if (btn.intervalId) clearInterval(btn.intervalId);
+                btn.intervalId = setInterval(() => {
+                    const curRemaining = Math.ceil((expireTime - Date.now()) / 1000);
+                    if (curRemaining <= 0 || viewCounts[serviceKey] >= MAX_VIEWS) {
+                        clearInterval(btn.intervalId);
+                        localStorage.removeItem(`wg_cooldown_${serviceKey}`);
+                        timerBox.style.display = 'none';
+                        if (viewCounts[serviceKey] < MAX_VIEWS) btn.disabled = false;
+                    } else {
+                        timerBox.querySelector('.sec').innerText = curRemaining;
+                    }
+                }, 1000);
+            } else {
+                if (viewCounts[serviceKey] < MAX_VIEWS && !btn.classList.contains('ready-claim')) btn.disabled = false;
+                timerBox.style.display = 'none';
+                localStorage.removeItem(`wg_cooldown_${serviceKey}`);
+            }
+        }
+
+        function copyRefLink() {
+            navigator.clipboard.writeText(document.getElementById('ref-link').innerText);
+            alert(translations[currentLang].copied);
+        }
+
+        function shareBot() {
+            const link = document.getElementById('ref-link').innerText;
+            const tText = currentLang === 'en' ? "👋 Earn with me in WoodGrow!" : (currentLang === 'ru' ? "👋 Зарабатывай со мной в WoodGrow!" : "👋 Заробляй зі мною в WoodGrow!");
+            tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(tText)}`);
+        }
+
+        async function withdrawFunds() {
+            const t = translations[currentLang];
+            if (!tonConnectUI.connected || currentWalletAddress === t.not_connected) {
+                alert(t.alert_wallet);
+                return;
+            }
+            if (balance < 5.0) {
+                alert(t.alert_min.replace('{val}', balance.toFixed(4)));
+                return;
+            }
+            if (!confirm(t.alert_confirm.replace('{val}', balance.toFixed(4)))) return;
+
+            try {
+                const response = await fetch('/api/withdraw', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: userId, initData: window.Telegram.WebApp.initData, walletAddress: currentWalletAddress })
+                });
+                const data = await response.json();
+                if (response.ok && data.success) {
+                    balance = 0.0000;
+                    document.getElementById('user-balance').innerText = "0.0000";
+                    document.getElementById('withdraw-modal').classList.add('active');
+                } else { alert(data.error || t.db_error); }
+            } catch (err) { alert(t.req_error); }
         }
 
         async function loadCustomerTasks() {
@@ -1101,10 +1627,8 @@
             
             try {
                 if (statusText) statusText.innerText = t.loading;
-                
                 const response = await fetch(`/api/get-tasks?userId=${userId}`);
                 const data = await response.json();
-                
                 container.innerHTML = '';
                 
                 if (data.success && data.tasks && data.tasks.length > 0) {
@@ -1138,11 +1662,7 @@
                             
                             taskBtn.onclick = () => {
                                 activeReferralTaskId = task.id;
-                                if (window.Telegram && window.Telegram.WebApp) {
-                                    window.Telegram.WebApp.openTelegramLink(task.link);
-                                } else {
-                                    window.open(task.link, '_blank');
-                                }
+                                tg.openTelegramLink(task.link);
                                 setTimeout(() => {
                                     document.getElementById('screenshot-modal').classList.add('active');
                                 }, 1500);
@@ -1158,14 +1678,9 @@
                             
                             taskBtn.onclick = async () => {
                                 const initDataStr = window.Telegram?.WebApp?.initData || "";
-
                                 if (!isTimerStarted && !isTimerFinished) {
                                     isTimerStarted = true;
-                                    if (window.Telegram && window.Telegram.WebApp) {
-                                        window.Telegram.WebApp.openTelegramLink(task.link);
-                                    } else {
-                                        window.open(task.link, '_blank');
-                                    }
+                                    tg.openTelegramLink(task.link);
 
                                     taskBtn.disabled = true;
                                     taskBtn.style.background = '#27272a';
@@ -1232,42 +1747,602 @@
 
         async function submitReferralTaskProof() {
             const screenshotUrl = document.getElementById('screenshot-url-input').value.trim();
-            if (!screenshotUrl) {
-                alert("❌ Введіть посилання на скріншот запущеного бота!");
-                return;
-            }
-
-            if (!activeReferralTaskId) {
-                alert("❌ Помилка: завдання не вибрано.");
-                closeScreenshotModal();
-                return;
-            }
+            if (!screenshotUrl) { alert("❌ Введіть посилання на скріншот запущеного бота!"); return; }
+            if (!activeReferralTaskId) { alert("❌ Помилка: завдання не вибрано."); closeScreenshotModal(); return; }
 
             try {
                 const response = await fetch('/api/submit-task', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        userId: userId,
-                        initData: window.Telegram.WebApp.initData,
-                        taskId: activeReferralTaskId,
-                        screenshotUrl: screenshotUrl
-                    })
+                    body: JSON.stringify({ userId: userId, initData: window.Telegram.WebApp.initData, taskId: activeReferralTaskId, screenshotUrl: screenshotUrl })
                 });
-
                 const data = await response.json();
-
                 if (response.ok && data.success) {
                     alert("🎉 Звіт успішно відправлено на перевірку рекламодавцю!");
                     document.getElementById('screenshot-url-input').value = "";
                     closeScreenshotModal();
                     loadCustomerTasks();
-                } else {
-                    alert("❌ Помилка: " + (data.error || "Не вдалося надіслати звіт"));
-                }
-            } catch (err) {
-                alert("Помилка зв'язку з сервером.");
+                } else { alert("❌ Помилка: " + (data.error || "Не вдалося надіслати звіт")); }
+            } catch (err) { alert("Помилка зв'язку з сервером."); }
+        }
+
+        async function sendAdminBroadcast() {
+            const textElement = document.getElementById('admin-broadcast-text');
+            const btnElement = document.getElementById('btn-send-broadcast');
+            const text = textElement.value.trim();
+            if (!text) { alert("❌ Введіть текст повідомлення перед відправкою!"); return; }
+            if (!confirm("Запустити розсилку для всіх користувачів?")) return;
+
+            btnElement.disabled = true;
+            btnElement.innerText = "⏳ Обробка...";
+
+            try {
+                const response = await fetch('/api/create-broadcast', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: userId, messageText: text })
+                });
+                const data = await response.json();
+                if (response.ok && data.success) {
+                    alert("🎉 " + data.message);
+                    textElement.value = ""; 
+                } else { alert("❌ Помилка: " + (data.error || "Невідома помилка")); }
+            } catch (err) { alert("❌ Сталася критична помилка запиту."); } 
+            finally {
+                btnElement.disabled = false;
+                btnElement.innerText = "🚀 Запустити розсилку";
             }
+        }
+
+        async function exchangeGamePoints() {
+            if (gamePoints < 10000) { alert("❌ Потрібно мінімум 10,000 WGC для обміну!"); return; }
+            if (!confirm("Бажаєте обміняти свої бали WGC на USDT за курсом 10,000 WGC = 0.01 USDT?")) return;
+
+            try {
+                const res = await fetch('/api/exchange-game-points', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: userId, initData: window.Telegram.WebApp.initData })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    balance = data.newBalance;
+                    gamePoints = data.newGamePoints;
+                    document.getElementById('user-balance').innerText = balance.toFixed(4);
+                    document.getElementById('user-game-points').innerText = gamePoints;
+                    alert(`🎉 Успішний обмін! На ваш баланс нараховано +${data.addedUsdt.toFixed(4)} USDT.`);
+                } else { alert("Помилка обміну: " + (data.error || "Невідома помилка")); }
+            } catch (err) { alert("Помилка з'єднання з сервером."); }
+        }
+
+        async function addGameAttemptsViaAd(gameName) {
+            if (!AdVideoController) { alert("❌ Рекламний SDK не завантажено."); return; }
+            AdVideoController.show().then(async () => {
+                try {
+                    const res = await fetch('/api/game-score', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ userId: userId, gameName: gameName, action: 'add_attempts', initData: window.Telegram.WebApp.initData })
+                    });
+                    const data = await res.json();
+                    if (res.ok && data.success) {
+                        gameAttemptsLeft = data.game_attempts;
+                        snakeAttemptsLeft = data.snake_attempts;
+                        towerAttemptsLeft = data.tower_attempts;
+                        jumpAttemptsLeft = data.jump_attempts;
+                        document.getElementById('game-attempts-left').innerText = gameAttemptsLeft;
+                        document.getElementById('snake-attempts-left').innerText = snakeAttemptsLeft;
+                        document.getElementById('tower-attempts-left').innerText = towerAttemptsLeft;
+                        document.getElementById('jump-attempts-left').innerText = jumpAttemptsLeft;
+                        alert("🎉 Вам успішно додано +5 спроб!");
+                    } else { alert("❌ Помилка нарахування спроб."); }
+                } catch (e) { alert("Помилка зв'язку з сервером."); }
+            }).catch(() => { alert(translations[currentLang].ads_error); });
+        }
+
+        async function startServerGame(gameName) {
+            try {
+                const res = await fetch('/api/game-score', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: userId, gameName: gameName, action: 'start_game', initData: window.Telegram.WebApp.initData })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    gameAttemptsLeft = data.game_attempts;
+                    snakeAttemptsLeft = data.snake_attempts;
+                    towerAttemptsLeft = data.tower_attempts;
+                    jumpAttemptsLeft = data.jump_attempts;
+                    document.getElementById('game-attempts-left').innerText = gameAttemptsLeft;
+                    document.getElementById('snake-attempts-left').innerText = snakeAttemptsLeft;
+                    document.getElementById('tower-attempts-left').innerText = towerAttemptsLeft;
+                    document.getElementById('jump-attempts-left').innerText = jumpAttemptsLeft;
+                    return true;
+                } else {
+                    if (gameName === 'jump_game') {
+                        if (confirm("❌ У вас закінчилися спроби у Jump! Бажаєте переглянути рекламу та отримати +5 спроб?")) addGameAttemptsViaAd('jump_game');
+                    } else { alert("❌ " + (data.error || "Немає доступних спроб")); }
+                    return false;
+                }
+            } catch (err) { alert("Помилка зв'язку з сервером."); return false; }
+        }
+
+        async function sendGameScoreToServer(scoreEarned, durationSec, gameName) {
+            try {
+                const res = await fetch('/api/game-score', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: userId, pointsEarned: scoreEarned, durationSeconds: durationSec, gameName: gameName, initData: window.Telegram.WebApp.initData })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    gamePoints = data.totalGamePoints;
+                    document.getElementById('user-game-points').innerText = gamePoints;
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        /* --- FLAPPY GAME --- */
+        let flappyCanvas, flappyCtx, gameRunning = false;
+        let bird = { x: 80, y: 270, radius: 20, gravity: 0.28, lift: -5.8, velocity: 0, rotation: 0 };
+        let pipes = [], pipeWidth = 65, pipeGap = 220, frameCount = 0, currentScore = 0, canRevive = true, flappyStartTime = 0;
+
+        function openFlappyGame() {
+            if (gameAttemptsLeft <= 0) {
+                if (confirm("❌ У вас закінчилися спроби на сьогодні! Бажаєте переглянути коротку рекламу та отримати +5 додаткових спроб?")) addGameAttemptsViaAd('flappy');
+                return;
+            }
+            document.getElementById('flappy-game-modal').style.display = 'flex';
+            document.getElementById('flappy-start-screen').style.display = 'flex';
+            document.getElementById('flappy-gameover-screen').style.display = 'none';
+            flappyCanvas = document.getElementById('flappy-canvas');
+            flappyCtx = flappyCanvas.getContext('2d');
+            drawInitialScreen();
+        }
+
+        function closeFlappyGame() {
+            gameRunning = false;
+            document.getElementById('flappy-game-modal').style.display = 'none';
+            document.getElementById('user-game-points').innerText = gamePoints;
+            document.getElementById('game-attempts-left').innerText = gameAttemptsLeft;
+        }
+
+        function drawInitialScreen() {
+            flappyCtx.clearRect(0, 0, flappyCanvas.width, flappyCanvas.height);
+            let bgGrad = flappyCtx.createRadialGradient(flappyCanvas.width/2, flappyCanvas.height/2, 20, flappyCanvas.width/2, flappyCanvas.height/2, 250);
+            bgGrad.addColorStop(0, "#163820");
+            bgGrad.addColorStop(1, "#07140a");
+            flappyCtx.fillStyle = bgGrad;
+            flappyCtx.fillRect(0, 0, flappyCanvas.width, flappyCanvas.height);
+            flappyCtx.fillStyle = "#0df25d";
+            flappyCtx.font = "bold 22px sans-serif";
+            flappyCtx.textAlign = "center";
+            flappyCtx.fillText("Flappy WoodGrow Coin", flappyCanvas.width / 2, flappyCanvas.height / 2 - 30);
+        }
+
+        async function startFlappyGame() {
+            let success = await startServerGame('flappy');
+            if (!success) return;
+            flappyStartTime = Date.now();
+            document.getElementById('flappy-start-screen').style.display = 'none';
+            bird.y = flappyCanvas.height / 2;
+            bird.velocity = 0;
+            pipes = []; currentScore = 0; frameCount = 0; canRevive = true; gameRunning = true;
+            flappyCanvas.onclick = () => { if (gameRunning) { bird.velocity = bird.lift; bird.rotation = -0.25; } };
+            loopFlappy();
+        }
+
+        function loopFlappy() {
+            if (!gameRunning) return;
+            flappyCtx.clearRect(0, 0, flappyCanvas.width, flappyCanvas.height);
+            let bgGrad = flappyCtx.createLinearGradient(0, 0, 0, flappyCanvas.height);
+            bgGrad.addColorStop(0, "#0e2914");
+            bgGrad.addColorStop(1, "#050f08");
+            flappyCtx.fillStyle = bgGrad;
+            flappyCtx.fillRect(0, 0, flappyCanvas.width, flappyCanvas.height);
+
+            bird.velocity += bird.gravity;
+            bird.y += bird.velocity;
+            if (bird.rotation < 0.4) bird.rotation += 0.02;
+
+            if (bird.y + bird.radius >= flappyCanvas.height - 15 || bird.y - bird.radius <= 0) { gameOverFlappy(); return; }
+
+            if (frameCount % 160 === 0) {
+                let minHeight = 60, maxHeight = flappyCanvas.height - pipeGap - 80;
+                let topHeight = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
+                pipes.push({ x: flappyCanvas.width, top: topHeight, bottom: flappyCanvas.height - topHeight - pipeGap, passed: false });
+            }
+
+            for (let i = pipes.length - 1; i >= 0; i--) {
+                pipes[i].x -= 1.3;
+                drawWoodPipe(pipes[i].x, 0, pipeWidth, pipes[i].top);
+                drawWoodPipe(pipes[i].x, flappyCanvas.height - pipes[i].bottom, pipeWidth, pipes[i].bottom);
+
+                if (bird.x + bird.radius > pipes[i].x && bird.x - bird.radius < pipes[i].x + pipeWidth &&
+                    (bird.y - bird.radius < pipes[i].top || bird.y + bird.radius > flappyCanvas.height - pipes[i].bottom)) {
+                    gameOverFlappy(); return;
+                }
+                if (!pipes[i].passed && pipes[i].x + pipeWidth < bird.x) { currentScore++; pipes[i].passed = true; }
+                if (pipes[i].x + pipeWidth < 0) pipes.splice(i, 1);
+            }
+
+            flappyCtx.save();
+            flappyCtx.translate(bird.x, bird.y);
+            flappyCtx.rotate(bird.rotation);
+            flappyCtx.beginPath();
+            flappyCtx.arc(0, 0, bird.radius, 0, Math.PI * 2);
+            flappyCtx.fillStyle = "#d4af37"; flappyCtx.fill();
+            flappyCtx.lineWidth = 2.5; flappyCtx.strokeStyle = "#0df25d"; flappyCtx.stroke();
+            flappyCtx.closePath();
+            flappyCtx.font = "18px sans-serif"; flappyCtx.textAlign = "center"; flappyCtx.textBaseline = "middle";
+            flappyCtx.fillText("🌱", 0, 1);
+            flappyCtx.restore();
+
+            flappyCtx.fillStyle = "#ffffff";
+            flappyCtx.font = "900 32px sans-serif";
+            flappyCtx.textAlign = "center";
+            flappyCtx.fillText(currentScore, flappyCanvas.width / 2, 50);
+
+            frameCount++;
+            requestAnimationFrame(loopFlappy);
+        }
+
+        function drawWoodPipe(x, y, w, h) {
+            let woodGrad = flappyCtx.createLinearGradient(x, y, x + w, y);
+            woodGrad.addColorStop(0, "#4a2e1b"); woodGrad.addColorStop(1, "#3d2413");
+            flappyCtx.fillStyle = woodGrad; flappyCtx.fillRect(x, y, w, h);
+            flappyCtx.strokeStyle = "#0df25d"; flappyCtx.lineWidth = 2; flappyCtx.strokeRect(x, y, w, h);
+        }
+
+        async function gameOverFlappy() {
+            gameRunning = false;
+            flappyCanvas.onclick = null;
+            document.getElementById('flappy-final-score').innerText = currentScore;
+            document.getElementById('flappy-earned-pts').innerText = currentScore;
+            document.getElementById('btn-revive-ad').style.display = canRevive ? 'block' : 'none';
+            document.getElementById('flappy-gameover-screen').style.display = 'flex';
+            let durationSec = Math.floor((Date.now() - flappyStartTime) / 1000);
+            if (currentScore > 0) {
+                gamePoints += currentScore;
+                await sendGameScoreToServer(currentScore, durationSec, 'flappy');
+            }
+        }
+
+        function reviveWithAd() {
+            if (!AdVideoController) { alert("Рекламний SDK не завантажено."); return; }
+            AdVideoController.show().then(() => {
+                canRevive = false;
+                document.getElementById('flappy-gameover-screen').style.display = 'none';
+                bird.y = flappyCanvas.height / 2; bird.velocity = 0; pipes = []; gameRunning = true;
+                flappyCanvas.onclick = () => { if (gameRunning) { bird.velocity = bird.lift; bird.rotation = -0.25; } };
+                loopFlappy();
+            }).catch(() => { alert(translations[currentLang].ads_error); });
+        }
+
+        function resetFlappyGame() {
+            if (gameAttemptsLeft <= 0) { closeFlappyGame(); return; }
+            document.getElementById('flappy-gameover-screen').style.display = 'none';
+            startFlappyGame();
+        }
+
+        /* --- SNAKE GAME --- */
+        let wgSnakeCanvas, wgSnakeCtx, wgSnakeRunning = false, wgSnakeBody = [], wgSnakeFood = { x: 0, y: 0 };
+        let wgSnakeDx = 20, wgSnakeDy = 0, wgSnakeNextDx = 20, wgSnakeNextDy = 0, wgSnakeScore = 0, wgSnakeStartTime = 0, wgSnakeLoopInterval = null;
+
+        function openSnakeGame() {
+            if (snakeAttemptsLeft <= 0) {
+                if (confirm("❌ У вас закінчилися спроби у Змійку! Бажаєте переглянути рекламу та отримати +5 спроб?")) addGameAttemptsViaAd('snake');
+                return;
+            }
+            document.getElementById('snake-game-modal').style.display = 'flex';
+            document.getElementById('snake-start-screen').style.display = 'flex';
+            document.getElementById('snake-gameover-screen').style.display = 'none';
+            wgSnakeCanvas = document.getElementById('snake-canvas');
+            wgSnakeCtx = wgSnakeCanvas.getContext('2d');
+        }
+
+        function closeSnakeGame() {
+            wgSnakeRunning = false;
+            clearInterval(wgSnakeLoopInterval);
+            document.getElementById('snake-game-modal').style.display = 'none';
+            document.getElementById('snake-attempts-left').innerText = snakeAttemptsLeft;
+        }
+
+        function changeSnakeDir(dir) {
+            if (!wgSnakeRunning) return;
+            if (dir === 'UP' && wgSnakeDy === 0) { wgSnakeNextDx = 0; wgSnakeNextDy = -20; }
+            if (dir === 'DOWN' && wgSnakeDy === 0) { wgSnakeNextDx = 0; wgSnakeNextDy = 20; }
+            if (dir === 'LEFT' && wgSnakeDx === 0) { wgSnakeNextDx = -20; wgSnakeNextDy = 0; }
+            if (dir === 'RIGHT' && wgSnakeDx === 0) { wgSnakeNextDx = 20; wgSnakeNextDy = 0; }
+        }
+
+        async function startSnakeGame() {
+            let success = await startServerGame('snake');
+            if (!success) return;
+            wgSnakeStartTime = Date.now();
+            document.getElementById('snake-start-screen').style.display = 'none';
+            wgSnakeBody = [{ x: 160, y: 160 }, { x: 140, y: 160 }, { x: 120, y: 160 }];
+            wgSnakeScore = 0; wgSnakeDx = 20; wgSnakeDy = 0; wgSnakeNextDx = 20; wgSnakeNextDy = 0;
+            createWgFood();
+            wgSnakeRunning = true;
+            if (wgSnakeLoopInterval) clearInterval(wgSnakeLoopInterval);
+            wgSnakeLoopInterval = setInterval(mainWgSnakeLoop, 180);
+        }
+
+        function mainWgSnakeLoop() {
+            if (!wgSnakeRunning) return;
+            wgSnakeDx = wgSnakeNextDx; wgSnakeDy = wgSnakeNextDy;
+            let head = { x: wgSnakeBody[0].x + wgSnakeDx, y: wgSnakeBody[0].y + wgSnakeDy };
+
+            if (head.x < 0 || head.x >= wgSnakeCanvas.width || head.y < 0 || head.y >= wgSnakeCanvas.height || wgSnakeBody.slice(1).some(p => p.x === head.x && p.y === head.y)) {
+                gameOverWgSnake(); return;
+            }
+
+            wgSnakeBody.unshift(head);
+            if (head.x === wgSnakeFood.x && head.y === wgSnakeFood.y) { wgSnakeScore += 1; createWgFood(); }
+            else { wgSnakeBody.pop(); }
+
+            wgSnakeCtx.fillStyle = '#050d08'; wgSnakeCtx.fillRect(0, 0, wgSnakeCanvas.width, wgSnakeCanvas.height);
+            wgSnakeCtx.fillStyle = '#ff0055'; wgSnakeCtx.fillRect(wgSnakeFood.x + 2, wgSnakeFood.y + 2, 16, 16);
+            wgSnakeBody.forEach((p, idx) => {
+                wgSnakeCtx.fillStyle = idx === 0 ? '#0df25d' : '#00f5d4';
+                wgSnakeCtx.fillRect(p.x + 1, p.y + 1, 18, 18);
+            });
+            wgSnakeCtx.fillStyle = '#ffffff'; wgSnakeCtx.font = "bold 16px sans-serif";
+            wgSnakeCtx.fillText(`WGC: ${wgSnakeScore}`, 15, 25);
+        }
+
+        function createWgFood() {
+            wgSnakeFood.x = Math.floor(Math.random() * (wgSnakeCanvas.width / 20)) * 20;
+            wgSnakeFood.y = Math.floor(Math.random() * (wgSnakeCanvas.height / 20)) * 20;
+            if (wgSnakeBody.some(p => p.x === wgSnakeFood.x && p.y === wgSnakeFood.y)) createWgFood();
+        }
+
+        async function gameOverWgSnake() {
+            wgSnakeRunning = false;
+            clearInterval(wgSnakeLoopInterval);
+            document.getElementById('snake-final-score').innerText = wgSnakeScore;
+            document.getElementById('snake-gameover-screen').style.display = 'flex';
+            let durationSec = Math.floor((Date.now() - wgSnakeStartTime) / 1000);
+            if (wgSnakeScore > 0) {
+                gamePoints += wgSnakeScore;
+                document.getElementById('user-game-points').innerText = gamePoints;
+                await sendGameScoreToServer(wgSnakeScore, durationSec, 'snake');
+            }
+        }
+
+        function resetSnakeGame() {
+            if (snakeAttemptsLeft <= 0) { closeSnakeGame(); return; }
+            document.getElementById('snake-gameover-screen').style.display = 'none';
+            startSnakeGame();
+        }
+
+        /* --- TOWER STACK GAME --- */
+        let towerCanvas, towerCtx, towerRunning = false, towerStack = [], currentBlock = null, towerScore = 0;
+        let blockWidth = 140, blockHeight = 25, towerSpeed = 2.5, cameraY = 0, fallingPieces = [], perfectAnimTimer = 0, towerStartTime = 0, towerLoopId = null;
+
+        function openTowerGame() {
+            if (towerAttemptsLeft <= 0) {
+                if (confirm("❌ У вас закінчилися спроби у Вежу! Бажаєте переглянути рекламу та отримати +5 спроб?")) addGameAttemptsViaAd('tower_stack');
+                return;
+            }
+            document.getElementById('tower-game-modal').style.display = 'flex';
+            document.getElementById('tower-start-screen').style.display = 'flex';
+            document.getElementById('tower-gameover-screen').style.display = 'none';
+            towerCanvas = document.getElementById('tower-canvas');
+            towerCanvas.width = 360; towerCanvas.height = 520;
+            towerCtx = towerCanvas.getContext('2d');
+        }
+
+        function closeTowerGame() {
+            towerRunning = false;
+            cancelAnimationFrame(towerLoopId);
+            document.getElementById('tower-game-modal').style.display = 'none';
+            document.getElementById('tower-attempts-left').innerText = towerAttemptsLeft;
+        }
+
+        const btnStartTowerAction = document.getElementById('btn-start-tower-action');
+        if (btnStartTowerAction) btnStartTowerAction.onclick = (e) => { e.preventDefault(); startTowerGame(); };
+
+        async function startTowerGame() {
+            let success = await startServerGame('tower_stack');
+            if (!success) return;
+            towerStartTime = Date.now();
+            document.getElementById('tower-start-screen').style.display = 'none';
+
+            blockWidth = 140; towerSpeed = 2.5; cameraY = 0; towerScore = 0; fallingPieces = []; towerStack = [];
+            let baseWidth = 160;
+            towerStack.push({ x: (towerCanvas.width - baseWidth) / 2, y: towerCanvas.height - 90, w: baseWidth, h: blockHeight, color: '#d4af37' });
+
+            spawnNewTowerBlock();
+            towerRunning = true;
+
+            towerCanvas.onclick = (e) => { e.preventDefault(); if (towerRunning) placeTowerBlock(); };
+            if (towerLoopId) cancelAnimationFrame(towerLoopId);
+            loopTower();
+        }
+
+        function spawnNewTowerBlock() {
+            let lastBlock = towerStack[towerStack.length - 1];
+            let nextY = lastBlock.y - blockHeight;
+            let direction = towerStack.length % 2 === 0 ? 1 : -1;
+            let w = lastBlock.w;
+            let startX = direction > 0 ? 25 : (towerCanvas.width - w - 25);
+            currentBlock = { x: startX, y: nextY, w: w, h: blockHeight, speed: (towerSpeed + Math.floor(towerStack.length / 5) * 0.4) * direction, color: `hsl(${(towerStack.length * 25) % 360}, 80%, 55%)` };
+        }
+
+        function placeTowerBlock() {
+            let lastBlock = towerStack[towerStack.length - 1];
+            let diff = currentBlock.x - lastBlock.x;
+            if (Math.abs(diff) < 4) { currentBlock.x = lastBlock.x; currentBlock.w = lastBlock.w; perfectAnimTimer = 30; }
+            else {
+                if (Math.abs(diff) >= lastBlock.w) { towerRunning = false; gameOverTower(); return; }
+                let overlap = lastBlock.w - Math.abs(diff);
+                fallingPieces.push({ x: diff > 0 ? currentBlock.x + overlap : currentBlock.x, y: currentBlock.y, w: Math.abs(diff), h: blockHeight, vx: diff > 0 ? 2 : -2, vy: 1, color: currentBlock.color });
+                currentBlock.w = overlap;
+                if (diff < 0) currentBlock.x = lastBlock.x;
+            }
+            towerStack.push(currentBlock);
+            towerScore++;
+            if (towerStack.length > 6) cameraY += blockHeight;
+            spawnNewTowerBlock();
+        }
+
+        function loopTower() {
+            if (!towerRunning) return;
+            if (currentBlock) {
+                currentBlock.x += currentBlock.speed;
+                if (currentBlock.x <= 0 || currentBlock.x + currentBlock.w >= towerCanvas.width) currentBlock.speed *= -1;
+            }
+
+            towerCtx.clearRect(0, 0, towerCanvas.width, towerCanvas.height);
+            towerCtx.save(); towerCtx.translate(0, cameraY);
+            towerStack.forEach(b => { towerCtx.fillStyle = b.color; towerCtx.fillRect(b.x, b.y, b.w, b.h); });
+            if (currentBlock) { towerCtx.fillStyle = currentBlock.color; towerCtx.fillRect(currentBlock.x, currentBlock.y, currentBlock.w, currentBlock.h); }
+            towerCtx.restore();
+
+            towerCtx.fillStyle = "#ffffff"; towerCtx.font = "900 28px sans-serif"; towerCtx.textAlign = "center";
+            towerCtx.fillText(towerScore, towerCanvas.width / 2, 45);
+            towerLoopId = requestAnimationFrame(loopTower);
+        }
+
+        async function gameOverTower() {
+            if (towerCanvas) towerCanvas.onclick = null;
+            document.getElementById('tower-final-score').innerText = towerScore;
+            document.getElementById('tower-gameover-screen').style.display = 'flex';
+            let durationSec = Math.floor((Date.now() - towerStartTime) / 1000);
+            if (towerScore > 0) {
+                gamePoints += towerScore * 2;
+                document.getElementById('user-game-points').innerText = gamePoints;
+                await sendGameScoreToServer(towerScore * 2, durationSec, 'tower_stack');
+            }
+        }
+
+        function resetTowerGame() {
+            if (towerAttemptsLeft <= 0) { closeTowerGame(); return; }
+            document.getElementById('tower-gameover-screen').style.display = 'none';
+            startTowerGame();
+        }
+
+        /* --- JUMP GAME --- */
+        let jumpCanvas, jumpCtx, jumpRunning = false, jumpPlatforms = [], jumpScore = 0, jumpCameraY = 0, jumpStartTime = 0, jumpLoopId = null, jumpMoveDir = 0;
+        let jumpPlayer = { x: 160, y: 300, vx: 0, vy: 0, width: 32, height: 32, radius: 16 };
+
+        function openJumpGame() {
+            if (jumpAttemptsLeft <= 0) {
+                if (confirm("❌ У вас закінчилися спроби у Jump! Бажаєте переглянути рекламу та отримати +5 спроб?")) addGameAttemptsViaAd('jump_game');
+                return;
+            }
+            document.getElementById('jump-game-modal').style.display = 'flex';
+            document.getElementById('jump-start-screen').style.display = 'flex';
+            document.getElementById('jump-gameover-screen').style.display = 'none';
+            jumpCanvas = document.getElementById('jump-canvas');
+            if (jumpCanvas) { jumpCanvas.width = 360; jumpCanvas.height = 520; jumpCtx = jumpCanvas.getContext('2d'); }
+        }
+
+        function closeJumpGame() {
+            jumpRunning = false;
+            cancelAnimationFrame(jumpLoopId);
+            document.getElementById('jump-game-modal').style.display = 'none';
+            document.getElementById('jump-attempts-left').innerText = jumpAttemptsLeft;
+            document.getElementById('user-game-points').innerText = gamePoints;
+        }
+
+        const btnStartJumpAction = document.getElementById('btn-start-jump-action');
+        if (btnStartJumpAction) btnStartJumpAction.onclick = (e) => { e.preventDefault(); startJumpGame(); };
+
+        function jumpMoveLeft() { jumpMoveDir = -1; }
+        function jumpMoveRight() { jumpMoveDir = 1; }
+        function jumpStopMove() { jumpMoveDir = 0; }
+
+        async function startJumpGame() {
+            let success = await startServerGame('jump_game');
+            if (!success) return;
+            jumpStartTime = Date.now();
+            document.getElementById('jump-start-screen').style.display = 'none';
+
+            jumpScore = 0; jumpCameraY = 0; jumpPlatforms = [];
+            jumpPlayer.x = jumpCanvas.width / 2 - jumpPlayer.width / 2; jumpPlayer.y = jumpCanvas.height - 120; jumpPlayer.vx = 0; jumpPlayer.vy = -10;
+            jumpPlatforms.push({ x: jumpPlayer.x - 20, y: jumpPlayer.y + 40, w: 90, h: 14 });
+
+            let currentY = jumpPlayer.y + 10;
+            while (currentY > -1000) {
+                currentY -= Math.floor(Math.random() * 45) + 35;
+                jumpPlatforms.push({ x: Math.floor(Math.random() * (jumpCanvas.width - 70)), y: currentY, w: 70, h: 14 });
+            }
+
+            jumpRunning = true;
+            if (jumpLoopId) cancelAnimationFrame(jumpLoopId);
+            loopJump();
+        }
+
+        function loopJump() {
+            if (!jumpRunning) return;
+            jumpPlayer.vx = jumpMoveDir !== 0 ? jumpMoveDir * 4.5 : jumpPlayer.vx * 0.85;
+            jumpPlayer.x += jumpPlayer.vx;
+            if (jumpPlayer.x + jumpPlayer.width < 0) jumpPlayer.x = jumpCanvas.width;
+            else if (jumpPlayer.x > jumpCanvas.width) jumpPlayer.x = -jumpPlayer.width;
+
+            jumpPlayer.vy += 0.35;
+            jumpPlayer.y += jumpPlayer.vy;
+
+            let targetCameraY = jumpPlayer.y - jumpCanvas.height / 2.5;
+            if (targetCameraY < jumpCameraY) jumpCameraY = targetCameraY;
+
+            let currentHeightScore = Math.floor(Math.abs(jumpCameraY));
+            if (currentHeightScore > jumpScore) jumpScore = currentHeightScore;
+
+            if (jumpPlayer.vy > 0) {
+                jumpPlatforms.forEach(p => {
+                    if (jumpPlayer.x + jumpPlayer.width - 6 > p.x && jumpPlayer.x + 6 < p.x + p.w &&
+                        jumpPlayer.y + jumpPlayer.height >= p.y && jumpPlayer.y + jumpPlayer.height <= p.y + p.h + 8) {
+                        jumpPlayer.vy = -10.5;
+                    }
+                });
+            }
+
+            let highestPlatY = jumpPlatforms.reduce((min, p) => p.y < min ? p.y : min, 0);
+            if (highestPlatY > jumpCameraY - 100) {
+                jumpPlatforms.push({ x: Math.floor(Math.random() * (jumpCanvas.width - 70)), y: highestPlatY - (Math.floor(Math.random() * 45) + 35), w: 70, h: 14 });
+            }
+            jumpPlatforms = jumpPlatforms.filter(p => p.y < jumpCameraY + jumpCanvas.height + 60);
+
+            if (jumpPlayer.y > jumpCameraY + jumpCanvas.height + 30) { gameOverJump(); return; }
+
+            jumpCtx.clearRect(0, 0, jumpCanvas.width, jumpCanvas.height);
+            jumpCtx.save(); jumpCtx.translate(0, -jumpCameraY);
+            jumpPlatforms.forEach(p => {
+                jumpCtx.fillStyle = "#8B5A2B"; jumpCtx.fillRect(p.x, p.y, p.w, p.h);
+                jumpCtx.strokeStyle = "#0df25d"; jumpCtx.lineWidth = 1.5; jumpCtx.strokeRect(p.x, p.y, p.w, p.h);
+            });
+            jumpCtx.fillStyle = "#d4af37"; jumpCtx.beginPath();
+            jumpCtx.arc(jumpPlayer.x + jumpPlayer.width/2, jumpPlayer.y + jumpPlayer.height/2, jumpPlayer.radius, 0, Math.PI * 2);
+            jumpCtx.fill(); jumpCtx.restore();
+
+            jumpCtx.fillStyle = "#ffffff"; jumpCtx.font = "900 24px sans-serif"; jumpCtx.textAlign = "center";
+            jumpCtx.fillText(Math.floor(jumpScore / 50), jumpCanvas.width / 2, 40);
+
+            jumpLoopId = requestAnimationFrame(loopJump);
+        }
+
+        async function gameOverJump() {
+            jumpRunning = false;
+            cancelAnimationFrame(jumpLoopId);
+            let earnedWgc = Math.floor(jumpScore / 50);
+            document.getElementById('jump-final-score').innerText = earnedWgc;
+            document.getElementById('jump-gameover-screen').style.display = 'flex';
+            let durationSec = Math.floor((Date.now() - jumpStartTime) / 1000);
+            if (earnedWgc > 0) {
+                gamePoints += earnedWgc;
+                document.getElementById('user-game-points').innerText = gamePoints;
+                await sendGameScoreToServer(earnedWgc, durationSec, 'jump_game');
+            }
+        }
+
+        function resetJumpGame() {
+            if (jumpAttemptsLeft <= 0) { closeJumpGame(); return; }
+            document.getElementById('jump-gameover-screen').style.display = 'none';
+            startJumpGame();
         }
 
         async function startApp() {
