@@ -731,7 +731,7 @@
         </div>
     </div>
 
-    <!-- Модальне вікно для надсилання скріншота реферального завдання (Оновлено під файл) -->
+    <!-- Модальне вікно для надсилання скріншота реферального завдання -->
     <div class="modal-overlay" id="screenshot-modal">
         <div class="modal-window" style="border-color: var(--neon-aqua);">
             <h3 style="color: var(--neon-aqua); margin-bottom: 10px;">📸 Підтвердження виконання</h3>
@@ -1768,7 +1768,8 @@
             try {
                 alert("⏳ Завантаження скріншота...");
 
-                const response = await fetch('/api/submit-task', {
+                // Оновлено шлях на /api/get-tasks (де тепер об'єднана логіка POST-запитів)
+                const response = await fetch('/api/get-tasks', {
                     method: 'POST',
                     body: formData
                 });
