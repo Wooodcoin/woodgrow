@@ -731,17 +731,17 @@
         </div>
     </div>
 
-    <!-- Модальне вікно для надсилання скріншота реферального завдання -->
+    <!-- Модальне вікно для надсилання скріншота реферального завдання (Оновлено під файл) -->
     <div class="modal-overlay" id="screenshot-modal">
         <div class="modal-window" style="border-color: var(--neon-aqua);">
             <h3 style="color: var(--neon-aqua); margin-bottom: 10px;">📸 Підтвердження виконання</h3>
             <p style="font-size: 13px; color: #a1a1aa; margin-bottom: 15px;">
-                Запустіть бота, зробіть скріншот уже відкритого бота та вставте посилання на нього (наприклад, Imgur або Telegram посилання на картинку):
+                Запустіть бота, зробіть скріншот та оберіть файл зображення з галереї:
             </p>
-            <input type="url" class="input-field" id="screenshot-url-input" placeholder="https://imgur.com/...">
+            <input type="file" class="input-field" id="screenshot-file-input" accept="image/*" style="padding: 10px; cursor: pointer; background: rgba(0,0,0,0.5);">
             <div style="display: flex; gap: 10px; margin-top: 15px;">
                 <button class="btn" style="background: #27272a; color: #fff; margin:0;" onclick="closeScreenshotModal()">Скасувати</button>
-                <button class="btn" style="background: linear-gradient(135deg, #00f5d4 0%, #00bbf9 100%); color: #000; margin:0;" onclick="submitReferralTaskProof()">Відправити</button>
+                <button class="btn" style="background: linear-gradient(135deg, #00f5d4 0%, #00bbf9 100%); color: #000; margin:0;" onclick="submitReferralTaskProofFile()">Відправити</button>
             </div>
         </div>
     </div>
@@ -1745,25 +1745,47 @@
             }
         }
 
-        async function submitReferralTaskProof() {
-            const screenshotUrl = document.getElementById('screenshot-url-input').value.trim();
-            if (!screenshotUrl) { alert("❌ Введіть посилання на скріншот запущеного бота!"); return; }
-            if (!activeReferralTaskId) { alert("❌ Помилка: завдання не вибрано."); closeScreenshotModal(); return; }
+        async function submitReferralTaskProofFile() {
+            const fileInput = document.getElementById('screenshot-file-input');
+            if (!fileInput.files || fileInput.files.length === 0) {
+                alert("❌ Будь ласка, оберіть скріншот із галереї!");
+                return;
+            }
+
+            if (!activeReferralTaskId) {
+                alert("❌ Помилка: завдання не вибрано.");
+                closeScreenshotModal();
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const formData = new FormData();
+            formData.append('userId', userId);
+            formData.append('initData', window.Telegram.WebApp.initData || '');
+            formData.append('taskId', activeReferralTaskId);
+            formData.append('screenshot', file);
 
             try {
+                alert("⏳ Завантаження скріншота...");
+
                 const response = await fetch('/api/submit-task', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId: userId, initData: window.Telegram.WebApp.initData, taskId: activeReferralTaskId, screenshotUrl: screenshotUrl })
+                    body: formData
                 });
+
                 const data = await response.json();
+
                 if (response.ok && data.success) {
-                    alert("🎉 Звіт успішно відправлено на перевірку рекламодавцю!");
-                    document.getElementById('screenshot-url-input').value = "";
+                    alert("🎉 Звіт успішно відправлено на перевірку!");
+                    fileInput.value = "";
                     closeScreenshotModal();
                     loadCustomerTasks();
-                } else { alert("❌ Помилка: " + (data.error || "Не вдалося надіслати звіт")); }
-            } catch (err) { alert("Помилка зв'язку з сервером."); }
+                } else {
+                    alert("❌ Помилка: " + (data.error || "Не вдалося надіслати звіт"));
+                }
+            } catch (err) {
+                alert("Помилка зв'язку з сервером.");
+            }
         }
 
         async function sendAdminBroadcast() {
