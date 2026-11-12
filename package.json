@@ -1,8 +1,9 @@
 {
-  "name": "wood-grow-coin",
+  "name": "woodgrow",
   "version": "1.0.0",
   "type": "module",
   "dependencies": {
+    "busboy": "^1.6.0",
     "firebase-admin": "^12.0.0"
   }
 }
