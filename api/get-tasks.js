@@ -10,8 +10,7 @@ if (!admin.apps.length) {
         const serviceAccount = JSON.parse(decryptedKey);
         admin.initializeApp({
             credential: admin.credential.cert(serviceAccount),
-            databaseURL: "https://woodgrowbot-default-rtdb.europe-west1.firebasedatabase.app",
-            storageBucket: "woodgrowbot.firebasestorage.app"
+            databaseURL: "https://woodgrowbot-default-rtdb.europe-west1.firebasedatabase.app"
         });
     } catch (error) {
         console.error('Firebase init error:', error);
@@ -19,7 +18,6 @@ if (!admin.apps.length) {
 }
 
 const db = admin.database();
-const storage = admin.storage().bucket();
 
 // Допоміжна функція для парсингу multipart/form-data через busboy
 const parseMultipartForm = (req) => {
@@ -56,13 +54,13 @@ const parseMultipartForm = (req) => {
 
 export const config = {
     api: {
-        bodyParser: false, // Вимикаємо стандартний парсер Vercel для підтримки файлів у POST-запитах
+        bodyParser: false,
     },
 };
 
 export default async function handler(req, res) {
     // ---------------------------------------------------------
-    // ОБРОБКА POST-ЗАПИТУ (Надсилання скріншота реферального завдання)
+    // ОБРОБКА POST-ЗАПИТУ (Надсилання скріншота через Telegram)
     // ---------------------------------------------------------
     if (req.method === 'POST') {
         const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
@@ -109,18 +107,32 @@ export default async function handler(req, res) {
                 return res.status(409).json({ error: 'You have already submitted a report for this task' });
             }
 
-            // Завантаження файлу у Firebase Storage
-            const fileExtension = file.name.split('.').pop() || 'jpg';
-            const fileName = `task_screenshots/${taskId}_${userId}_${Date.now()}.${fileExtension}`;
-            const fileUpload = storage.file(fileName);
+            // Відправляємо скріншот напряму в чат рекламодавцю (creatorId) через Telegram API
+            let screenshotUrl = 'Telegram Photo Sent';
+            try {
+                const formDataTg = new globalThis.FormData();
+                formDataTg.append('chat_id', taskData.creatorId);
+                formDataTg.append('caption', `📸 Звіт по завданню від користувача ID: ${userId}\nСтатус: На перевірці ⏳`);
+                
+                const blob = new Blob([file.buffer], { type: file.mimetype || 'image/jpeg' });
+                formDataTg.append('photo', blob, file.name || 'screenshot.jpg');
 
-            await fileUpload.save(file.buffer, {
-                metadata: { contentType: file.mimetype },
-                public: true,
-            });
+                const tgRes = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+                    method: 'POST',
+                    body: formDataTg
+                });
+                const tgData = await tgRes.json();
+                if (tgData.ok && tgData.result && tgData.result.photo) {
+                    // Отримуємо file_id найбільшого фото для історії
+                    const photos = tgData.result.photo;
+                    const bestPhoto = photos[photos.length - 1];
+                    screenshotUrl = `tg_file_id:${bestPhoto.file_id}`;
+                }
+            } catch (tgErr) {
+                console.error("Failed to send photo to advertiser telegram:", tgErr);
+            }
 
-            const screenshotUrl = `https://storage.googleapis.com/${storage.name}/${fileName}`;
-
+            // Збереження звіту в базу даних
             const submissionRef = db.ref(`task_submissions/${taskId}`).push();
             const submissionId = submissionRef.key;
             const timestamp = Date.now();
@@ -146,13 +158,13 @@ export default async function handler(req, res) {
             });
 
         } catch (e) {
-            console.error("Error submitting task file:", e);
+            console.error("Error submitting task file via Telegram:", e);
             return res.status(500).json({ error: 'Server error during file upload' });
         }
     }
 
     // ---------------------------------------------------------
-    // ОБРОБКА GET-ЗАПИТУ (Отримання списку завдань — ваш оригінальний код)
+    // ОБРОБКА GET-ЗАПИТУ (Отримання списку завдань)
     // ---------------------------------------------------------
     if (req.method === 'GET') {
         const { userId } = req.query;
