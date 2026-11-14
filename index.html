@@ -526,32 +526,32 @@
                 <div style="display: flex; flex-direction: column; gap: 8px;">
                     <!-- Кнопка 1: Реакції на пости -->
                     <button class="btn" id="btn-cat-reactions" style="background: rgba(15, 25, 30, 0.9); border: 1.5px solid var(--neon-green); color: var(--neon-green); padding: 10px 12px; font-size: 13px; margin: 0; display: flex; justify-content: space-between; align-items: center;" onclick="selectTaskCategory('reactions')">
-                        <span>👍 Реакції на пости</span>
+                        <span id="txt-cat-react-label">👍 Реакції на пости</span>
                         <span style="font-size: 11px; background: rgba(13,242,93,0.2); color: var(--neon-green); padding: 2px 6px; border-radius: 6px;">0.0005 USDT</span>
                     </button>
 
                     <!-- Кнопка 2: Реферали в боти/ігри -->
                     <button class="btn" id="btn-cat-referrals" style="background: rgba(15, 25, 30, 0.9); border: 1.5px solid var(--neon-aqua); color: var(--neon-aqua); padding: 10px 12px; font-size: 13px; margin: 0; display: flex; justify-content: space-between; align-items: center;" onclick="selectTaskCategory('referrals')">
-                        <span>👥 Реферали в боти/ігри</span>
+                        <span id="txt-cat-ref-label">👥 Реферали в боти/ігри</span>
                         <span style="font-size: 11px; background: rgba(0,245,212,0.2); color: var(--neon-aqua); padding: 2px 6px; border-radius: 6px;">0.002 USDT</span>
                     </button>
 
                     <!-- Заглушка 1 -->
                     <button class="btn" disabled style="background: #1a1a1f; border: 1px dashed rgba(212,175,55,0.4); color: #71717a; padding: 10px 12px; font-size: 13px; margin: 0; display: flex; justify-content: space-between; align-items: center;">
-                        <span>🔒 Скоро нове завдання</span>
-                        <span style="font-size: 11px; color: var(--gold-color);">⏳ В розробці</span>
+                        <span id="txt-soon-1">🔒 Скоро нове завдання</span>
+                        <span style="font-size: 11px; color: var(--gold-color);" id="txt-in-dev-1">⏳ В розробці</span>
                     </button>
 
                     <!-- Заглушка 2 -->
                     <button class="btn" disabled style="background: #1a1a1f; border: 1px dashed rgba(212,175,55,0.4); color: #71717a; padding: 10px 12px; font-size: 13px; margin: 0; display: flex; justify-content: space-between; align-items: center;">
-                        <span>🔒 Скоро нове завдання</span>
-                        <span style="font-size: 11px; color: var(--gold-color);">⏳ В розробці</span>
+                        <span id="txt-soon-2">🔒 Скоро нове завдання</span>
+                        <span style="font-size: 11px; color: var(--gold-color);" id="txt-in-dev-2">⏳ В розробці</span>
                     </button>
 
                     <!-- Заглушка 3 -->
                     <button class="btn" disabled style="background: #1a1a1f; border: 1px dashed rgba(212,175,55,0.4); color: #71717a; padding: 10px 12px; font-size: 13px; margin: 0; display: flex; justify-content: space-between; align-items: center;">
-                        <span>🔒 Скоро нове завдання</span>
-                        <span style="font-size: 11px; color: var(--gold-color);">⏳ В розробці</span>
+                        <span id="txt-soon-3">🔒 Скоро нове завдання</span>
+                        <span style="font-size: 11px; color: var(--gold-color);" id="txt-in-dev-3">⏳ В розробці</span>
                     </button>
                 </div>
             </div>
@@ -734,14 +734,14 @@
     <!-- Модальне вікно для надсилання скріншота реферального завдання -->
     <div class="modal-overlay" id="screenshot-modal">
         <div class="modal-window" style="border-color: var(--neon-aqua);">
-            <h3 style="color: var(--neon-aqua); margin-bottom: 10px;">📸 Підтвердження виконання</h3>
-            <p style="font-size: 13px; color: #a1a1aa; margin-bottom: 15px;">
+            <h3 style="color: var(--neon-aqua); margin-bottom: 10px;" id="txt-proof-title">📸 Підтвердження виконання</h3>
+            <p style="font-size: 13px; color: #a1a1aa; margin-bottom: 15px;" id="txt-proof-desc">
                 Запустіть бота, зробіть скріншот та оберіть файл зображення з галереї:
             </p>
             <input type="file" class="input-field" id="screenshot-file-input" accept="image/*" style="padding: 10px; cursor: pointer; background: rgba(0,0,0,0.5);">
             <div style="display: flex; gap: 10px; margin-top: 15px;">
-                <button class="btn" style="background: #27272a; color: #fff; margin:0;" onclick="closeScreenshotModal()">Скасувати</button>
-                <button class="btn" style="background: linear-gradient(135deg, #00f5d4 0%, #00bbf9 100%); color: #000; margin:0;" onclick="submitReferralTaskProofFile()">Відправити</button>
+                <button class="btn" style="background: #27272a; color: #fff; margin:0;" onclick="closeScreenshotModal()" id="btn-proof-cancel">Скасувати</button>
+                <button class="btn" style="background: linear-gradient(135deg, #00f5d4 0%, #00bbf9 100%); color: #000; margin:0;" onclick="submitReferralTaskProofFile()" id="btn-proof-submit">Відправити</button>
             </div>
         </div>
     </div>
@@ -752,17 +752,17 @@
             <div style="font-size: 45px; margin-bottom: 10px;">🎉</div>
             <h3 style="color: var(--neon-green); margin-bottom: 10px; font-size: 20px;" id="txt-modal-success-title">ЗАЯВКУ СТВОРЕНО!</h3>
             <p style="font-size: 14px; color: #ffffff; line-height: 1.5; margin-bottom: 20px;" id="txt-modal-success-desc">Ваш баланс успішно списано. Заявка на виведення автоматично надійшла в систему. Очікуйте виплату на ваш підключений гаманець протягом 24 годин.</p>
-            <button class="btn" style="background: var(--gold-gradient); color: #000;" onclick="closeWithdrawModal()">👌 ЧУДОВО</button>
+            <button class="btn" style="background: var(--gold-gradient); color: #000;" onclick="closeWithdrawModal()" id="btn-modal-ok">👌 ЧУДОВО</button>
         </div>
     </div>
 
     <div class="modal-overlay" id="lang-modal">
         <div class="modal-window" style="border-color: var(--gold-color);">
-            <h3 style="margin-bottom: 20px;">🌐 Choose Language / Мова</h3>
+            <h3 style="margin-bottom: 20px;" id="txt-lang-modal-title">🌐 Choose Language / Мова</h3>
             <button class="lang-select-btn" onclick="selectLanguage('uk')"><span>🇺🇦 Українська</span> <span>➔</span></button>
             <button class="lang-select-btn" onclick="selectLanguage('en')"><span>🇬🇧 English</span> <span>➔</span></button>
             <button class="lang-select-btn" onclick="selectLanguage('ru')"><span>🇷🇺 Русский</span> <span>➔</span></button>
-            <button class="btn" style="background: none; border: 1px solid #71717a; color: #71717a; margin-top: 15px;" onclick="closeLangModal()">Close / Закрити</button>
+            <button class="btn" style="background: none; border: 1px solid #71717a; color: #71717a; margin-top: 15px;" onclick="closeLangModal()" id="btn-lang-close">Close / Закрити</button>
         </div>
     </div>
 
@@ -814,6 +814,15 @@
             tree: { img: 'images/tree.png' },
             drop: { img: 'images/drop.png' },
             spot: { img: 'images/spot.png' }
+        };
+
+        const comboUkNames = {
+            seed: "зерно",
+            branch: "гілка",
+            bush: "кущ",
+            tree: "дерево",
+            drop: "крапля",
+            spot: "дошка"
         };
 
         const translations = {
@@ -887,7 +896,21 @@
                 task_waiting_btn: "⏳ Зачекайте",
                 task_claim_btn: "🎁 Забрати",
                 task_no_active: "Немає активних завдань",
-                task_conn_error: "Помилка з'єднання з сервером"
+                task_conn_error: "Помилка з'єднання з сервером",
+                cat_react: "👍 Реакції на пости",
+                cat_ref: "👥 Реферали в боти/ігри",
+                soon_task: "🔒 Скоро нове завдання",
+                in_dev: "⏳ В розробці",
+                tasks_header_reactions: "📋 Доступні завдання (Реакції)",
+                tasks_header_referrals: "📋 Доступні завдання (Реферали)",
+                btn_exchange_wgc: "💎 Обміняти WGC на USDT",
+                proof_title: "📸 Підтвердження виконання",
+                proof_desc: "Запустіть бота, зробіть скріншот та оберіть файл зображення з галереї:",
+                proof_cancel: "Скасувати",
+                proof_submit: "Відправити",
+                modal_ok: "👌 ЧУДОВО",
+                lang_modal_title: "🌐 Обрати мову / Choose Language",
+                lang_close: "Закрити / Close"
             },
             en: {
                 balance_title: "My Balance",
@@ -959,7 +982,21 @@
                 task_waiting_btn: "⏳ Wait",
                 task_claim_btn: "🎁 Claim",
                 task_no_active: "No active tasks",
-                task_conn_error: "Server connection error"
+                task_conn_error: "Server connection error",
+                cat_react: "👍 Post Reactions",
+                cat_ref: "👥 Referrals to bots/games",
+                soon_task: "🔒 New task soon",
+                in_dev: "⏳ In development",
+                tasks_header_reactions: "📋 Available Tasks (Reactions)",
+                tasks_header_referrals: "📋 Available Tasks (Referrals)",
+                btn_exchange_wgc: "💎 Exchange WGC for USDT",
+                proof_title: "📸 Proof Submission",
+                proof_desc: "Launch the bot, take a screenshot and select the image file from your gallery:",
+                proof_cancel: "Cancel",
+                proof_submit: "Submit",
+                modal_ok: "👌 AWESOME",
+                lang_modal_title: "🌐 Choose Language",
+                lang_close: "Close"
             },
             ru: {
                 balance_title: "Мой Баланс",
@@ -1031,7 +1068,21 @@
                 task_waiting_btn: "⏳ Подождите",
                 task_claim_btn: "🎁 Забрать",
                 task_no_active: "Нет активных заданий",
-                task_conn_error: "Ошибка соединения с сервером"
+                task_conn_error: "Ошибка соединения с сервером",
+                cat_react: "👍 Реакции на посты",
+                cat_ref: "👥 Рефералы в боты/игры",
+                soon_task: "🔒 Скоро новое задание",
+                in_dev: "⏳ В разработке",
+                tasks_header_reactions: "📋 Доступные задания (Реакции)",
+                tasks_header_referrals: "📋 Доступные задания (Рефералы)",
+                btn_exchange_wgc: "💎 Обменять WGC на USDT",
+                proof_title: "📸 Подтверждение выполнения",
+                proof_desc: "Запустите бота, сделайте скриншот и выберите файл изображения из галереи:",
+                proof_cancel: "Отмена",
+                proof_submit: "Отправить",
+                modal_ok: "👌 ОТЛИЧНО",
+                lang_modal_title: "🌐 Выбрать язык / Choose Language",
+                lang_close: "Закрыть / Close"
             }
         };
 
@@ -1095,6 +1146,23 @@
             document.getElementById('btn-invite-friend').innerText = t.invite_friend;
             document.getElementById('txt-modal-success-title').innerText = t.modal_success_title;
             document.getElementById('txt-modal-success-desc').innerText = t.modal_success_desc;
+            document.getElementById('btn-modal-ok').innerText = t.modal_ok;
+
+            document.getElementById('txt-proof-title').innerText = t.proof_title;
+            document.getElementById('txt-proof-desc').innerText = t.proof_desc;
+            document.getElementById('btn-proof-cancel').innerText = t.proof_cancel;
+            document.getElementById('btn-proof-submit').innerText = t.proof_submit;
+            document.getElementById('txt-lang-modal-title').innerText = t.lang_modal_title;
+            document.getElementById('btn-lang-close').innerText = t.lang_close;
+
+            document.getElementById('txt-cat-react-label').innerText = t.cat_react;
+            document.getElementById('txt-cat-ref-label').innerText = t.cat_ref;
+            document.getElementById('txt-soon-1').innerText = t.soon_task;
+            document.getElementById('txt-soon-2').innerText = t.soon_task;
+            document.getElementById('txt-soon-3').innerText = t.soon_task;
+            document.getElementById('txt-in-dev-1').innerText = t.in_dev;
+            document.getElementById('txt-in-dev-2').innerText = t.in_dev;
+            document.getElementById('txt-in-dev-3').innerText = t.in_dev;
 
             if(document.getElementById('txt-game-title')) {
                 document.getElementById('txt-game-title').innerText = t.game_title;
@@ -1102,7 +1170,7 @@
                 document.getElementById('txt-game-points-label').innerText = t.game_points_label;
                 document.getElementById('txt-game-next-reward').innerText = t.game_next_reward;
                 document.getElementById('btn-play-game').innerText = t.btn_play_game;
-                document.getElementById('btn-exchange-points').innerText = t.currentLang === 'ru' ? '💎 Обменять WGC на USDT' : (t.currentLang === 'uk' ? '💎 Обміняти WGC на USDT' : '💎 Exchange WGC for USDT');
+                document.getElementById('btn-exchange-points').innerText = t.btn_exchange_wgc;
             }
 
             if(document.getElementById('txt-adv-section-title')) {
@@ -1135,6 +1203,10 @@
             services.forEach(srv => updateLimitUI(srv));
             updateStreakUI();
             updateComboUI();
+
+            if (document.getElementById('tab-missions').classList.contains('active')) {
+                loadCustomerTasks();
+            }
         }
 
         document.getElementById('user-id').innerText = userId;
@@ -1152,7 +1224,9 @@
             if (currentTgId === "6043278492" || userRole === "admin") {
                 adminPanel.style.display = 'block';
                 if (adminCombo && adminComboDisplay) {
-                    adminComboDisplay.innerText = `🔐 Комбо на сьогодні: [ ${adminCombo.join(', ')} ]`;
+                    // Перетворюємо технічні ключі комбо на українські назви для зручності адміна
+                    const translatedCombo = adminCombo.map(item => comboUkNames[item] || item);
+                    adminComboDisplay.innerText = `🔐 Комбо на сьогодні: [ ${translatedCombo.join(', ')} ]`;
                 }
             } else {
                 adminPanel.style.display = 'none';
@@ -1639,8 +1713,8 @@
 
                     if (headerTitle) {
                         headerTitle.innerText = currentTaskCategory === 'referrals' 
-                            ? '📋 Доступні завдання (Реферали)' 
-                            : '📋 Доступні завдання (Реакції)';
+                            ? t.tasks_header_referrals 
+                            : t.tasks_header_reactions;
                     }
 
                     if (filteredTasks.length === 0) {
@@ -1768,7 +1842,6 @@
             try {
                 alert("⏳ Завантаження скріншота...");
 
-                // Оновлено шлях на /api/get-tasks (де тепер об'єднана логіка POST-запитів)
                 const response = await fetch('/api/get-tasks', {
                     method: 'POST',
                     body: formData
