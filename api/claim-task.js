@@ -1,3 +1,5 @@
+// api/claim-task.js
+
 import admin from 'firebase-admin';
 
 if (!admin.apps.length) {
@@ -55,14 +57,17 @@ export default async function handler(req, res) {
         const taskData = taskSnapshot.val();
 
         // Перевірка лімітів завдання замовника
-        if (taskData.status !== 'active' || parseInt(taskData.current_views || 0) >= parseInt(taskData.required_views || 26)) {
+        const currentCount = parseInt(taskData.current_count || taskData.current_views || 0);
+        const targetCount = parseInt(taskData.target_count || taskData.required_views || 20);
+
+        if (taskData.status !== 'active' || currentCount >= targetCount) {
             return res.status(410).json({ error: 'Task is no longer active or limit reached' });
         }
 
         // 3. Перевірка користувача та чи не виконував він це завдання раніше
         const userRef = db.ref(`users/${userId}`);
         const userSnapshot = await userRef.once('value');
-        if (!userSnapshot.exists()) return db.status(404).json({ error: 'User not found' });
+        if (!userSnapshot.exists()) return res.status(404).json({ error: 'User not found' });
 
         const userData = userSnapshot.val();
         
@@ -72,8 +77,42 @@ export default async function handler(req, res) {
             return res.status(409).json({ error: 'Task already completed' });
         }
 
-        // 4. Процес нарахування нагороди
-        const reward = parseFloat(taskData.reward) || 0.0005;
+        // 4. ДЛЯ ЗАВДАНЬ НА ПІДПИСКУ: Перевірка через Telegram API (getChatMember)
+        if (taskData.type === 'telegram_subscription') {
+            try {
+                let channelLink = taskData.link.trim();
+                let channelIdentifier = '';
+
+                if (channelLink.includes('t.me/')) {
+                    const parts = channelLink.split('t.me/');
+                    channelIdentifier = '@' + parts[parts.length - 1].replace('/', '');
+                } else if (channelLink.startsWith('@')) {
+                    channelIdentifier = channelLink;
+                } else {
+                    channelIdentifier = '@' + channelLink;
+                }
+
+                const tgResponse = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getChatMember?chat_id=${encodeURIComponent(channelIdentifier)}&user_id=${userId}`);
+                const tgData = await tgResponse.json();
+
+                if (!tgData.ok || !tgData.result) {
+                    return res.status(400).json({ error: 'Не вдалося перевірити підписку. Переконайтеся, що бот є адміністратором каналу.' });
+                }
+
+                const memberStatus = tgData.result.status;
+                const validStatuses = ['member', 'creator', 'administrator'];
+
+                if (!validStatuses.includes(memberStatus)) {
+                    return res.status(400).json({ error: 'Ви ще не підписалися на канал або залишили його!' });
+                }
+            } catch (tgApiErr) {
+                console.error("Telegram API getChatMember error:", tgApiErr);
+                return res.status(500).json({ error: 'Поשлка перевірки підписки через Telegram API' });
+            }
+        }
+
+        // 5. Процес нарахування нагороди
+        const reward = parseFloat(taskData.reward) || (taskData.type === 'telegram_subscription' ? 0.001 : 0.0005);
         const currentBalance = parseFloat(userData.balance) || 0;
         const newBalance = currentBalance + reward;
         const referredBy = userData.referred_by || null;
@@ -82,11 +121,26 @@ export default async function handler(req, res) {
         await userRef.update({ balance: newBalance });
         await db.ref(`users/${userId}/completed_tasks/${taskId}`).set(true);
 
-        // 5. Оновлюємо лічильник переглядів самого завдання для замовника
-        const newViews = (parseInt(taskData.current_views) || 0) + 1;
-        await taskRef.update({ current_views: newViews });
+        // 6. Оновлюємо лічильники та статус самого завдання для замовника
+        const newCount = currentCount + 1;
+        const newStatus = newCount >= targetCount ? 'completed' : 'active';
 
-        // 6. Реферальний бонус (+10% USDT запросившому)
+        await taskRef.update({ 
+            current_count: newCount,
+            current_views: newCount,
+            status: newStatus 
+        });
+
+        // Також оновлюємо гілку my_campaigns у рекламодавця, якщо вона там є
+        if (taskData.creatorId) {
+            await db.ref(`task_users/${taskData.creatorId}/my_campaigns/${taskId}`).update({ 
+                current_count: newCount,
+                current_views: newCount,
+                status: newStatus 
+            });
+        }
+
+        // 7. Реферальний бонус (+10% USDT запросившому)
         if (referredBy) {
             const referrerRef = db.ref(`users/${referredBy}`);
             const referrerSnapshot = await referrerRef.once('value');
