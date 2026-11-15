@@ -536,7 +536,7 @@
                         <span style="font-size: 11px; background: rgba(0,245,212,0.2); color: var(--neon-aqua); padding: 2px 6px; border-radius: 6px;">0.002 USDT</span>
                     </button>
 
-                    <!-- Кнопка 3: Підписки на Telegram-канали (НОВЕ) -->
+                    <!-- Кнопка 3: Підписки на Telegram-канали -->
                     <button class="btn" id="btn-cat-subscriptions" style="background: rgba(15, 25, 30, 0.9); border: 1.5px solid var(--gold-color); color: var(--gold-color); padding: 10px 12px; font-size: 13px; margin: 0; display: flex; justify-content: space-between; align-items: center;" onclick="selectTaskCategory('subscriptions')">
                         <span id="txt-cat-sub-label">📢 Підписки на канали</span>
                         <span style="font-size: 11px; background: rgba(212,175,55,0.2); color: var(--gold-color); padding: 2px 6px; border-radius: 6px;">0.001 USDT</span>
@@ -1718,9 +1718,10 @@
                 
                 if (data.success && data.tasks && data.tasks.length > 0) {
                     const filteredTasks = data.tasks.filter(task => {
-                        if (currentTaskCategory === 'referrals') return task.type === 'referral';
-                        if (currentTaskCategory === 'subscriptions') return task.type === 'telegram_subscription';
-                        return task.type === 'reaction' || !task.type;
+                        const tType = task.type || 'reaction';
+                        if (currentTaskCategory === 'referrals') return tType === 'referral';
+                        if (currentTaskCategory === 'subscriptions') return tType === 'telegram_subscription' || tType === 'sub' || tType === 'channel';
+                        return tType === 'reaction' || tType === 'post_reaction';
                     });
 
                     if (headerTitle) {
@@ -1735,30 +1736,14 @@
                     }
 
                     filteredTasks.forEach(task => {
-                        const taskBtn = document.createElement('button');
-                        taskBtn.className = 'btn';
-                        taskBtn.style.marginTop = '0';
-                        taskBtn.style.padding = '12px 14px';
-                        taskBtn.style.fontSize = '13px';
+                        const tType = task.type || 'reaction';
 
-                        if (task.type === 'referral') {
-                            taskBtn.style.background = 'linear-gradient(135deg, #00f5d4 0%, #00bbf9 100%)';
-                            taskBtn.style.color = '#000';
-                            taskBtn.innerText = `${t.task_referral_btn} (+${task.reward} USDT)`;
-                            
-                            taskBtn.onclick = () => {
-                                activeReferralTaskId = task.id;
-                                tg.openTelegramLink(task.link);
-                                setTimeout(() => {
-                                    document.getElementById('screenshot-modal').classList.add('active');
-                                }, 1500);
-                            };
-                        } else if (task.type === 'telegram_subscription') {
-                            // НОВИЙ ТИП: Підписка на Telegram-канали із двома кнопками (Підписатися + Перевірити)
+                        if (tType === 'telegram_subscription' || tType === 'sub' || tType === 'channel') {
                             const wrapper = document.createElement('div');
                             wrapper.style.display = 'flex';
                             wrapper.style.gap = '8px';
                             wrapper.style.marginBottom = '6px';
+                            wrapper.style.width = '100%';
 
                             const subBtn = document.createElement('button');
                             subBtn.className = 'btn';
@@ -1768,10 +1753,8 @@
                             subBtn.style.fontSize = '12px';
                             subBtn.style.background = 'var(--gold-gradient)';
                             subBtn.style.color = '#000';
-                            subBtn.innerText = t.task_subscribe_btn;
-                            subBtn.onclick = () => {
-                                tg.openTelegramLink(task.link);
-                            };
+                            subBtn.innerText = t.task_subscribe_btn || "📢 Підписатися";
+                            subBtn.onclick = () => { tg.openTelegramLink(task.link); };
 
                             const verifyBtn = document.createElement('button');
                             verifyBtn.className = 'btn';
@@ -1781,11 +1764,11 @@
                             verifyBtn.style.fontSize = '12px';
                             verifyBtn.style.background = 'linear-gradient(135deg, #0df25d 0%, #00bbf9 100%)';
                             verifyBtn.style.color = '#000';
-                            verifyBtn.innerText = t.task_verify_sub_btn;
+                            verifyBtn.innerText = t.task_verify_sub_btn || "✅ Перевірити";
 
                             verifyBtn.onclick = async () => {
                                 verifyBtn.disabled = true;
-                                verifyBtn.innerText = t.checking;
+                                verifyBtn.innerText = t.checking || "⏳ Перевірка...";
                                 const initDataStr = window.Telegram?.WebApp?.initData || "";
 
                                 try {
@@ -1806,20 +1789,44 @@
                                     } else {
                                         alert(claimData.error || 'Помилка перевірки підписки');
                                         verifyBtn.disabled = false;
-                                        verifyBtn.innerText = t.task_verify_sub_btn;
+                                        verifyBtn.innerText = t.task_verify_sub_btn || "✅ Перевірити";
                                     }
                                 } catch (err) {
                                     alert('Помилка з\'єднання з сервером');
                                     verifyBtn.disabled = false;
-                                    verifyBtn.innerText = t.task_verify_sub_btn;
+                                    verifyBtn.innerText = t.task_verify_sub_btn || "✅ Перевірити";
                                 }
                             };
 
                             wrapper.appendChild(subBtn);
                             wrapper.appendChild(verifyBtn);
                             container.appendChild(wrapper);
-                            continue; // пропускаємо стандартну обробку `taskBtn` для цього типу
+
+                        } else if (tType === 'referral') {
+                            const taskBtn = document.createElement('button');
+                            taskBtn.className = 'btn';
+                            taskBtn.style.marginTop = '0';
+                            taskBtn.style.padding = '12px 14px';
+                            taskBtn.style.fontSize = '13px';
+                            taskBtn.style.background = 'linear-gradient(135deg, #00f5d4 0%, #00bbf9 100%)';
+                            taskBtn.style.color = '#000';
+                            taskBtn.innerText = `${t.task_referral_btn} (+${task.reward} USDT)`;
+                            
+                            taskBtn.onclick = () => {
+                                activeReferralTaskId = task.id;
+                                tg.openTelegramLink(task.link);
+                                setTimeout(() => {
+                                    document.getElementById('screenshot-modal').classList.add('active');
+                                }, 1500);
+                            };
+                            container.appendChild(taskBtn);
+
                         } else {
+                            const taskBtn = document.createElement('button');
+                            taskBtn.className = 'btn';
+                            taskBtn.style.marginTop = '0';
+                            taskBtn.style.padding = '12px 14px';
+                            taskBtn.style.fontSize = '13px';
                             let isTimerStarted = false;
                             let isTimerFinished = false;
                             let countdown = 20;
@@ -1886,8 +1893,8 @@
                                     }
                                 }
                             };
+                            container.appendChild(taskBtn);
                         }
-                        container.appendChild(taskBtn);
                     });
                 } else {
                     container.innerHTML = `<p style="color: #a1a1aa; font-size: 13px;">${t.task_no_active}</p>`;
