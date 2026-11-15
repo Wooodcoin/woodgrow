@@ -81,18 +81,31 @@ export default async function handler(req, res) {
         if (taskData.type === 'telegram_subscription') {
             try {
                 let channelLink = taskData.link.trim();
-                let channelIdentifier = '';
+                let chatIdentifier = '';
 
-                if (channelLink.includes('t.me/')) {
-                    const parts = channelLink.split('t.me/');
-                    channelIdentifier = '@' + parts[parts.length - 1].replace('/', '');
-                } else if (channelLink.startsWith('@')) {
-                    channelIdentifier = channelLink;
+                // Якщо це приватне посилання-запрошення з плюсом (напр. t.me/+R4UsGjsheRBmZTFi або https://t.me/joinchat/...)
+                if (channelLink.includes('t.me/+') || channelLink.includes('t.me/joinchat/')) {
+                    // Отримуємо реальний числовий ID каналу через метод getChat за допомогою інвайт-посилання
+                    const chatInfoRes = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getChat?chat_id=${encodeURIComponent(channelLink)}`);
+                    const chatInfoData = await chatInfoRes.json();
+
+                    if (!chatInfoData.ok || !chatInfoData.result) {
+                        return res.status(400).json({ error: 'Не вдалося отримати доступ до приватного каналу. Переконайтеся, що бот є адміністратором!' });
+                    }
+                    chatIdentifier = chatInfoData.result.id; // Це буде числовий ID типу -100xxxxxxxxx
                 } else {
-                    channelIdentifier = '@' + channelLink;
+                    // Обробка звичайних публічних каналів
+                    if (channelLink.includes('t.me/')) {
+                        const parts = channelLink.split('t.me/');
+                        chatIdentifier = '@' + parts[parts.length - 1].replace('/', '');
+                    } else if (channelLink.startsWith('@')) {
+                        chatIdentifier = channelLink;
+                    } else {
+                        chatIdentifier = '@' + channelLink;
+                    }
                 }
 
-                const tgResponse = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getChatMember?chat_id=${encodeURIComponent(channelIdentifier)}&user_id=${userId}`);
+                const tgResponse = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getChatMember?chat_id=${encodeURIComponent(chatIdentifier)}&user_id=${userId}`);
                 const tgData = await tgResponse.json();
 
                 if (!tgData.ok || !tgData.result) {
@@ -107,7 +120,7 @@ export default async function handler(req, res) {
                 }
             } catch (tgApiErr) {
                 console.error("Telegram API getChatMember error:", tgApiErr);
-                return res.status(500).json({ error: 'Поשлка перевірки підписки через Telegram API' });
+                return res.status(500).json({ error: 'Помилка перевірки підписки через Telegram API' });
             }
         }
 
