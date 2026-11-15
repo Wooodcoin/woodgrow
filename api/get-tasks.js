@@ -107,7 +107,6 @@ export default async function handler(req, res) {
                 return res.status(409).json({ error: 'You have already submitted a report for this task' });
             }
 
-            // Відправляємо скріншот напряму в чат рекламодавцю (creatorId) через Telegram API
             let screenshotUrl = 'Telegram Photo Sent';
             try {
                 const formDataTg = new globalThis.FormData();
@@ -123,7 +122,6 @@ export default async function handler(req, res) {
                 });
                 const tgData = await tgRes.json();
                 if (tgData.ok && tgData.result && tgData.result.photo) {
-                    // Отримуємо file_id найбільшого фото для історії
                     const photos = tgData.result.photo;
                     const bestPhoto = photos[photos.length - 1];
                     screenshotUrl = `tg_file_id:${bestPhoto.file_id}`;
@@ -132,7 +130,6 @@ export default async function handler(req, res) {
                 console.error("Failed to send photo to advertiser telegram:", tgErr);
             }
 
-            // Збереження звіту в базу даних
             const submissionRef = db.ref(`task_submissions/${taskId}`).push();
             const submissionId = submissionRef.key;
             const timestamp = Date.now();
@@ -220,7 +217,23 @@ export default async function handler(req, res) {
                             });
                         }
                     }
-                } else {
+                } 
+                else if (task.type === 'telegram_subscription') {
+                    // НОВИЙ ТИП: Підписка на Telegram-канали
+                    const currentCount = parseInt(task.current_count || 0);
+                    const targetCount = parseInt(task.target_count || 20);
+
+                    if (task.status === 'active' && currentCount < targetCount) {
+                        activeTasks.push({
+                            id: taskId,
+                            link: task.link,
+                            reward: parseFloat(task.reward) || 0.001,
+                            type: 'telegram_subscription'
+                        });
+                    }
+                } 
+                else {
+                    // Стандартні реакції
                     if (
                         task.status === 'active' && 
                         parseInt(task.current_views || 0) < parseInt(task.required_views || 26)
