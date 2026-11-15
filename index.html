@@ -536,10 +536,10 @@
                         <span style="font-size: 11px; background: rgba(0,245,212,0.2); color: var(--neon-aqua); padding: 2px 6px; border-radius: 6px;">0.002 USDT</span>
                     </button>
 
-                    <!-- Заглушка 1 -->
-                    <button class="btn" disabled style="background: #1a1a1f; border: 1px dashed rgba(212,175,55,0.4); color: #71717a; padding: 10px 12px; font-size: 13px; margin: 0; display: flex; justify-content: space-between; align-items: center;">
-                        <span id="txt-soon-1">🔒 Скоро нове завдання</span>
-                        <span style="font-size: 11px; color: var(--gold-color);" id="txt-in-dev-1">⏳ В розробці</span>
+                    <!-- Кнопка 3: Підписки на Telegram-канали (НОВЕ) -->
+                    <button class="btn" id="btn-cat-subscriptions" style="background: rgba(15, 25, 30, 0.9); border: 1.5px solid var(--gold-color); color: var(--gold-color); padding: 10px 12px; font-size: 13px; margin: 0; display: flex; justify-content: space-between; align-items: center;" onclick="selectTaskCategory('subscriptions')">
+                        <span id="txt-cat-sub-label">📢 Підписки на канали</span>
+                        <span style="font-size: 11px; background: rgba(212,175,55,0.2); color: var(--gold-color); padding: 2px 6px; border-radius: 6px;">0.001 USDT</span>
                     </button>
 
                     <!-- Заглушка 2 -->
@@ -893,16 +893,20 @@
                 adv_btn: "💼 Замовити",
                 task_reaction_btn: "👍 Поставити реакцію",
                 task_referral_btn: "👥 Перейти в бот",
+                task_subscribe_btn: "📢 Підписатися",
+                task_verify_sub_btn: "✅ Перевірити",
                 task_waiting_btn: "⏳ Зачекайте",
                 task_claim_btn: "🎁 Забрати",
                 task_no_active: "Немає активних завдань",
                 task_conn_error: "Помилка з'єднання з сервером",
                 cat_react: "👍 Реакції на пости",
                 cat_ref: "👥 Реферали в боти/ігри",
+                cat_sub: "📢 Підписки на канали",
                 soon_task: "🔒 Скоро нове завдання",
                 in_dev: "⏳ В розробці",
                 tasks_header_reactions: "📋 Доступні завдання (Реакції)",
                 tasks_header_referrals: "📋 Доступні завдання (Реферали)",
+                tasks_header_subscriptions: "📋 Доступні завдання (Підписки)",
                 btn_exchange_wgc: "💎 Обміняти WGC на USDT",
                 proof_title: "📸 Підтвердження виконання",
                 proof_desc: "Запустіть бота, зробіть скріншот та оберіть файл зображення з галереї:",
@@ -979,16 +983,20 @@
                 adv_btn: "💼 Order",
                 task_reaction_btn: "👍 Give Reaction",
                 task_referral_btn: "👥 Open Bot",
+                task_subscribe_btn: "📢 Subscribe",
+                task_verify_sub_btn: "✅ Verify",
                 task_waiting_btn: "⏳ Wait",
                 task_claim_btn: "🎁 Claim",
                 task_no_active: "No active tasks",
                 task_conn_error: "Server connection error",
                 cat_react: "👍 Post Reactions",
                 cat_ref: "👥 Referrals to bots/games",
+                cat_sub: "📢 Channel Subscriptions",
                 soon_task: "🔒 New task soon",
                 in_dev: "⏳ In development",
                 tasks_header_reactions: "📋 Available Tasks (Reactions)",
                 tasks_header_referrals: "📋 Available Tasks (Referrals)",
+                tasks_header_subscriptions: "📋 Available Tasks (Subscriptions)",
                 btn_exchange_wgc: "💎 Exchange WGC for USDT",
                 proof_title: "📸 Proof Submission",
                 proof_desc: "Launch the bot, take a screenshot and select the image file from your gallery:",
@@ -1065,16 +1073,20 @@
                 adv_btn: "💼 Заказать",
                 task_reaction_btn: "👍 Поставить реакцию",
                 task_referral_btn: "👥 Открыть бот",
+                task_subscribe_btn: "📢 Подписаться",
+                task_verify_sub_btn: "✅ Проверить",
                 task_waiting_btn: "⏳ Подождите",
                 task_claim_btn: "🎁 Забрать",
                 task_no_active: "Нет активных заданий",
                 task_conn_error: "Ошибка соединения с сервером",
                 cat_react: "👍 Реакции на посты",
                 cat_ref: "👥 Рефералы в боты/игры",
+                cat_sub: "📢 Подписки на каналы",
                 soon_task: "🔒 Скоро новое задание",
                 in_dev: "⏳ В разработке",
                 tasks_header_reactions: "📋 Доступные задания (Реакции)",
                 tasks_header_referrals: "📋 Доступные задания (Рефералы)",
+                tasks_header_subscriptions: "📋 Доступные задания (Подписки)",
                 btn_exchange_wgc: "💎 Обменять WGC на USDT",
                 proof_title: "📸 Подтверждение выполнения",
                 proof_desc: "Запустите бота, сделайте скриншот и выберите файл изображения из галереи:",
@@ -1157,10 +1169,9 @@
 
             document.getElementById('txt-cat-react-label').innerText = t.cat_react;
             document.getElementById('txt-cat-ref-label').innerText = t.cat_ref;
-            document.getElementById('txt-soon-1').innerText = t.soon_task;
+            document.getElementById('txt-cat-sub-label').innerText = t.cat_sub;
             document.getElementById('txt-soon-2').innerText = t.soon_task;
             document.getElementById('txt-soon-3').innerText = t.soon_task;
-            document.getElementById('txt-in-dev-1').innerText = t.in_dev;
             document.getElementById('txt-in-dev-2').innerText = t.in_dev;
             document.getElementById('txt-in-dev-3').innerText = t.in_dev;
 
@@ -1224,7 +1235,6 @@
             if (currentTgId === "6043278492" || userRole === "admin") {
                 adminPanel.style.display = 'block';
                 if (adminCombo && adminComboDisplay) {
-                    // Перетворюємо технічні ключі комбо на українські назви для зручності адміна
                     const translatedCombo = adminCombo.map(item => comboUkNames[item] || item);
                     adminComboDisplay.innerText = `🔐 Комбо на сьогодні: [ ${translatedCombo.join(', ')} ]`;
                 }
@@ -1362,17 +1372,18 @@
             currentTaskCategory = category;
             const btnReactions = document.getElementById('btn-cat-reactions');
             const btnReferrals = document.getElementById('btn-cat-referrals');
+            const btnSubscriptions = document.getElementById('btn-cat-subscriptions');
+
+            btnReactions.style.border = '1.5px solid rgba(212,175,55,0.4)';
+            btnReferrals.style.border = '1.5px solid rgba(212,175,55,0.4)';
+            btnSubscriptions.style.border = '1.5px solid rgba(212,175,55,0.4)';
 
             if (category === 'reactions') {
                 btnReactions.style.border = '1.5px solid var(--neon-green)';
-                btnReactions.style.color = 'var(--neon-green)';
+            } else if (category === 'referrals') {
                 btnReferrals.style.border = '1.5px solid var(--neon-aqua)';
-                btnReferrals.style.color = 'var(--neon-aqua)';
-            } else {
-                btnReferrals.style.border = '1.5px solid var(--neon-green)';
-                btnReferrals.style.color = 'var(--neon-green)';
-                btnReactions.style.border = '1.5px solid var(--neon-aqua)';
-                btnReactions.style.color = 'var(--neon-aqua)';
+            } else if (category === 'subscriptions') {
+                btnSubscriptions.style.border = '1.5px solid var(--gold-color)';
             }
             loadCustomerTasks();
         }
@@ -1708,13 +1719,14 @@
                 if (data.success && data.tasks && data.tasks.length > 0) {
                     const filteredTasks = data.tasks.filter(task => {
                         if (currentTaskCategory === 'referrals') return task.type === 'referral';
+                        if (currentTaskCategory === 'subscriptions') return task.type === 'telegram_subscription';
                         return task.type === 'reaction' || !task.type;
                     });
 
                     if (headerTitle) {
-                        headerTitle.innerText = currentTaskCategory === 'referrals' 
-                            ? t.tasks_header_referrals 
-                            : t.tasks_header_reactions;
+                        if (currentTaskCategory === 'referrals') headerTitle.innerText = t.tasks_header_referrals;
+                        else if (currentTaskCategory === 'subscriptions') headerTitle.innerText = t.tasks_header_subscriptions;
+                        else headerTitle.innerText = t.tasks_header_reactions;
                     }
 
                     if (filteredTasks.length === 0) {
@@ -1741,6 +1753,72 @@
                                     document.getElementById('screenshot-modal').classList.add('active');
                                 }, 1500);
                             };
+                        } else if (task.type === 'telegram_subscription') {
+                            // НОВИЙ ТИП: Підписка на Telegram-канали із двома кнопками (Підписатися + Перевірити)
+                            const wrapper = document.createElement('div');
+                            wrapper.style.display = 'flex';
+                            wrapper.style.gap = '8px';
+                            wrapper.style.marginBottom = '6px';
+
+                            const subBtn = document.createElement('button');
+                            subBtn.className = 'btn';
+                            subBtn.style.margin = '0';
+                            subBtn.style.flex = '1';
+                            subBtn.style.padding = '10px 8px';
+                            subBtn.style.fontSize = '12px';
+                            subBtn.style.background = 'var(--gold-gradient)';
+                            subBtn.style.color = '#000';
+                            subBtn.innerText = t.task_subscribe_btn;
+                            subBtn.onclick = () => {
+                                tg.openTelegramLink(task.link);
+                            };
+
+                            const verifyBtn = document.createElement('button');
+                            verifyBtn.className = 'btn';
+                            verifyBtn.style.margin = '0';
+                            verifyBtn.style.flex = '1';
+                            verifyBtn.style.padding = '10px 8px';
+                            verifyBtn.style.fontSize = '12px';
+                            verifyBtn.style.background = 'linear-gradient(135deg, #0df25d 0%, #00bbf9 100%)';
+                            verifyBtn.style.color = '#000';
+                            verifyBtn.innerText = t.task_verify_sub_btn;
+
+                            verifyBtn.onclick = async () => {
+                                verifyBtn.disabled = true;
+                                verifyBtn.innerText = t.checking;
+                                const initDataStr = window.Telegram?.WebApp?.initData || "";
+
+                                try {
+                                    const claimRes = await fetch('/api/claim-task', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ userId: userId, taskId: task.id, initData: initDataStr })
+                                    });
+                                    const claimData = await claimRes.json();
+                                    if (claimRes.ok && claimData.success) {
+                                        balance = claimData.newBalance;
+                                        document.getElementById('user-balance').innerText = balance.toFixed(4);
+                                        alert(`🎉 Успішно! Нараховано +${task.reward} USDT`);
+                                        wrapper.remove();
+                                        if (container.children.length === 0) {
+                                            container.innerHTML = `<p style="color: #a1a1aa; font-size: 13px;">${t.task_no_active}</p>`;
+                                        }
+                                    } else {
+                                        alert(claimData.error || 'Помилка перевірки підписки');
+                                        verifyBtn.disabled = false;
+                                        verifyBtn.innerText = t.task_verify_sub_btn;
+                                    }
+                                } catch (err) {
+                                    alert('Помилка з\'єднання з сервером');
+                                    verifyBtn.disabled = false;
+                                    verifyBtn.innerText = t.task_verify_sub_btn;
+                                }
+                            };
+
+                            wrapper.appendChild(subBtn);
+                            wrapper.appendChild(verifyBtn);
+                            container.appendChild(wrapper);
+                            continue; // пропускаємо стандартну обробку `taskBtn` для цього типу
                         } else {
                             let isTimerStarted = false;
                             let isTimerFinished = false;
