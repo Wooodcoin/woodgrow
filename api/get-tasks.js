@@ -60,7 +60,7 @@ export const config = {
 
 export default async function handler(req, res) {
     // ---------------------------------------------------------
-    // ОБРОБКА POST-ЗАПИТУ (Надсилання скріншота через Telegram)
+    // ОБРОБКА POST-ЗАПИТУ (Надсилання скріншота через Telegram для рефералів)
     // ---------------------------------------------------------
     if (req.method === 'POST') {
         const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
@@ -190,6 +190,12 @@ export default async function handler(req, res) {
                 const isAlreadyCompleted = completedTaskIds.includes(taskId);
                 if (isAlreadyCompleted) continue;
 
+                // Перевірка унікальності для автоматичних завдань (в т.ч. story_view) через task_completions
+                if (userId) {
+                    const completionSnap = await db.ref(`task_completions/${taskId}/${userId}`).once('value');
+                    if (completionSnap.exists()) continue;
+                }
+
                 if (task.type === 'referral') {
                     const currentCount = parseInt(task.current_count || 0);
                     const targetCount = parseInt(task.target_count || 5);
@@ -219,7 +225,6 @@ export default async function handler(req, res) {
                     }
                 } 
                 else if (task.type === 'telegram_subscription') {
-                    // НОВИЙ ТИП: Підписка на Telegram-канали
                     const currentCount = parseInt(task.current_count || 0);
                     const targetCount = parseInt(task.target_count || 20);
 
@@ -232,16 +237,30 @@ export default async function handler(req, res) {
                         });
                     }
                 } 
+                else if (task.type === 'story_view') {
+                    // НОВИЙ ТИП: Перегляди Telegram Story
+                    const currentCount = parseInt(task.current_count || 0);
+                    const targetCount = parseInt(task.target_count || 10);
+
+                    if (task.status === 'active' && currentCount < targetCount) {
+                        activeTasks.push({
+                            id: taskId,
+                            link: task.link,
+                            reward: parseFloat(task.reward) || 0.0001,
+                            type: 'story_view'
+                        });
+                    }
+                }
                 else {
                     // Стандартні реакції
                     if (
                         task.status === 'active' && 
-                        parseInt(task.current_views || 0) < parseInt(task.required_views || 26)
+                        parseInt(task.current_count || task.current_views || 0) < parseInt(task.target_count || task.required_views || 20)
                     ) {
                         activeTasks.push({
                             id: taskId,
                             link: task.link,
-                            reward: task.reward || 0.0005,
+                            reward: parseFloat(task.reward) || 0.0005,
                             type: 'reaction'
                         });
                     }
