@@ -71,9 +71,11 @@ export default async function handler(req, res) {
 
         const userData = userSnapshot.val();
         
-        // Перевіряємо гілку completed_tasks всередині профілю користувача
-        const isAlreadyDone = await db.ref(`users/${userId}/completed_tasks/${taskId}`).once('value');
-        if (isAlreadyDone.exists()) {
+        // Перевіряємо гілку completed_tasks всередині профілю користувача або task_completions
+        const isAlreadyDoneUser = await db.ref(`users/${userId}/completed_tasks/${taskId}`).once('value');
+        const isAlreadyDoneTask = await db.ref(`task_completions/${taskId}/${userId}`).once('value');
+        
+        if (isAlreadyDoneUser.exists() || isAlreadyDoneTask.exists()) {
             return res.status(409).json({ error: 'Task already completed' });
         }
 
@@ -83,18 +85,15 @@ export default async function handler(req, res) {
                 let channelLink = taskData.link.trim();
                 let chatIdentifier = '';
 
-                // Якщо це приватне посилання-запрошення з плюсом (напр. t.me/+R4UsGjsheRBmZTFi або https://t.me/joinchat/...)
                 if (channelLink.includes('t.me/+') || channelLink.includes('t.me/joinchat/')) {
-                    // Отримуємо реальний числовий ID каналу через метод getChat за допомогою інвайт-посилання
                     const chatInfoRes = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getChat?chat_id=${encodeURIComponent(channelLink)}`);
                     const chatInfoData = await chatInfoRes.json();
 
                     if (!chatInfoData.ok || !chatInfoData.result) {
                         return res.status(400).json({ error: 'Не вдалося отримати доступ до приватного каналу. Переконайтеся, що бот є адміністратором!' });
                     }
-                    chatIdentifier = chatInfoData.result.id; // Це буде числовий ID типу -100xxxxxxxxx
+                    chatIdentifier = chatInfoData.result.id;
                 } else {
-                    // Обробка звичайних публічних каналів
                     if (channelLink.includes('t.me/')) {
                         const parts = channelLink.split('t.me/');
                         chatIdentifier = '@' + parts[parts.length - 1].replace('/', '');
@@ -125,14 +124,20 @@ export default async function handler(req, res) {
         }
 
         // 5. Процес нарахування нагороди
-        const reward = parseFloat(taskData.reward) || (taskData.type === 'telegram_subscription' ? 0.001 : 0.0005);
+        let defaultReward = 0.0005;
+        if (taskData.type === 'telegram_subscription') defaultReward = 0.001;
+        if (taskData.type === 'story_view') defaultReward = 0.0001;
+        if (taskData.type === 'reaction') defaultReward = 0.0005;
+
+        const reward = parseFloat(taskData.reward) || defaultReward;
         const currentBalance = parseFloat(userData.balance) || 0;
         const newBalance = currentBalance + reward;
         const referredBy = userData.referred_by || null;
 
-        // Оновлюємо дані користувача: новий баланс + додаємо ID завдання у виконані
+        // Оновлюємо дані користувача: новий баланс + фіксуємо виконання завдання в обох місцях для надійності
         await userRef.update({ balance: newBalance });
         await db.ref(`users/${userId}/completed_tasks/${taskId}`).set(true);
+        await db.ref(`task_completions/${taskId}/${userId}`).set(true);
 
         // 6. Оновлюємо лічильники та статус самого завдання для замовника
         const newCount = currentCount + 1;
@@ -144,7 +149,6 @@ export default async function handler(req, res) {
             status: newStatus 
         });
 
-        // Також оновлюємо гілку my_campaigns у рекламодавця, якщо вона там є
         if (taskData.creatorId) {
             await db.ref(`task_users/${taskData.creatorId}/my_campaigns/${taskId}`).update({ 
                 current_count: newCount,
@@ -170,7 +174,6 @@ export default async function handler(req, res) {
             }
         }
 
-        // Повертаємо новий баланс на фронтенд
         return res.status(200).json({ success: true, newBalance: newBalance });
 
     } catch (e) {
