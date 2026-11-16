@@ -524,41 +524,35 @@
                 <h3 id="txt-new-missions-title" style="font-size: 14px; margin-bottom: 10px;">🎯 Види завдань</h3>
                 
                 <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <!-- Кнопка 1: Реакції на пости -->
-                    <button class="btn" id="btn-cat-reactions" style="background: rgba(15, 25, 30, 0.9); border: 1.5px solid var(--neon-green); color: var(--neon-green); padding: 10px 12px; font-size: 13px; margin: 0; display: flex; justify-content: space-between; align-items: center;" onclick="selectTaskCategory('reactions')">
+                    <!-- Кнопка 1: Перегляди Telegram Story (NEW) -->
+                    <button class="btn" id="btn-cat-story" style="background: rgba(15, 25, 30, 0.9); border: 1.5px solid var(--neon-aqua); color: var(--neon-aqua); padding: 10px 12px; font-size: 13px; margin: 0; display: flex; justify-content: space-between; align-items: center;" onclick="selectTaskCategory('story')">
+                        <span id="txt-cat-story-label">🔥 Перегляди Telegram Story</span>
+                        <span style="font-size: 11px; background: rgba(0,245,212,0.2); color: var(--neon-aqua); padding: 2px 6px; border-radius: 6px;">0.0001 USDT</span>
+                    </button>
+
+                    <!-- Кнопка 2: Реакції на пости -->
+                    <button class="btn" id="btn-cat-reactions" style="background: rgba(15, 25, 30, 0.9); border: 1.5px solid rgba(212,175,55,0.4); color: var(--neon-green); padding: 10px 12px; font-size: 13px; margin: 0; display: flex; justify-content: space-between; align-items: center;" onclick="selectTaskCategory('reactions')">
                         <span id="txt-cat-react-label">👍 Реакції на пости</span>
                         <span style="font-size: 11px; background: rgba(13,242,93,0.2); color: var(--neon-green); padding: 2px 6px; border-radius: 6px;">0.0005 USDT</span>
                     </button>
 
-                    <!-- Кнопка 2: Реферали в боти/ігри -->
-                    <button class="btn" id="btn-cat-referrals" style="background: rgba(15, 25, 30, 0.9); border: 1.5px solid var(--neon-aqua); color: var(--neon-aqua); padding: 10px 12px; font-size: 13px; margin: 0; display: flex; justify-content: space-between; align-items: center;" onclick="selectTaskCategory('referrals')">
+                    <!-- Кнопка 3: Реферали в боти/ігри -->
+                    <button class="btn" id="btn-cat-referrals" style="background: rgba(15, 25, 30, 0.9); border: 1.5px solid rgba(212,175,55,0.4); color: var(--neon-aqua); padding: 10px 12px; font-size: 13px; margin: 0; display: flex; justify-content: space-between; align-items: center;" onclick="selectTaskCategory('referrals')">
                         <span id="txt-cat-ref-label">👥 Реферали в боти/ігри</span>
                         <span style="font-size: 11px; background: rgba(0,245,212,0.2); color: var(--neon-aqua); padding: 2px 6px; border-radius: 6px;">0.002 USDT</span>
                     </button>
 
-                    <!-- Кнопка 3: Підписки на Telegram-канали -->
-                    <button class="btn" id="btn-cat-subscriptions" style="background: rgba(15, 25, 30, 0.9); border: 1.5px solid var(--gold-color); color: var(--gold-color); padding: 10px 12px; font-size: 13px; margin: 0; display: flex; justify-content: space-between; align-items: center;" onclick="selectTaskCategory('subscriptions')">
+                    <!-- Кнопка 4: Підписки на Telegram-канали -->
+                    <button class="btn" id="btn-cat-subscriptions" style="background: rgba(15, 25, 30, 0.9); border: 1.5px solid rgba(212,175,55,0.4); color: var(--gold-color); padding: 10px 12px; font-size: 13px; margin: 0; display: flex; justify-content: space-between; align-items: center;" onclick="selectTaskCategory('subscriptions')">
                         <span id="txt-cat-sub-label">📢 Підписки на канали</span>
                         <span style="font-size: 11px; background: rgba(212,175,55,0.2); color: var(--gold-color); padding: 2px 6px; border-radius: 6px;">0.001 USDT</span>
-                    </button>
-
-                    <!-- Заглушка 2 -->
-                    <button class="btn" disabled style="background: #1a1a1f; border: 1px dashed rgba(212,175,55,0.4); color: #71717a; padding: 10px 12px; font-size: 13px; margin: 0; display: flex; justify-content: space-between; align-items: center;">
-                        <span id="txt-soon-2">🔒 Скоро нове завдання</span>
-                        <span style="font-size: 11px; color: var(--gold-color);" id="txt-in-dev-2">⏳ В розробці</span>
-                    </button>
-
-                    <!-- Заглушка 3 -->
-                    <button class="btn" disabled style="background: #1a1a1f; border: 1px dashed rgba(212,175,55,0.4); color: #71717a; padding: 10px 12px; font-size: 13px; margin: 0; display: flex; justify-content: space-between; align-items: center;">
-                        <span id="txt-soon-3">🔒 Скоро нове завдання</span>
-                        <span style="font-size: 11px; color: var(--gold-color);" id="txt-in-dev-3">⏳ В розробці</span>
                     </button>
                 </div>
             </div>
 
             <!-- Список завдань -->
             <div class="card" style="padding: 15px;">
-                <h3 id="tasks-header-title" style="font-size: 14px; margin-bottom: 8px;">📋 Доступні завдання (Реакції)</h3>
+                <h3 id="tasks-header-title" style="font-size: 14px; margin-bottom: 8px;">📋 Доступні завдання (Сторіс)</h3>
                 <div id="tasks-container" style="margin-top: 10px; display: flex; flex-direction: column; gap: 8px;">
                     <p style="color: #a1a1aa; font-size: 13px;" id="tasks-loading-status">Завантаження завдань...</p>
                 </div>
@@ -799,7 +793,7 @@
         let activeLinkTimers = {};
         let currentLang = 'en';
         let gamePoints = 0; 
-        let currentTaskCategory = 'reactions'; 
+        let currentTaskCategory = 'story'; 
         let activeReferralTaskId = null;
 
         let gameAttemptsLeft = 10;
@@ -891,6 +885,7 @@
                 adv_title: "💼 Кабінет рекламодавця",
                 adv_desc: "Замовляйте реакції та реферали від реальних користувачів.",
                 adv_btn: "💼 Замовити",
+                task_story_btn: "🔥 Переглянути Story",
                 task_reaction_btn: "👍 Поставити реакцію",
                 task_referral_btn: "👥 Перейти в бот",
                 task_subscribe_btn: "📢 Підписатися",
@@ -899,11 +894,13 @@
                 task_claim_btn: "🎁 Забрати",
                 task_no_active: "Немає активних завдань",
                 task_conn_error: "Помилка з'єднання з сервером",
+                cat_story: "🔥 Перегляди Telegram Story",
                 cat_react: "👍 Реакції на пости",
                 cat_ref: "👥 Реферали в боти/ігри",
                 cat_sub: "📢 Підписки на канали",
                 soon_task: "🔒 Скоро нове завдання",
                 in_dev: "⏳ В розробці",
+                tasks_header_story: "📋 Доступні завдання (Сторіс)",
                 tasks_header_reactions: "📋 Доступні завдання (Реакції)",
                 tasks_header_referrals: "📋 Доступні завдання (Реферали)",
                 tasks_header_subscriptions: "📋 Доступні завдання (Підписки)",
@@ -981,6 +978,7 @@
                 adv_title: "💼 Advertiser Cabinet",
                 adv_desc: "Order reactions and referrals from real users.",
                 adv_btn: "💼 Order",
+                task_story_btn: "🔥 View Story",
                 task_reaction_btn: "👍 Give Reaction",
                 task_referral_btn: "👥 Open Bot",
                 task_subscribe_btn: "📢 Subscribe",
@@ -989,11 +987,13 @@
                 task_claim_btn: "🎁 Claim",
                 task_no_active: "No active tasks",
                 task_conn_error: "Server connection error",
+                cat_story: "🔥 Telegram Story Views",
                 cat_react: "👍 Post Reactions",
                 cat_ref: "👥 Referrals to bots/games",
                 cat_sub: "📢 Channel Subscriptions",
                 soon_task: "🔒 New task soon",
                 in_dev: "⏳ In development",
+                tasks_header_story: "📋 Available Tasks (Stories)",
                 tasks_header_reactions: "📋 Available Tasks (Reactions)",
                 tasks_header_referrals: "📋 Available Tasks (Referrals)",
                 tasks_header_subscriptions: "📋 Available Tasks (Subscriptions)",
@@ -1071,6 +1071,7 @@
                 adv_title: "💼 Кабинет рекламодавця",
                 adv_desc: "Заказывайте реакции и рефералы от реальных пользователей.",
                 adv_btn: "💼 Заказать",
+                task_story_btn: "🔥 Посмотреть Story",
                 task_reaction_btn: "👍 Поставить реакцию",
                 task_referral_btn: "👥 Открыть бот",
                 task_subscribe_btn: "📢 Подписаться",
@@ -1079,11 +1080,13 @@
                 task_claim_btn: "🎁 Забрать",
                 task_no_active: "Нет активных заданий",
                 task_conn_error: "Ошибка соединения с сервером",
+                cat_story: "🔥 Раскрутка Telegram Story",
                 cat_react: "👍 Реакции на посты",
                 cat_ref: "👥 Рефералы в боты/игры",
                 cat_sub: "📢 Подписки на каналы",
                 soon_task: "🔒 Скоро новое задание",
                 in_dev: "⏳ В разработке",
+                tasks_header_story: "📋 Доступные задания (Сторис)",
                 tasks_header_reactions: "📋 Доступные задания (Реакции)",
                 tasks_header_referrals: "📋 Доступные задания (Рефералы)",
                 tasks_header_subscriptions: "📋 Доступные задания (Подписки)",
@@ -1167,13 +1170,10 @@
             document.getElementById('txt-lang-modal-title').innerText = t.lang_modal_title;
             document.getElementById('btn-lang-close').innerText = t.lang_close;
 
+            document.getElementById('txt-cat-story-label').innerText = t.cat_story;
             document.getElementById('txt-cat-react-label').innerText = t.cat_react;
             document.getElementById('txt-cat-ref-label').innerText = t.cat_ref;
             document.getElementById('txt-cat-sub-label').innerText = t.cat_sub;
-            document.getElementById('txt-soon-2').innerText = t.soon_task;
-            document.getElementById('txt-soon-3').innerText = t.soon_task;
-            document.getElementById('txt-in-dev-2').innerText = t.in_dev;
-            document.getElementById('txt-in-dev-3').innerText = t.in_dev;
 
             if(document.getElementById('txt-game-title')) {
                 document.getElementById('txt-game-title').innerText = t.game_title;
@@ -1370,15 +1370,19 @@
 
         function selectTaskCategory(category) {
             currentTaskCategory = category;
+            const btnStory = document.getElementById('btn-cat-story');
             const btnReactions = document.getElementById('btn-cat-reactions');
             const btnReferrals = document.getElementById('btn-cat-referrals');
             const btnSubscriptions = document.getElementById('btn-cat-subscriptions');
 
+            btnStory.style.border = '1.5px solid rgba(212,175,55,0.4)';
             btnReactions.style.border = '1.5px solid rgba(212,175,55,0.4)';
             btnReferrals.style.border = '1.5px solid rgba(212,175,55,0.4)';
             btnSubscriptions.style.border = '1.5px solid rgba(212,175,55,0.4)';
 
-            if (category === 'reactions') {
+            if (category === 'story') {
+                btnStory.style.border = '1.5px solid var(--neon-aqua)';
+            } else if (category === 'reactions') {
                 btnReactions.style.border = '1.5px solid var(--neon-green)';
             } else if (category === 'referrals') {
                 btnReferrals.style.border = '1.5px solid var(--neon-aqua)';
@@ -1719,13 +1723,15 @@
                 if (data.success && data.tasks && data.tasks.length > 0) {
                     const filteredTasks = data.tasks.filter(task => {
                         const tType = task.type || 'reaction';
+                        if (currentTaskCategory === 'story') return tType === 'story_view';
                         if (currentTaskCategory === 'referrals') return tType === 'referral';
                         if (currentTaskCategory === 'subscriptions') return tType === 'telegram_subscription' || tType === 'sub' || tType === 'channel';
                         return tType === 'reaction' || tType === 'post_reaction';
                     });
 
                     if (headerTitle) {
-                        if (currentTaskCategory === 'referrals') headerTitle.innerText = t.tasks_header_referrals;
+                        if (currentTaskCategory === 'story') headerTitle.innerText = t.tasks_header_story;
+                        else if (currentTaskCategory === 'referrals') headerTitle.innerText = t.tasks_header_referrals;
                         else if (currentTaskCategory === 'subscriptions') headerTitle.innerText = t.tasks_header_subscriptions;
                         else headerTitle.innerText = t.tasks_header_reactions;
                     }
@@ -1738,7 +1744,81 @@
                     filteredTasks.forEach(task => {
                         const tType = task.type || 'reaction';
 
-                        if (tType === 'telegram_subscription' || tType === 'sub' || tType === 'channel') {
+                        if (tType === 'story_view') {
+                            const taskBtn = document.createElement('button');
+                            taskBtn.className = 'btn';
+                            taskBtn.style.marginTop = '0';
+                            taskBtn.style.padding = '12px 14px';
+                            taskBtn.style.fontSize = '13px';
+                            let isTimerStarted = false;
+                            let isTimerFinished = false;
+                            let countdown = 15; // 15 секунд таймер очікування
+                            let timerInterval = null;
+
+                            taskBtn.style.background = 'var(--gold-gradient)';
+                            taskBtn.innerText = `${t.task_story_btn} (+${task.reward} USDT)`;
+                            
+                            taskBtn.onclick = async () => {
+                                const initDataStr = window.Telegram?.WebApp?.initData || "";
+                                if (!isTimerStarted && !isTimerFinished) {
+                                    isTimerStarted = true;
+                                    tg.openTelegramLink(task.link);
+
+                                    taskBtn.disabled = true;
+                                    taskBtn.style.background = '#27272a';
+                                    taskBtn.style.color = '#71717a';
+                                    taskBtn.innerText = `${t.task_waiting_btn} ${countdown}s`;
+
+                                    timerInterval = setInterval(() => {
+                                        countdown--;
+                                        if (countdown > 0) {
+                                            taskBtn.innerText = `${t.task_waiting_btn} ${countdown}s`;
+                                        } else {
+                                            clearInterval(timerInterval);
+                                            isTimerFinished = true;
+                                            taskBtn.disabled = false;
+                                            taskBtn.style.background = 'linear-gradient(135deg, #0df25d 0%, #00bbf9 100%)';
+                                            taskBtn.style.color = '#000000';
+                                            taskBtn.innerText = t.task_claim_btn;
+                                        }
+                                    }, 1000);
+                                    return;
+                                }
+
+                                if (isTimerFinished) {
+                                    taskBtn.disabled = true;
+                                    taskBtn.innerText = t.checking || "Зарахування...";
+
+                                    try {
+                                        const claimRes = await fetch('/api/claim-task', {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({ userId: userId, taskId: task.id, initData: initDataStr })
+                                        });
+                                        const claimData = await claimRes.json();
+                                        if (claimRes.ok && claimData.success) {
+                                            balance = claimData.newBalance;
+                                            document.getElementById('user-balance').innerText = balance.toFixed(4);
+                                            alert(`🎉 Успішно! Нараховано +${task.reward} USDT`);
+                                            taskBtn.remove();
+                                            if (container.children.length === 0) {
+                                                container.innerHTML = `<p style="color: #a1a1aa; font-size: 13px;">${t.task_no_active}</p>`;
+                                            }
+                                        } else {
+                                            alert(`Error: ${claimData.error || 'Verification failed'}`);
+                                            taskBtn.disabled = false;
+                                            taskBtn.innerText = t.task_claim_btn;
+                                        }
+                                    } catch (err) {
+                                        alert('Server error while claiming reward.');
+                                        taskBtn.disabled = false;
+                                        taskBtn.innerText = t.task_claim_btn;
+                                    }
+                                }
+                            };
+                            container.appendChild(taskBtn);
+
+                        } else if (tType === 'telegram_subscription' || tType === 'sub' || tType === 'channel') {
                             const wrapper = document.createElement('div');
                             wrapper.style.display = 'flex';
                             wrapper.style.gap = '8px';
